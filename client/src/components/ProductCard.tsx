@@ -30,12 +30,12 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {product.availability === 'in_stock' && (
             <Badge variant="default" className="bg-green-500 hover:bg-green-600 border-none shadow-sm">
-              In Stock
+              В наличии
             </Badge>
           )}
           {product.availability === 'preorder' && (
             <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200">
-              Pre-order
+              Под заказ
             </Badge>
           )}
         </div>
@@ -44,7 +44,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="p-5 flex flex-col flex-grow">
         <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
           <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">
-            SKU: {product.sku}
+            Арт: {product.sku}
           </span>
           {product.brand && (
             <span className="text-primary font-medium">{product.brand.name}</span>
@@ -58,7 +58,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
         
         <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-grow">
-          {product.descriptionShort || "Industrial grade component available for wholesale order."}
+          {product.descriptionShort || "Промышленный компонент доступен для оптового заказа."}
         </p>
         
         <div className="flex items-center gap-2 mt-auto pt-4 border-t border-border/50">
@@ -67,7 +67,7 @@ export function ProductCard({ product }: ProductCardProps) {
             productName={product.name}
             trigger={
               <Button className="flex-1 rounded-xl" variant="outline">
-                Request Price
+                Запросить цену
               </Button>
             }
           />

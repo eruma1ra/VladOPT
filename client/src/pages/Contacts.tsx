@@ -4,11 +4,11 @@ export default function Contacts() {
   return (
     <div className="bg-slate-50 min-h-screen py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-display font-bold text-slate-900 mb-12 text-center">Contact Information</h1>
+        <h1 className="text-4xl font-display font-bold text-slate-900 mb-12 text-center">Контактная информация</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
-            <h2 className="text-2xl font-bold text-slate-900 mb-8">Head Office</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8">Центральный офис</h2>
             
             <div className="space-y-8">
               <div className="flex gap-4">
@@ -16,8 +16,8 @@ export default function Contacts() {
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-1">Address</h4>
-                  <p className="text-slate-600">Industrial Zone 4, Building 12<br/>Moscow, Russia</p>
+                  <h4 className="font-semibold text-slate-900 mb-1">Адрес</h4>
+                  <p className="text-slate-600">Промзона 4, строение 12<br/>Москва, Россия</p>
                 </div>
               </div>
 
@@ -26,9 +26,9 @@ export default function Contacts() {
                   <Phone className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-1">Sales Department</h4>
+                  <h4 className="font-semibold text-slate-900 mb-1">Отдел продаж</h4>
                   <a href="tel:+78005553535" className="text-lg font-medium text-slate-800 hover:text-primary transition-colors">8 (800) 555-35-35</a>
-                  <p className="text-sm text-slate-500 mt-1">Toll-free across the region</p>
+                  <p className="text-sm text-slate-500 mt-1">Бесплатно по всей России</p>
                 </div>
               </div>
 
@@ -47,9 +47,9 @@ export default function Contacts() {
                   <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-1">Working Hours</h4>
-                  <p className="text-slate-600">Monday - Friday: 09:00 - 18:00</p>
-                  <p className="text-slate-600">Weekend: Closed (Orders processed on Monday)</p>
+                  <h4 className="font-semibold text-slate-900 mb-1">Режим работы</h4>
+                  <p className="text-slate-600">Понедельник - Пятница: 09:00 - 18:00</p>
+                  <p className="text-slate-600">Выходные: Закрыто (заявки принимаются автоматически)</p>
                 </div>
               </div>
             </div>
@@ -59,9 +59,9 @@ export default function Contacts() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             
             <MessageCircle className="w-16 h-16 text-primary mb-6" />
-            <h2 className="text-3xl font-display font-bold mb-4">Fastest Response via Telegram</h2>
+            <h2 className="text-3xl font-display font-bold mb-4">Быстрая связь в Telegram</h2>
             <p className="text-slate-300 mb-8 max-w-md">
-              Skip the email queues. Our sales managers monitor our official Telegram channel constantly during business hours.
+              Наши менеджеры постоянно на связи в официальном Telegram-канале в рабочее время.
             </p>
             <a 
               href="https://t.me/example_vladopt" 
@@ -69,7 +69,7 @@ export default function Contacts() {
               rel="noreferrer"
               className="bg-[#0088cc] hover:bg-[#0077b5] text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-[#0088cc]/30 flex items-center gap-3 z-10"
             >
-              Open Telegram Chat
+              Открыть чат Telegram
             </a>
           </div>
         </div>

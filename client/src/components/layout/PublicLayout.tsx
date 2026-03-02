@@ -8,10 +8,10 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/catalog", label: "Catalog" },
-    { href: "/about", label: "About Us" },
-    { href: "/contacts", label: "Contacts" },
+    { href: "/", label: "Главная" },
+    { href: "/catalog", label: "Каталог" },
+    { href: "/about", label: "О компании" },
+    { href: "/contacts", label: "Контакты" },
   ];
 
   return (
@@ -20,11 +20,11 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
       <div className="bg-slate-900 text-slate-300 py-2 px-4 text-xs font-medium hidden md:block">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2"><MapPin className="w-3 h-3" /> Moscow, Industrial Zone 4</span>
+            <span className="flex items-center gap-2"><MapPin className="w-3 h-3" /> Москва, Промзона 4</span>
             <span className="flex items-center gap-2"><Mail className="w-3 h-3" /> wholesale@vladopt.ru</span>
           </div>
           <div className="flex items-center gap-2">
-            <span>B2B Wholesale Only</span>
+            <span>Только B2B Опт</span>
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
             </div>
             <div>
               <h1 className="font-display font-bold text-2xl tracking-tight text-slate-900 leading-none">ВладОПТ</h1>
-              <span className="text-[10px] uppercase tracking-widest text-primary font-bold">Industrial Supply</span>
+              <span className="text-[10px] uppercase tracking-widest text-primary font-bold">Промышленные поставки</span>
             </div>
           </Link>
 
@@ -65,11 +65,11 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               <a href="tel:+78005553535" className="block font-display font-bold text-lg text-slate-900 hover:text-primary transition-colors">
                 8 (800) 555-35-35
               </a>
-              <span className="text-xs text-slate-500">Mon-Fri 9:00 - 18:00</span>
+              <span className="text-xs text-slate-500">Пн-Пт 9:00 - 18:00</span>
             </div>
             <Link href="/catalog" className="inline-flex">
               <Button className="rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all">
-                Browse Catalog
+                Каталог
               </Button>
             </Link>
           </div>
@@ -104,7 +104,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 8 (800) 555-35-35
               </a>
               <Link href="/catalog" className="inline-flex" onClick={() => setMobileMenuOpen(false)}>
-                <Button className="w-full rounded-xl" size="lg">Browse Catalog</Button>
+                <Button className="w-full rounded-xl" size="lg">Перейти в каталог</Button>
               </Link>
             </div>
           </div>
@@ -125,25 +125,25 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 <span className="font-display font-bold text-xl text-white">ВладОПТ</span>
               </div>
               <p className="text-sm text-slate-500 max-w-sm mb-6">
-                Leading wholesale supplier of industrial valves, pipeline fittings, and professional tools for B2B clients across the region.
+                Ведущий оптовый поставщик промышленных вентилей, трубопроводной арматуры и профессионального инструмента для B2B клиентов.
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold text-white mb-4">Quick Links</h4>
+              <h4 className="font-semibold text-white mb-4">Навигация</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/catalog" className="hover:text-primary transition-colors">Catalog</Link></li>
-                <li><Link href="/about" className="hover:text-primary transition-colors">About Company</Link></li>
-                <li><Link href="/contacts" className="hover:text-primary transition-colors">Contacts & Map</Link></li>
+                <li><Link href="/catalog" className="hover:text-primary transition-colors">Каталог</Link></li>
+                <li><Link href="/about" className="hover:text-primary transition-colors">О компании</Link></li>
+                <li><Link href="/contacts" className="hover:text-primary transition-colors">Контакты</Link></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Contact Info</h4>
+              <h4 className="font-semibold text-white mb-4">Контакты</h4>
               <ul className="space-y-3 text-sm text-slate-400">
                 <li className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 mt-0.5 text-slate-600" />
-                  <span>Moscow, Industrial Zone 4, Building 12</span>
+                  <span>Москва, Промзона 4, стр. 12</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-slate-600" />
@@ -158,9 +158,9 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
           </div>
           
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
-            <p>&copy; {new Date().getFullYear()} ВладОПТ. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} ВладОПТ. Все права защищены.</p>
             <a href="/api/login" className="hover:text-slate-400 transition-colors">
-              Admin Login
+              Вход для персонала
             </a>
           </div>
         </div>

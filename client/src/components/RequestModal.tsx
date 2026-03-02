@@ -49,7 +49,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
       name: "",
       phone: "",
       company: "",
-      comment: productName ? `Interested in: ${productName}` : "",
+      comment: productName ? `Интересует: ${productName}` : "",
       status: "new",
     },
   });
@@ -58,16 +58,16 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
     createRequest.mutate(data, {
       onSuccess: () => {
         toast({
-          title: "Request Sent Successfully",
-          description: "Our manager will contact you shortly to discuss wholesale terms.",
+          title: "Заявка успешно отправлена",
+          description: "Наш менеджер свяжется с вами в ближайшее время для обсуждения условий.",
         });
         form.reset();
         handleOpenChange?.(false);
       },
       onError: () => {
         toast({
-          title: "Error submitting request",
-          description: "Please try again later or contact us via Telegram.",
+          title: "Ошибка при отправке",
+          description: "Пожалуйста, попробуйте позже или свяжитесь с нами через Telegram.",
           variant: "destructive",
         });
       },
@@ -79,15 +79,15 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
       {!isControlled && trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-display">Wholesale Request</DialogTitle>
+          <DialogTitle className="text-2xl font-display">Оптовый запрос</DialogTitle>
           <DialogDescription>
-            Leave your contact details to get our complete price list and partnership terms.
+            Оставьте свои контактные данные, чтобы получить полный прайс-лист и условия сотрудничества.
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex flex-col gap-6 py-4">
           <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex flex-col items-center text-center gap-3">
-            <p className="text-sm text-blue-800">Need an immediate answer?</p>
+            <p className="text-sm text-blue-800">Нужен быстрый ответ?</p>
             <a 
               href="https://t.me/example_vladopt" 
               target="_blank" 
@@ -95,7 +95,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
               className="inline-flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:shadow-lg hover:-translate-y-0.5"
             >
               <MessageCircle className="w-5 h-5" />
-              Write to us on Telegram
+              Написать нам в Telegram
             </a>
           </div>
 
@@ -104,7 +104,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
               <span className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or fill the form</span>
+              <span className="bg-background px-2 text-muted-foreground">Или заполните форму</span>
             </div>
           </div>
 
@@ -115,9 +115,9 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Name</FormLabel>
+                    <FormLabel>Ваше имя</FormLabel>
                     <FormControl>
-                      <Input placeholder="John Doe" {...field} />
+                      <Input placeholder="Иван Иванов" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -128,9 +128,9 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>Номер телефона</FormLabel>
                     <FormControl>
-                      <Input placeholder="+1 (555) 000-0000" {...field} />
+                      <Input placeholder="+7 (999) 000-00-00" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -141,9 +141,9 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
                 name="company"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Company (Optional)</FormLabel>
+                    <FormLabel>Компания (необязательно)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Company Name LLC" {...field} value={field.value || ''} />
+                      <Input placeholder="ООО Название" {...field} value={field.value || ''} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,10 +154,10 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
                 name="comment"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Comment / Required Volume</FormLabel>
+                    <FormLabel>Комментарий / Необходимый объем</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="I'm looking for..." 
+                        placeholder="Меня интересует..." 
                         className="resize-none" 
                         {...field} 
                         value={field.value || ''}
@@ -172,7 +172,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
                 className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-6 rounded-xl shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:-translate-y-0.5"
                 disabled={createRequest.isPending}
               >
-                {createRequest.isPending ? "Sending..." : "Submit Request"}
+                {createRequest.isPending ? "Отправка..." : "Отправить запрос"}
                 <Send className="w-4 h-4 ml-2" />
               </Button>
             </form>

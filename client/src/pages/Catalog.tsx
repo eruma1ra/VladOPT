@@ -29,14 +29,14 @@ export default function Catalog() {
         {/* Header & Search */}
         <div className="mb-8 flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
           <div>
-            <h1 className="text-3xl font-display font-bold text-slate-900">Product Catalog</h1>
-            <p className="text-slate-500 text-sm mt-1">Wholesale pricing available upon request.</p>
+            <h1 className="text-3xl font-display font-bold text-slate-900">Каталог продукции</h1>
+            <p className="text-slate-500 text-sm mt-1">Оптовые цены предоставляются по запросу.</p>
           </div>
           <div className="w-full md:w-96 flex gap-2">
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
               <Input 
-                placeholder="Search by SKU or name..." 
+                placeholder="Поиск по артикулу или названию..." 
                 className="pl-10 rounded-xl bg-slate-50 border-transparent focus-visible:ring-primary/20 focus-visible:border-primary"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -56,13 +56,13 @@ export default function Catalog() {
           {/* Filters Sidebar */}
           <aside className={`lg:w-64 flex-shrink-0 space-y-8 ${mobileFiltersOpen ? 'block' : 'hidden lg:block'}`}>
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 className="font-display font-bold text-lg mb-4 text-slate-900 border-b border-slate-100 pb-2">Categories</h3>
+              <h3 className="font-display font-bold text-lg mb-4 text-slate-900 border-b border-slate-100 pb-2">Категории</h3>
               <div className="space-y-1.5">
                 <button
                   onClick={() => setActiveCategoryId(undefined)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${!activeCategoryId ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
                 >
-                  All Categories
+                  Все категории
                 </button>
                 {categories?.map(cat => (
                   <button
@@ -77,13 +77,13 @@ export default function Catalog() {
             </div>
 
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 className="font-display font-bold text-lg mb-4 text-slate-900 border-b border-slate-100 pb-2">Brands</h3>
+              <h3 className="font-display font-bold text-lg mb-4 text-slate-900 border-b border-slate-100 pb-2">Бренды</h3>
               <div className="space-y-1.5">
                 <button
                   onClick={() => setActiveBrandId(undefined)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${!activeBrandId ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
                 >
-                  All Brands
+                  Все бренды
                 </button>
                 {brands?.map(brand => (
                   <button
@@ -107,8 +107,8 @@ export default function Catalog() {
             ) : products?.length === 0 ? (
               <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-12 flex flex-col items-center justify-center text-center h-full min-h-[400px]">
                 <PackageX className="w-16 h-16 text-slate-300 mb-4" />
-                <h3 className="text-xl font-bold text-slate-900 mb-2">No products found</h3>
-                <p className="text-slate-500">Try adjusting your filters or search term.</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-2">Товары не найдены</h3>
+                <p className="text-slate-500">Попробуйте изменить параметры фильтрации или поисковый запрос.</p>
                 <Button 
                   variant="outline" 
                   className="mt-6 rounded-xl"
@@ -118,7 +118,7 @@ export default function Catalog() {
                     setActiveBrandId(undefined);
                   }}
                 >
-                  Clear all filters
+                  Сбросить все фильтры
                 </Button>
               </div>
             ) : (

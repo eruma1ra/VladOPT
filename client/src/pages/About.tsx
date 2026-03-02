@@ -3,49 +3,49 @@ export default function About() {
     <div className="bg-slate-50 min-h-screen py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-3xl p-8 md:p-16 shadow-sm border border-slate-100">
-          <h1 className="text-4xl font-display font-bold text-slate-900 mb-8">About ВладОПТ</h1>
+          <h1 className="text-4xl font-display font-bold text-slate-900 mb-8">О компании ВладОПТ</h1>
           
           <div className="prose prose-slate prose-lg max-w-none text-slate-600 leading-relaxed">
             <p className="text-xl text-slate-800 font-medium mb-8">
-              ВладОПТ is a premier B2B supplier of industrial pipeline fittings, valves, and professional technical tools. For over a decade, we have been a reliable link between major manufacturers and industrial consumers.
+              ВладОПТ — ведущий B2B поставщик промышленной трубопроводной арматуры, вентилей и профессионального технического инструмента. Более десяти лет мы являемся надежным звеном между крупнейшими производителями и промышленными потребителями.
             </p>
 
-            <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-6">Our Mission</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-6">Наша миссия</h2>
             <p>
-              We believe that industrial procurement should be predictable, transparent, and absolutely reliable. Downtime costs money, which is why our primary focus is on ensuring that the right components arrive at your facility exactly when they are needed.
+              Мы верим, что промышленные закупки должны быть предсказуемыми, прозрачными и абсолютно надежными. Простои стоят денег, поэтому наша основная задача — гарантировать, что нужные компоненты прибудут на ваш объект именно тогда, когда они необходимы.
             </p>
 
-            <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-6">Why Partner With Us?</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-6">Почему выбирают нас?</h2>
             <ul className="space-y-4 my-8 list-none pl-0">
               <li className="flex items-start">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm mt-1 mr-4">1</span>
                 <div>
-                  <strong className="text-slate-900 block mb-1">Direct Manufacturer Relationships</strong>
-                  We skip the middleman. By working directly with factories, we secure the best possible wholesale pricing for our partners.
+                  <strong className="text-slate-900 block mb-1">Прямые отношения с производителями</strong>
+                  Мы работаем без посредников. Напрямую сотрудничая с заводами, мы обеспечиваем лучшие оптовые цены для наших партнеров.
                 </div>
               </li>
               <li className="flex items-start">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm mt-1 mr-4">2</span>
                 <div>
-                  <strong className="text-slate-900 block mb-1">Rigorous Quality Control</strong>
-                  Every batch of valves and fittings undergoes strict documentary and physical checks before dispatch.
+                  <strong className="text-slate-900 block mb-1">Строгий контроль качества</strong>
+                  Каждая партия вентилей и фитингов проходит тщательную документальную и физическую проверку перед отгрузкой.
                 </div>
               </li>
               <li className="flex items-start">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm mt-1 mr-4">3</span>
                 <div>
-                  <strong className="text-slate-900 block mb-1">Tailored Logistics</strong>
-                  From small specialized orders to multi-truck deliveries, our logistics team plans the optimal route to your site.
+                  <strong className="text-slate-900 block mb-1">Индивидуальная логистика</strong>
+                  От небольших специализированных заказов до многотонных поставок — наша логистическая команда планирует оптимальный маршрут до вашего объекта.
                 </div>
               </li>
             </ul>
 
-            <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-6">Wholesale Terms</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mt-12 mb-6">Оптовые условия</h2>
             <p>
-              We operate exclusively on a B2B basis. Our minimum order value ensures that we can dedicate the necessary resources to manage your supply chain effectively. Pricing is dynamic and scales with volume - the more you order, the better your specific tier becomes.
+              Мы работаем исключительно в сегменте B2B. Цены являются динамическими и зависят от объема — чем больше вы заказываете, тем выгоднее становится ваш индивидуальный тариф.
             </p>
             <p>
-              To get started, simply request a quote through our catalog or reach out to our management team via Telegram or email.
+              Чтобы начать сотрудничество, просто запросите цену через наш каталог или свяжитесь с нашим отделом продаж через Telegram или по электронной почте.
             </p>
           </div>
         </div>
