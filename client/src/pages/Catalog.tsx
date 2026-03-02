@@ -1,0 +1,136 @@
+import { useState } from "react";
+import { useProducts } from "@/hooks/use-products";
+import { useCategories } from "@/hooks/use-categories";
+import { useBrands } from "@/hooks/use-brands";
+import { ProductCard } from "@/components/ProductCard";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Filter, Loader2, PackageX } from "lucide-react";
+
+export default function Catalog() {
+  const [search, setSearch] = useState("");
+  const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>();
+  const [activeBrandId, setActiveBrandId] = useState<number | undefined>();
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const { data: products, isLoading: productsLoading } = useProducts({
+    categoryId: activeCategoryId,
+    brandId: activeBrandId,
+    search: search.length > 2 ? search : undefined, // only search if > 2 chars
+  });
+  
+  const { data: categories } = useCategories();
+  const { data: brands } = useBrands();
+
+  return (
+    <div className="bg-slate-50 min-h-screen py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Header & Search */}
+        <div className="mb-8 flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
+          <div>
+            <h1 className="text-3xl font-display font-bold text-slate-900">Product Catalog</h1>
+            <p className="text-slate-500 text-sm mt-1">Wholesale pricing available upon request.</p>
+          </div>
+          <div className="w-full md:w-96 flex gap-2">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+              <Input 
+                placeholder="Search by SKU or name..." 
+                className="pl-10 rounded-xl bg-slate-50 border-transparent focus-visible:ring-primary/20 focus-visible:border-primary"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Button 
+              variant="outline" 
+              className="md:hidden rounded-xl"
+              onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+            >
+              <Filter className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Filters Sidebar */}
+          <aside className={`lg:w-64 flex-shrink-0 space-y-8 ${mobileFiltersOpen ? 'block' : 'hidden lg:block'}`}>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <h3 className="font-display font-bold text-lg mb-4 text-slate-900 border-b border-slate-100 pb-2">Categories</h3>
+              <div className="space-y-1.5">
+                <button
+                  onClick={() => setActiveCategoryId(undefined)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${!activeCategoryId ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
+                >
+                  All Categories
+                </button>
+                {categories?.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveCategoryId(cat.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeCategoryId === cat.id ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <h3 className="font-display font-bold text-lg mb-4 text-slate-900 border-b border-slate-100 pb-2">Brands</h3>
+              <div className="space-y-1.5">
+                <button
+                  onClick={() => setActiveBrandId(undefined)}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${!activeBrandId ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
+                >
+                  All Brands
+                </button>
+                {brands?.map(brand => (
+                  <button
+                    key={brand.id}
+                    onClick={() => setActiveBrandId(brand.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeBrandId === brand.id ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
+                  >
+                    {brand.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          {/* Product Grid */}
+          <main className="flex-grow">
+            {productsLoading ? (
+              <div className="h-64 flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : products?.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-slate-100 border-dashed p-12 flex flex-col items-center justify-center text-center h-full min-h-[400px]">
+                <PackageX className="w-16 h-16 text-slate-300 mb-4" />
+                <h3 className="text-xl font-bold text-slate-900 mb-2">No products found</h3>
+                <p className="text-slate-500">Try adjusting your filters or search term.</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-6 rounded-xl"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveCategoryId(undefined);
+                    setActiveBrandId(undefined);
+                  }}
+                >
+                  Clear all filters
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {products?.map(product => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+}
