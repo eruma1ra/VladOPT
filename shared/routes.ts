@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertCategorySchema, categories, insertBrandSchema, brands, insertProductSchema, products, insertRequestSchema, requests } from './schema';
+import { insertCategorySchema, categories, insertProductSchema, products, insertRequestSchema, requests } from './schema';
 
 export const errorSchemas = {
   validation: z.object({ message: z.string(), field: z.string().optional() }),
@@ -33,37 +33,12 @@ export const api = {
       responses: { 204: z.void(), 404: errorSchemas.notFound, 401: errorSchemas.unauthorized },
     },
   },
-  brands: {
-    list: {
-      method: 'GET' as const,
-      path: '/api/brands' as const,
-      responses: { 200: z.array(z.custom<typeof brands.$inferSelect>()) },
-    },
-    create: {
-      method: 'POST' as const,
-      path: '/api/brands' as const,
-      input: insertBrandSchema,
-      responses: { 201: z.custom<typeof brands.$inferSelect>(), 400: errorSchemas.validation, 401: errorSchemas.unauthorized },
-    },
-    update: {
-      method: 'PUT' as const,
-      path: '/api/brands/:id' as const,
-      input: insertBrandSchema.partial(),
-      responses: { 200: z.custom<typeof brands.$inferSelect>(), 400: errorSchemas.validation, 404: errorSchemas.notFound, 401: errorSchemas.unauthorized },
-    },
-    delete: {
-      method: 'DELETE' as const,
-      path: '/api/brands/:id' as const,
-      responses: { 204: z.void(), 404: errorSchemas.notFound, 401: errorSchemas.unauthorized },
-    },
-  },
   products: {
     list: {
       method: 'GET' as const,
       path: '/api/products' as const,
       input: z.object({
         categoryId: z.coerce.number().optional(),
-        brandId: z.coerce.number().optional(),
         search: z.string().optional(),
       }).optional(),
       responses: { 200: z.array(z.any()) },
@@ -94,6 +69,11 @@ export const api = {
       method: 'POST' as const,
       path: '/api/products/import' as const,
       responses: { 200: z.object({ message: z.string(), imported: z.number(), updated: z.number(), errors: z.array(z.string()) }), 400: errorSchemas.validation, 401: errorSchemas.unauthorized },
+    },
+    exportCsv: {
+      method: 'GET' as const,
+      path: '/api/products/export' as const,
+      responses: { 200: z.any(), 401: errorSchemas.unauthorized },
     }
   },
   requests: {

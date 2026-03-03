@@ -8,7 +8,7 @@ export default function Contacts() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
-            <h2 className="text-2xl font-bold text-slate-900 mb-8">Центральный офис</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-8">Связаться с нами</h2>
             
             <div className="space-y-8">
               <div className="flex gap-4">
@@ -17,7 +17,7 @@ export default function Contacts() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-slate-900 mb-1">Адрес</h4>
-                  <p className="text-slate-600">Промзона 4, строение 12<br/>Москва, Россия</p>
+                  <p className="text-slate-600">Владивосток, Приморский край</p>
                 </div>
               </div>
 
@@ -26,9 +26,8 @@ export default function Contacts() {
                   <Phone className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-1">Отдел продаж</h4>
-                  <a href="tel:+78005553535" className="text-lg font-medium text-slate-800 hover:text-primary transition-colors">8 (800) 555-35-35</a>
-                  <p className="text-sm text-slate-500 mt-1">Бесплатно по всей России</p>
+                  <h4 className="font-semibold text-slate-900 mb-1">Телефон</h4>
+                  <a href="tel:+79247308283" className="text-lg font-bold text-slate-900 hover:text-primary transition-colors">8 (924) 730-82-83</a>
                 </div>
               </div>
 
@@ -38,7 +37,7 @@ export default function Contacts() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-slate-900 mb-1">Email</h4>
-                  <a href="mailto:wholesale@vladopt.ru" className="text-slate-600 hover:text-primary transition-colors">wholesale@vladopt.ru</a>
+                  <a href="mailto:sale@vladopt.ru" className="text-slate-600 hover:text-primary transition-colors">sale@vladopt.ru</a>
                 </div>
               </div>
 

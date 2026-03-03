@@ -20,7 +20,6 @@ import Contacts from "@/pages/Contacts";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminCategories from "@/pages/admin/AdminCategories";
-import AdminBrands from "@/pages/admin/AdminBrands";
 import AdminRequests from "@/pages/admin/AdminRequests";
 
 function Router() {
@@ -30,7 +29,6 @@ function Router() {
       <Route path="/admin" component={() => <AdminLayout><AdminDashboard /></AdminLayout>} />
       <Route path="/admin/products" component={() => <AdminLayout><AdminProducts /></AdminLayout>} />
       <Route path="/admin/categories" component={() => <AdminLayout><AdminCategories /></AdminLayout>} />
-      <Route path="/admin/brands" component={() => <AdminLayout><AdminBrands /></AdminLayout>} />
       <Route path="/admin/requests" component={() => <AdminLayout><AdminRequests /></AdminLayout>} />
 
       {/* Public Routes */}

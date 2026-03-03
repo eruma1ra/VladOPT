@@ -54,50 +54,12 @@ export async function registerRoutes(
     res.status(204).send();
   });
 
-  // Brands
-  app.get(api.brands.list.path, async (req, res) => {
-    const brands = await storage.getBrands();
-    res.json(brands);
-  });
-
-  app.post(api.brands.create.path, isAuthenticated, async (req, res) => {
-    try {
-      const input = api.brands.create.input.parse(req.body);
-      const brand = await storage.createBrand(input);
-      res.status(201).json(brand);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({ message: err.errors[0].message });
-      }
-      throw err;
-    }
-  });
-
-  app.put(api.brands.update.path, isAuthenticated, async (req, res) => {
-    try {
-      const input = api.brands.update.input.parse(req.body);
-      const brand = await storage.updateBrand(Number(req.params.id), input);
-      res.json(brand);
-    } catch (err) {
-      if (err instanceof z.ZodError) {
-        return res.status(400).json({ message: err.errors[0].message });
-      }
-      throw err;
-    }
-  });
-
-  app.delete(api.brands.delete.path, isAuthenticated, async (req, res) => {
-    await storage.deleteBrand(Number(req.params.id));
-    res.status(204).send();
-  });
-
   // Products
   app.get(api.products.list.path, async (req, res) => {
     const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
-    const brandId = req.query.brandId ? Number(req.query.brandId) : undefined;
     const search = req.query.search ? String(req.query.search) : undefined;
     
-    const products = await storage.getProducts({ categoryId, brandId, search });
+    const products = await storage.getProducts({ categoryId, search });
     res.json(products);
   });
 
@@ -136,6 +98,29 @@ export async function registerRoutes(
   app.delete(api.products.delete.path, isAuthenticated, async (req, res) => {
     await storage.deleteProduct(Number(req.params.id));
     res.status(204).send();
+  });
+
+  // Export CSV
+  app.get(api.products.exportCsv.path, isAuthenticated, async (req, res) => {
+    const products = await storage.getProducts();
+    const csvRows = [
+      ["sku", "name", "description_short", "images", "attributes", "availability"].join(",")
+    ];
+
+    for (const p of products) {
+      csvRows.push([
+        `"${p.sku}"`,
+        `"${p.name}"`,
+        `"${p.descriptionShort || ''}"`,
+        `"${(p.images as string[]).join(',')}"`,
+        `'${JSON.stringify(p.attributes)}'`,
+        `"${p.availability}"`
+      ].join(","));
+    }
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=products.csv');
+    res.status(200).send(csvRows.join("\n"));
   });
 
   // CSV Import

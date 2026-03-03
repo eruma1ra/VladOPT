@@ -169,7 +169,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
               />
               <Button 
                 type="submit" 
-                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-6 rounded-xl shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:-translate-y-0.5"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-6 rounded-xl shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:-translate-y-0.5 border-none"
                 disabled={createRequest.isPending}
               >
                 {createRequest.isPending ? "Отправка..." : "Отправить запрос"}

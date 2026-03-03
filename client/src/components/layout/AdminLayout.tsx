@@ -14,7 +14,7 @@ import {
   SidebarFooter,
   SidebarTrigger
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Package, Folders, Tag, InboxIcon, LogOut, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Package, Folders, InboxIcon, LogOut, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -22,11 +22,10 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   const menuItems = [
-    { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-    { title: "Products", url: "/admin/products", icon: Package },
-    { title: "Categories", url: "/admin/categories", icon: Folders },
-    { title: "Brands", url: "/admin/brands", icon: Tag },
-    { title: "Requests (CRM)", url: "/admin/requests", icon: InboxIcon },
+    { title: "Панель управления", url: "/admin", icon: LayoutDashboard },
+    { title: "Товары", url: "/admin/products", icon: Package },
+    { title: "Категории", url: "/admin/categories", icon: Folders },
+    { title: "Заявки", url: "/admin/requests", icon: InboxIcon },
   ];
 
   return (
@@ -36,12 +35,12 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <SidebarHeader className="p-4">
             <div className="flex items-center gap-2 font-display font-bold text-xl text-slate-900">
               <Package className="w-6 h-6 text-primary" />
-              ВладОПТ Admin
+              ВладОПТ Админ
             </div>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Management</SidebarGroupLabel>
+              <SidebarGroupLabel>Управление</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {menuItems.map((item) => (
@@ -65,15 +64,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 <p className="text-slate-500 text-xs truncate">{user?.email}</p>
               </div>
               <div className="flex flex-col gap-2">
-                <Button variant="outline" className="w-full justify-start text-muted-foreground" asChild>
+                <Button variant="outline" className="w-full justify-start text-muted-foreground border-none" asChild>
                   <Link href="/">
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to site
+                    На сайт
                   </Link>
                 </Button>
-                <Button variant="destructive" className="w-full justify-start" onClick={() => logout()}>
+                <Button variant="destructive" className="w-full justify-start border-none" onClick={() => logout()}>
                   <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  Выйти
                 </Button>
               </div>
             </div>

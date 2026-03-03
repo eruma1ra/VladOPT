@@ -15,12 +15,10 @@ export default function Catalog() {
 
   const { data: products, isLoading: productsLoading } = useProducts({
     categoryId: activeCategoryId,
-    brandId: activeBrandId,
     search: search.length > 2 ? search : undefined, // only search if > 2 chars
   });
   
   const { data: categories } = useCategories();
-  const { data: brands } = useBrands();
 
   return (
     <div className="bg-slate-50 min-h-screen py-8">
@@ -30,7 +28,7 @@ export default function Catalog() {
         <div className="mb-8 flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
           <div>
             <h1 className="text-3xl font-display font-bold text-slate-900">Каталог продукции</h1>
-            <p className="text-slate-500 text-sm mt-1">Оптовые цены предоставляются по запросу.</p>
+            <p className="text-slate-500 text-sm mt-1">Цены предоставляются по запросу.</p>
           </div>
           <div className="w-full md:w-96 flex gap-2">
             <div className="relative flex-grow">
@@ -44,7 +42,7 @@ export default function Catalog() {
             </div>
             <Button 
               variant="outline" 
-              className="md:hidden rounded-xl"
+              className="md:hidden rounded-xl border-none"
               onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
             >
               <Filter className="w-5 h-5" />
@@ -71,27 +69,6 @@ export default function Catalog() {
                     className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeCategoryId === cat.id ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
                   >
                     {cat.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 className="font-display font-bold text-lg mb-4 text-slate-900 border-b border-slate-100 pb-2">Бренды</h3>
-              <div className="space-y-1.5">
-                <button
-                  onClick={() => setActiveBrandId(undefined)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${!activeBrandId ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
-                >
-                  Все бренды
-                </button>
-                {brands?.map(brand => (
-                  <button
-                    key={brand.id}
-                    onClick={() => setActiveBrandId(brand.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeBrandId === brand.id ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'}`}
-                  >
-                    {brand.name}
                   </button>
                 ))}
               </div>

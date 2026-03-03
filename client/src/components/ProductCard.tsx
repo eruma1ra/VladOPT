@@ -46,9 +46,6 @@ export function ProductCard({ product }: ProductCardProps) {
           <span className="font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">
             Арт: {product.sku}
           </span>
-          {product.brand && (
-            <span className="text-primary font-medium">{product.brand.name}</span>
-          )}
         </div>
         
         <Link href={`/catalog/${product.id}`} className="hover:text-primary transition-colors">
@@ -58,7 +55,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
         
         <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-grow">
-          {product.descriptionShort || "Промышленный компонент доступен для оптового заказа."}
+          {product.descriptionShort || "Промышленный компонент доступен для заказа."}
         </p>
         
         <div className="flex items-center gap-2 mt-auto pt-4 border-t border-border/50">
@@ -66,7 +63,7 @@ export function ProductCard({ product }: ProductCardProps) {
             productId={product.id}
             productName={product.name}
             trigger={
-              <Button className="flex-1 rounded-xl" variant="outline">
+              <Button className="flex-1 rounded-xl border-none" variant="outline">
                 Запросить цену
               </Button>
             }

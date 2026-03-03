@@ -1,14 +1,23 @@
 import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "z-validate";
 import { relations } from "drizzle-orm";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-export * from "./models/auth";
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  email: text("email"),
+  isAdmin: boolean("is_admin").default(false),
+});
 
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
-  parentId: integer("parent_id"),
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
+  description: text("description"),
 });
 
 export const brands = pgTable("brands", {
@@ -24,38 +33,29 @@ export const products = pgTable("products", {
   descriptionShort: text("description_short"),
   categoryId: integer("category_id").references(() => categories.id),
   brandId: integer("brand_id").references(() => brands.id),
-  images: jsonb("images").$type<string[]>().default([]), // array of image URLs
-  attributes: jsonb("attributes").$type<Record<string, string>>().default({}), // key-value pairs like {"diameter": "15mm", "material": "steel"}
-  availability: text("availability").default('in_stock'), // 'in_stock', 'out_of_stock', 'preorder'
-  isVisible: boolean("is_visible").default(true),
+  images: jsonb("images").$type<string[]>().default([]).notNull(),
+  attributes: jsonb("attributes").$type<Record<string, any>>().default({}).notNull(),
+  availability: text("availability").default("in_stock").notNull(), // in_stock, preorder, out_of_stock
 });
 
 export const requests = pgTable("requests", {
   id: serial("id").primaryKey(),
   productId: integer("product_id").references(() => products.id),
   name: text("name").notNull(),
+  email: text("email"),
   phone: text("phone").notNull(),
   company: text("company"),
   comment: text("comment"),
-  status: text("status").default('new').notNull(), // 'new', 'in_progress', 'closed'
+  status: text("status").default("new").notNull(), // new, in_progress, closed
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const categoriesRelations = relations(categories, ({ one, many }) => ({
-  parent: one(categories, {
-    fields: [categories.parentId],
-    references: [categories.id],
-    relationName: "parentChild"
-  }),
-  children: many(categories, { relationName: "parentChild" }),
+// Relations
+export const categoriesRelations = relations(categories, ({ many }) => ({
   products: many(products),
 }));
 
-export const brandsRelations = relations(brands, ({ many }) => ({
-  products: many(products),
-}));
-
-export const productsRelations = relations(products, ({ one, many }) => ({
+export const productsRelations = relations(products, ({ one }) => ({
   category: one(categories, {
     fields: [products.categoryId],
     references: [categories.id],
@@ -64,7 +64,6 @@ export const productsRelations = relations(products, ({ one, many }) => ({
     fields: [products.brandId],
     references: [brands.id],
   }),
-  requests: many(requests),
 }));
 
 export const requestsRelations = relations(requests, ({ one }) => ({
@@ -74,30 +73,20 @@ export const requestsRelations = relations(requests, ({ one }) => ({
   }),
 }));
 
+export const insertUserSchema = createInsertSchema(users);
+export const selectUserSchema = createSelectSchema(users);
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true });
 export const insertBrandSchema = createInsertSchema(brands).omit({ id: true });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true });
 export const insertRequestSchema = createInsertSchema(requests).omit({ id: true, createdAt: true });
 
-// Exports types
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Category = typeof categories.$inferSelect;
-export type Brand = typeof brands.$inferSelect;
-export type Product = typeof products.$inferSelect;
-export type Request = typeof requests.$inferSelect;
-
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type Brand = typeof brands.$inferSelect;
 export type InsertBrand = z.infer<typeof insertBrandSchema>;
+export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type Request = typeof requests.$inferSelect;
 export type InsertRequest = z.infer<typeof insertRequestSchema>;
-
-// API Contract Types
-export type CategoryResponse = Category & { children?: Category[] };
-export type ProductResponse = Product & { category?: Category, brand?: Brand };
-export type RequestResponse = Request & { product?: Product };
-
-export type ProductQueryParams = {
-  categoryId?: number;
-  brandId?: number;
-  search?: string;
-  availability?: string;
-};

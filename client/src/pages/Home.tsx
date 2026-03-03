@@ -1,26 +1,26 @@
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
 const slides = [
   {
-    title: "Оптовые поставки промышленной арматуры",
+    title: "Оптовые поставки вентилей",
     desc: "Прямые поставки от ведущих заводов-изготовителей. Гарантия качества и надежная логистика.",
     img: "https://images.unsplash.com/photo-1584346133934-a3afd2a33c4c?q=80&w=1200&auto=format&fit=crop"
   },
   {
-    title: "Профессиональный инструмент для B2B",
-    desc: "Широкий ассортимент инструментов для монтажа и обслуживания трубопроводных систем.",
+    title: "Профессиональный инструмент",
+    desc: "Широкий ассортимент инструментов для монтажа и обслуживания систем.",
     img: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?q=80&w=1200&auto=format&fit=crop"
   },
   {
-    title: "Трубы и фитинги со склада",
-    desc: "Большой запас продукции на складе в Москве. Быстрая отгрузка и доставка по РФ.",
+    title: "Продукция со склада",
+    desc: "Большой запас продукции на складе. Быстрая отгрузка и доставка.",
     img: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1200&auto=format&fit=crop"
   }
 ];
@@ -61,7 +61,7 @@ export default function Home() {
                       {slide.desc}
                     </p>
                     <Link href="/catalog">
-                      <Button size="lg" className="h-14 px-8 text-lg rounded-xl">
+                      <Button size="lg" className="h-14 px-8 text-lg rounded-xl border-none">
                         Перейти в каталог
                         <ArrowRight className="ml-2 w-5 h-5" />
                       </Button>
@@ -81,13 +81,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-end mb-12">
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 mb-2">Каталог продукции</h2>
-              <p className="text-slate-500">Популярные позиции и новинки нашего ассортимента</p>
+              <h2 className="text-3xl font-display font-bold text-slate-900 mb-4">Наш каталог</h2>
+              <p className="text-slate-500 max-w-2xl">
+                Профессиональное оборудование и инструменты для вашего бизнеса.
+              </p>
             </div>
-            <Link href="/catalog">
-              <Button variant="link" className="text-primary font-bold">
-                Весь каталог <ArrowRight className="ml-1 w-4 h-4" />
-              </Button>
+            <Link href="/catalog" className="hidden sm:flex items-center text-primary font-semibold hover:gap-2 transition-all">
+              Весь каталог <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </div>
 
@@ -102,6 +102,14 @@ export default function Home() {
               ))}
             </div>
           )}
+
+          <div className="mt-12 text-center sm:hidden">
+            <Link href="/catalog">
+              <Button variant="outline" className="w-full rounded-xl border-none">
+                Смотреть все товары
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>
