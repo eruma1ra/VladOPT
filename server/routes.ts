@@ -2,6 +2,7 @@ import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
+import { insertRequestSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
@@ -190,14 +191,15 @@ export async function registerRoutes(
 
   app.post(api.requests.create.path, async (req, res) => {
     try {
-      const input = api.requests.create.input.parse(req.body);
+      const input = insertRequestSchema.parse(req.body);
       const request = await storage.createRequest(input);
       res.status(201).json(request);
     } catch (err) {
       if (err instanceof z.ZodError) {
         return res.status(400).json({ message: err.errors[0].message });
       }
-      throw err;
+      console.error("Create request error:", err);
+      res.status(500).json({ message: "Internal server error" });
     }
   });
 

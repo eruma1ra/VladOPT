@@ -55,6 +55,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
   });
 
   const onSubmit = (data: InsertRequest) => {
+    // Ensure numeric fields are correctly handled if needed by schema, but schema uses text for phone
     createRequest.mutate(data, {
       onSuccess: () => {
         toast({
@@ -64,10 +65,10 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
         form.reset();
         handleOpenChange?.(false);
       },
-      onError: () => {
+      onError: (error: any) => {
         toast({
           title: "Ошибка при отправке",
-          description: "Пожалуйста, попробуйте позже или свяжитесь с нами через Telegram.",
+          description: error.message || "Пожалуйста, попробуйте позже или свяжитесь с нами через Telegram.",
           variant: "destructive",
         });
       },

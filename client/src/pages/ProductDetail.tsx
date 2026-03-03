@@ -64,13 +64,13 @@ export default function ProductDetail() {
             <div className="p-8 md:p-12 flex flex-col">
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 {product.availability === 'in_stock' && (
-                  <Badge className="bg-green-500 hover:bg-green-600 shadow-sm border-none">В наличии</Badge>
+                  <Badge className="bg-green-500 hover:bg-green-600 shadow-sm border-none text-white font-medium">В наличии</Badge>
                 )}
                 {product.availability === 'preorder' && (
-                  <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200">Под заказ</Badge>
+                  <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200 font-medium">Под заказ</Badge>
                 )}
                 <span className="text-sm font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                  Артикул: {product.sku}
+                  Арт: {product.sku}
                 </span>
               </div>
 
@@ -79,25 +79,25 @@ export default function ProductDetail() {
               </h1>
 
               {product.category && (
-                <p className="text-primary font-medium text-sm mb-6">
+                <p className="text-primary font-semibold text-sm mb-6">
                   Категория: {product.category.name}
                 </p>
               )}
 
               <p className="text-slate-600 text-lg mb-8 leading-relaxed">
-                {product.descriptionShort || "Профессиональное оборудование, соответствующее стандартам качества. Свяжитесь с нами для получения полных технических характеристик и документации."}
+                {product.descriptionShort || "Профессиональное оборудование, соответствующее высоким стандартам качества. Для получения КП и документации отправьте запрос."}
               </p>
 
               {attributesList.length > 0 && (
                 <div className="mb-10">
-                  <h3 className="font-semibold text-slate-900 mb-4 text-lg">Характеристики</h3>
+                  <h3 className="font-bold text-slate-900 mb-4 text-lg border-l-4 border-primary pl-3">Характеристики</h3>
                   <div className="bg-slate-50 rounded-xl border border-slate-100 overflow-hidden">
                     <table className="w-full text-sm">
                       <tbody>
                         {attributesList.map(([key, value], idx) => (
                           <tr key={key} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50"}>
                             <td className="py-3 px-4 text-slate-500 font-medium w-1/3 border-r border-slate-100">{key}</td>
-                            <td className="py-3 px-4 text-slate-900">{value as React.ReactNode}</td>
+                            <td className="py-3 px-4 text-slate-900 font-medium">{value as React.ReactNode}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -106,33 +106,43 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              <div className="mt-auto pt-8 border-t border-slate-100">
-                <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10 mb-6">
-                  <h4 className="font-bold text-slate-900 mb-2">Запрос цены</h4>
-                  <p className="text-slate-600 text-sm mb-4">Цены рассчитываются индивидуально в зависимости от объема заказа и условий поставки.</p>
-                  <RequestModal 
-                    productId={product.id}
-                    productName={product.name}
-                    trigger={
-                      <Button size="lg" className="w-full sm:w-auto h-14 px-8 text-lg font-semibold rounded-xl shadow-lg shadow-primary/25 hover:-translate-y-0.5 transition-all border-none">
-                        Запросить цену и наличие
-                      </Button>
-                    }
-                  />
+              <div className="mt-auto">
+                <div className="bg-slate-900 rounded-2xl p-8 text-white mb-8 shadow-2xl shadow-slate-200">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="text-center md:text-left">
+                      <h4 className="font-bold text-2xl mb-2 text-white">Уточнить цену</h4>
+                      <p className="text-slate-400 text-sm max-w-[320px]">Наш менеджер подготовит индивидуальное предложение в течение 30 минут.</p>
+                    </div>
+                    <RequestModal 
+                      productId={product.id}
+                      productName={product.name}
+                      trigger={
+                        <Button size="lg" className="h-16 px-12 text-lg font-bold rounded-xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all border-none bg-primary text-white w-full md:w-auto">
+                          Запросить КП
+                        </Button>
+                      }
+                    />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-primary" />
-                    <span>Гарантия качества</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="flex flex-col items-center text-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                      <ShieldCheck className="w-6 h-6 text-primary" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Гарантия качества</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Truck className="w-5 h-5 text-primary" />
-                    <span>Быстрая доставка</span>
+                  <div className="flex flex-col items-center text-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                      <Truck className="w-6 h-6 text-primary" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Быстрая отгрузка</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <PackageCheck className="w-5 h-5 text-primary" />
-                    <span>Надежная упаковка</span>
+                  <div className="flex flex-col items-center text-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                      <PackageCheck className="w-6 h-6 text-primary" />
+                    </div>
+                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Надежная упаковка</span>
                   </div>
                 </div>
               </div>

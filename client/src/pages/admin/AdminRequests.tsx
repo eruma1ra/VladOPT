@@ -18,7 +18,7 @@ export default function AdminRequests() {
 
   const handleStatusChange = (id: number, status: string) => {
     updateStatus.mutate({ id, status }, {
-      onSuccess: () => toast({ title: "Status updated" })
+      onSuccess: () => toast({ title: "Статус обновлен" })
     });
   };
 
@@ -27,26 +27,26 @@ export default function AdminRequests() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-slate-900">Incoming Requests</h1>
-        <p className="text-slate-500">Manage wholesale inquiries from clients.</p>
+        <h1 className="text-3xl font-display font-bold text-slate-900">Входящие заявки</h1>
+        <p className="text-slate-500">Управление оптовыми запросами от клиентов.</p>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Inquiry</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Дата</TableHead>
+              <TableHead>Клиент</TableHead>
+              <TableHead>Контакт</TableHead>
+              <TableHead>Запрос</TableHead>
+              <TableHead>Статус</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {requests?.map((r) => (
               <TableRow key={r.id}>
                 <TableCell className="text-sm text-slate-500">
-                  {new Date(r.createdAt).toLocaleDateString()}
+                  {new Date(r.createdAt).toLocaleDateString("ru-RU")}
                 </TableCell>
                 <TableCell>
                   <div className="font-medium text-slate-900">{r.name}</div>
@@ -59,23 +59,23 @@ export default function AdminRequests() {
                   </div>
                   {r.product && (
                     <div className="text-xs text-primary font-medium mt-1 truncate">
-                      Item: {r.product.name}
+                      Товар: {r.product.name}
                     </div>
                   )}
                 </TableCell>
                 <TableCell>
                   <Select value={r.status} onValueChange={(val) => handleStatusChange(r.id, val)}>
-                    <SelectTrigger className={`w-32 h-8 text-xs ${
-                      r.status === 'new' ? 'bg-blue-50 border-blue-200 text-blue-800' :
-                      r.status === 'in_progress' ? 'bg-amber-50 border-amber-200 text-amber-800' :
-                      'bg-slate-100 border-slate-200 text-slate-600'
+                    <SelectTrigger className={`w-32 h-8 text-xs border-none ${
+                      r.status === 'new' ? 'bg-blue-50 text-blue-800' :
+                      r.status === 'in_progress' ? 'bg-amber-50 text-amber-800' :
+                      'bg-slate-100 text-slate-600'
                     }`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="closed">Closed</SelectItem>
+                      <SelectItem value="new">Новая</SelectItem>
+                      <SelectItem value="in_progress">В работе</SelectItem>
+                      <SelectItem value="closed">Закрыта</SelectItem>
                     </SelectContent>
                   </Select>
                 </TableCell>
@@ -83,7 +83,7 @@ export default function AdminRequests() {
             ))}
             {requests?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-slate-500 py-8">No requests yet.</TableCell>
+                <TableCell colSpan={5} className="text-center text-slate-500 py-8">Заявок пока нет.</TableCell>
               </TableRow>
             )}
           </TableBody>

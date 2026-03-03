@@ -1,26 +1,62 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useCategories, useDeleteCategory } from "@/hooks/use-categories";
+import { useCategories, useDeleteCategory, useCreateCategory, useUpdateCategory } from "@/hooks/use-categories";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2, Edit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export default function AdminCategories() {
   const { isAuthenticated, isLoading } = useAuth();
   const { data: categories } = useCategories();
   const deleteCategory = useDeleteCategory();
+  const createCategory = useCreateCategory();
+  const updateCategory = useUpdateCategory();
   const { toast } = useToast();
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [formData, setFormData] = useState({ name: "", slug: "" });
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) window.location.href = "/api/login";
   }, [isAuthenticated, isLoading]);
 
+  useEffect(() => {
+    if (editingCategory) {
+      setFormData({ name: editingCategory.name, slug: editingCategory.slug });
+    } else {
+      setFormData({ name: "", slug: "" });
+    }
+  }, [editingCategory]);
+
   const handleDelete = (id: number) => {
-    if (confirm("Are you sure? This might break products linked to this category.")) {
+    if (confirm("Вы уверены? Это может затронуть товары в этой категории.")) {
       deleteCategory.mutate(id, {
-        onSuccess: () => toast({ title: "Category deleted" }),
-        onError: () => toast({ title: "Failed to delete", variant: "destructive" })
+        onSuccess: () => toast({ title: "Категория удалена" }),
+        onError: () => toast({ title: "Ошибка удаления", variant: "destructive" })
+      });
+    }
+  };
+
+  const handleSave = () => {
+    if (editingCategory) {
+      updateCategory.mutate({ id: editingCategory.id, ...formData }, {
+        onSuccess: () => {
+          toast({ title: "Категория обновлена" });
+          setIsDialogOpen(false);
+        }
+      });
+    } else {
+      createCategory.mutate(formData, {
+        onSuccess: () => {
+          toast({ title: "Категория создана" });
+          setIsDialogOpen(false);
+        }
       });
     }
   };
@@ -31,11 +67,11 @@ export default function AdminCategories() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Categories</h1>
-          <p className="text-slate-500">Manage catalog taxonomy.</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900">Категории</h1>
+          <p className="text-slate-500">Управление структурой каталога.</p>
         </div>
-        <Button>
-          <Plus className="w-4 h-4 mr-2" /> Add Category
+        <Button className="rounded-xl border-none" onClick={() => { setEditingCategory(null); setIsDialogOpen(true); }}>
+          <Plus className="w-4 h-4 mr-2" /> Добавить категорию
         </Button>
       </div>
 
@@ -44,9 +80,9 @@ export default function AdminCategories() {
           <TableHeader>
             <TableRow>
               <TableHead>ID</TableHead>
-              <TableHead>Name</TableHead>
+              <TableHead>Название</TableHead>
               <TableHead>Slug</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right">Действия</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -56,7 +92,7 @@ export default function AdminCategories() {
                 <TableCell className="font-medium text-slate-900">{c.name}</TableCell>
                 <TableCell className="font-mono text-xs text-slate-500">{c.slug}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary">
+                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary" onClick={() => { setEditingCategory(c); setIsDialogOpen(true); }}>
                     <Edit className="w-4 h-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive" onClick={() => handleDelete(c.id)}>
@@ -68,6 +104,28 @@ export default function AdminCategories() {
           </TableBody>
         </Table>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingCategory ? "Редактировать" : "Создать"} категорию</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Название</Label>
+              <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            </div>
+            <div className="space-y-2">
+              <Label>Slug (английские буквы)</Label>
+              <Input value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="border-none" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
+            <Button className="border-none" onClick={handleSave}>Сохранить</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
-import { z } from "z-validate";
+import { z } from "zod";
 import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
@@ -77,7 +77,11 @@ export const selectUserSchema = createSelectSchema(users);
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true });
 export const insertBrandSchema = createInsertSchema(brands).omit({ id: true });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true });
-export const insertRequestSchema = createInsertSchema(requests).omit({ id: true, createdAt: true });
+export const insertRequestSchema = createInsertSchema(requests, {
+  name: z.string().min(2, "Введите ваше имя"),
+  phone: z.string().min(10, "Введите корректный номер телефона"),
+  comment: z.string().min(5, "Пожалуйста, опишите ваш запрос"),
+}).omit({ id: true, createdAt: true });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -125,14 +125,18 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Управление товарами</h1>
-          <p className="text-slate-500">Добавление, редактирование и импорт товаров из CSV.</p>
+          <h1 className="text-3xl font-display font-bold text-slate-900">Товары</h1>
+          <p className="text-slate-500">Управление ассортиментом каталога.</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="border-none" onClick={() => window.open('/api/products/export')}>
-            <FileDown className="w-4 h-4 mr-2" /> Экспорт CSV
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            variant="outline" 
+            className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium" 
+            onClick={() => window.open('/api/products/export')}
+          >
+            <FileDown className="w-4 h-4 mr-2" /> Экспорт
           </Button>
           <div className="relative">
             <input 
@@ -142,12 +146,19 @@ export default function AdminProducts() {
               onChange={handleImport}
               disabled={importProducts.isPending}
             />
-            <Button variant="outline" className="border-none" disabled={importProducts.isPending}>
+            <Button 
+              variant="outline" 
+              className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium" 
+              disabled={importProducts.isPending}
+            >
               <FileUp className="w-4 h-4 mr-2" />
-              {importProducts.isPending ? "Загрузка..." : "Импорт CSV"}
+              {importProducts.isPending ? "Загрузка..." : "Импорт"}
             </Button>
           </div>
-          <Button className="border-none" onClick={() => { setEditingProduct(null); setIsDialogOpen(true); }}>
+          <Button 
+            className="rounded-lg h-10 px-4 bg-primary text-white hover:bg-primary/90 transition-colors shadow-md border-none font-bold" 
+            onClick={() => { setEditingProduct(null); setIsDialogOpen(true); }}
+          >
             <Plus className="w-4 h-4 mr-2" /> Добавить товар
           </Button>
         </div>
@@ -159,30 +170,30 @@ export default function AdminProducts() {
         ) : (
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Артикул</TableHead>
-                <TableHead>Наименование</TableHead>
-                <TableHead>Категория</TableHead>
-                <TableHead>Статус</TableHead>
-                <TableHead className="text-right">Действия</TableHead>
+              <TableRow className="bg-slate-50/50">
+                <TableHead className="font-bold py-4 text-slate-700">Артикул</TableHead>
+                <TableHead className="font-bold py-4 text-slate-700">Наименование</TableHead>
+                <TableHead className="font-bold py-4 text-slate-700">Категория</TableHead>
+                <TableHead className="font-bold py-4 text-slate-700">Статус</TableHead>
+                <TableHead className="text-right font-bold py-4 text-slate-700">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products?.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-mono text-xs">{p.sku}</TableCell>
-                  <TableCell className="font-medium text-slate-900">{p.name}</TableCell>
-                  <TableCell>{p.category?.name || '-'}</TableCell>
+                <TableRow key={p.id} className="hover:bg-slate-50 transition-colors">
+                  <TableCell className="font-mono text-xs text-slate-500">{p.sku}</TableCell>
+                  <TableCell className="font-semibold text-slate-900">{p.name}</TableCell>
+                  <TableCell className="text-slate-600 font-medium">{p.category?.name || '-'}</TableCell>
                   <TableCell>
-                    <Badge variant={p.availability === 'in_stock' ? 'default' : 'secondary'} className="border-none">
+                    <Badge variant={p.availability === 'in_stock' ? 'default' : 'secondary'} className="border-none font-medium">
                       {p.availability === 'in_stock' ? 'В наличии' : p.availability === 'preorder' ? 'Под заказ' : 'Нет в наличии'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary" onClick={() => { setEditingProduct(p); setIsDialogOpen(true); }}>
+                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary transition-colors" onClick={() => { setEditingProduct(p); setIsDialogOpen(true); }}>
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive" onClick={() => handleDelete(p.id)}>
+                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive transition-colors" onClick={() => handleDelete(p.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </TableCell>
@@ -190,7 +201,7 @@ export default function AdminProducts() {
               ))}
               {products?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-slate-500 py-8">Товары не найдены. Добавьте новые или импортируйте из CSV.</TableCell>
+                  <TableCell colSpan={5} className="text-center text-slate-500 py-20 font-medium italic">Товары не найдены. Добавьте новые или импортируйте из CSV.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -201,18 +212,18 @@ export default function AdminProducts() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingProduct ? 'Редактировать товар' : 'Добавить товар'}</DialogTitle>
+            <DialogTitle className="text-xl font-bold">{editingProduct ? 'Редактировать товар' : 'Новый товар'}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-6 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Артикул</Label>
-                <Input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} />
+                <Label className="text-slate-700 font-bold">Артикул (SKU)</Label>
+                <Input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="Напр: VLV-100" className="bg-slate-50 focus:bg-white transition-colors" />
               </div>
               <div className="space-y-2">
-                <Label>Статус</Label>
+                <Label className="text-slate-700 font-bold">Статус наличия</Label>
                 <Select value={formData.availability} onValueChange={v => setFormData({...formData, availability: v})}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="bg-slate-50"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="in_stock">В наличии</SelectItem>
                     <SelectItem value="preorder">Под заказ</SelectItem>
@@ -222,34 +233,36 @@ export default function AdminProducts() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Наименование</Label>
-              <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+              <Label className="text-slate-700 font-bold">Наименование товара</Label>
+              <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Полное название товара" className="bg-slate-50 focus:bg-white transition-colors" />
             </div>
             <div className="space-y-2">
-              <Label>Категория</Label>
+              <Label className="text-slate-700 font-bold">Категория каталога</Label>
               <Select value={formData.categoryId} onValueChange={v => setFormData({...formData, categoryId: v})}>
-                <SelectTrigger><SelectValue placeholder="Выберите категорию" /></SelectTrigger>
+                <SelectTrigger className="bg-slate-50"><SelectValue placeholder="Выберите категорию" /></SelectTrigger>
                 <SelectContent>
                   {categories?.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Краткое описание</Label>
-              <Textarea value={formData.descriptionShort} onChange={e => setFormData({...formData, descriptionShort: e.target.value})} />
+              <Label className="text-slate-700 font-bold">Краткое описание (для сайта)</Label>
+              <Textarea value={formData.descriptionShort} onChange={e => setFormData({...formData, descriptionShort: e.target.value})} placeholder="Основные преимущества или особенности" className="min-h-[100px] bg-slate-50 focus:bg-white transition-colors" />
             </div>
             <div className="space-y-2">
-              <Label>Ссылки на фото (через запятую)</Label>
-              <Input value={formData.images} onChange={e => setFormData({...formData, images: e.target.value})} />
+              <Label className="text-slate-700 font-bold">Ссылки на изображения (через запятую)</Label>
+              <Input value={formData.images} onChange={e => setFormData({...formData, images: e.target.value})} placeholder="https://image1.jpg, https://image2.jpg" className="bg-slate-50 focus:bg-white transition-colors" />
             </div>
             <div className="space-y-2">
-              <Label>Характеристики (JSON)</Label>
-              <Textarea value={formData.attributes} onChange={e => setFormData({...formData, attributes: e.target.value})} className="font-mono text-xs" />
+              <Label className="text-slate-700 font-bold">Технические характеристики (JSON)</Label>
+              <Textarea value={formData.attributes} onChange={e => setFormData({...formData, attributes: e.target.value})} className="font-mono text-xs bg-slate-900 text-slate-100 p-4 min-h-[120px] rounded-lg" />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" className="border-none" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
-            <Button className="border-none" onClick={handleSave}>Сохранить</Button>
+          <DialogFooter className="gap-2 sm:gap-0 mt-4 border-t pt-6">
+            <Button variant="ghost" className="font-bold text-slate-500 hover:text-slate-900" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
+            <Button className="border-none bg-primary hover:bg-primary/90 text-white font-bold px-10 h-11 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-95" onClick={handleSave}>
+              {editingProduct ? 'Сохранить изменения' : 'Создать товар'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
