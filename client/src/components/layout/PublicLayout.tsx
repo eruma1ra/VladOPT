@@ -159,7 +159,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
           
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
             <p>&copy; {new Date().getFullYear()} ВладОПТ. Все права защищены.</p>
-            <a href="/api/login" className="hover:text-slate-400 transition-colors">
+            <a href="/admin" className="hover:text-slate-400 transition-colors">
               Вход для персонала
             </a>
           </div>
