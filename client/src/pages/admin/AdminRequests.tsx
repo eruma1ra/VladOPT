@@ -1,15 +1,18 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useRequests, useUpdateRequestStatus } from "@/hooks/use-requests";
+import { useRequests, useUpdateRequestStatus, useDeleteRequest } from "@/hooks/use-requests";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function AdminRequests() {
   const { isAuthenticated, isLoading } = useAuth();
   const { data: requests } = useRequests();
   const updateStatus = useUpdateRequestStatus();
+  const deleteRequest = useDeleteRequest();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -20,6 +23,14 @@ export default function AdminRequests() {
     updateStatus.mutate({ id, status }, {
       onSuccess: () => toast({ title: "Статус обновлен" })
     });
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm("Вы уверены, что хотите удалить эту заявку?")) {
+      deleteRequest.mutate(id, {
+        onSuccess: () => toast({ title: "Заявка удалена" })
+      });
+    }
   };
 
   if (isLoading || !isAuthenticated) return null;
@@ -40,6 +51,7 @@ export default function AdminRequests() {
               <TableHead>Контакт</TableHead>
               <TableHead>Запрос</TableHead>
               <TableHead>Статус</TableHead>
+              <TableHead className="text-right">Действия</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -79,11 +91,16 @@ export default function AdminRequests() {
                     </SelectContent>
                   </Select>
                 </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive" onClick={() => handleDelete(r.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
             {requests?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-slate-500 py-8">Заявок пока нет.</TableCell>
+                <TableCell colSpan={6} className="text-center text-slate-500 py-8">Заявок пока нет.</TableCell>
               </TableRow>
             )}
           </TableBody>

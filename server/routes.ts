@@ -216,5 +216,10 @@ export async function registerRoutes(
     }
   });
 
+  app.delete("/api/requests/:id", isAuthenticated, async (req, res) => {
+    await storage.deleteRequest(Number(req.params.id));
+    res.status(204).send();
+  });
+
   return httpServer;
 }

@@ -31,6 +31,7 @@ export interface IStorage {
   getRequests(): Promise<(Request & { product: Product | null })[]>;
   createRequest(request: InsertRequest): Promise<Request>;
   updateRequestStatus(id: number, status: string): Promise<Request>;
+  deleteRequest(id: number): Promise<void>;
 
   sessionStore: session.Store;
 }
@@ -157,6 +158,10 @@ export class DatabaseStorage implements IStorage {
   async updateRequestStatus(id: number, status: string): Promise<Request> {
     const [updated] = await db.update(requests).set({ status }).where(eq(requests.id, id)).returning();
     return updated;
+  }
+
+  async deleteRequest(id: number): Promise<void> {
+    await db.delete(requests).where(eq(requests.id, id));
   }
 }
 

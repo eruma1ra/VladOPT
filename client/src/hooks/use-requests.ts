@@ -29,6 +29,20 @@ export function useCreateRequest() {
   });
 }
 
+export function useDeleteRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/requests/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to delete request");
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.requests.list.path] }),
+  });
+}
+
 export function useUpdateRequestStatus() {
   const queryClient = useQueryClient();
   return useMutation({
