@@ -14,7 +14,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      toast({ title: "Unauthorized", description: "Redirecting to login...", variant: "destructive" });
+      toast({ title: "Доступ ограничен", description: "Перенаправление на страницу входа...", variant: "destructive" });
       setTimeout(() => { window.location.href = "/api/login"; }, 500);
     }
   }, [isAuthenticated, isLoading, toast]);
@@ -26,51 +26,51 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-3xl font-display font-bold text-slate-900 mb-2">Welcome back, {user?.firstName || 'Admin'}!</h1>
-      <p className="text-slate-500 mb-8">Here's an overview of your wholesale catalog and incoming requests.</p>
+      <h1 className="text-3xl font-display font-bold text-slate-900 mb-2">С возвращением, {user?.firstName || 'Админ'}!</h1>
+      <p className="text-slate-500 mb-8">Обзор вашего каталога и входящих запросов.</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Total Products</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-600">Всего товаров</CardTitle>
             <Package className="w-4 h-4 text-slate-400" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-slate-900">{products?.length || 0}</div>
-            <p className="text-xs text-slate-500 mt-1">{inStockProducts} in stock currently</p>
+            <p className="text-xs text-slate-500 mt-1">{inStockProducts} сейчас в наличии</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">Total Requests</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-600">Всего запросов</CardTitle>
             <TrendingUp className="w-4 h-4 text-slate-400" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-slate-900">{requests?.length || 0}</div>
-            <p className="text-xs text-slate-500 mt-1">All time wholesale inquiries</p>
+            <p className="text-xs text-slate-500 mt-1">Оптовые запросы за все время</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-blue-200 bg-blue-50/50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-blue-800">New Requests</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-800">Новые запросы</CardTitle>
             <InboxIcon className="w-4 h-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-blue-900">{newRequestsCount}</div>
-            <p className="text-xs text-blue-600 mt-1">Requires your attention</p>
+            <p className="text-xs text-blue-600 mt-1">Требуют вашего внимания</p>
           </CardContent>
         </Card>
 
         <Card className="shadow-sm border-slate-200">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">System Status</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-600">Статус системы</CardTitle>
             <AlertCircle className="w-4 h-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold text-slate-900 mt-1">All Systems Operational</div>
-            <p className="text-xs text-slate-500 mt-2">Public catalog is accessible</p>
+            <div className="text-xl font-bold text-slate-900 mt-1">Система работает</div>
+            <p className="text-xs text-slate-500 mt-2">Публичный каталог доступен</p>
           </CardContent>
         </Card>
       </div>

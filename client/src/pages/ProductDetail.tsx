@@ -108,20 +108,22 @@ export default function ProductDetail() {
 
               <div className="mt-auto">
                 <div className="bg-slate-900 rounded-2xl p-8 text-white mb-8 shadow-2xl shadow-slate-200">
-                  <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="text-center md:text-left">
-                      <h4 className="font-bold text-2xl mb-2 text-white">Уточнить цену</h4>
-                      <p className="text-slate-400 text-sm max-w-[320px]">Наш менеджер подготовит индивидуальное предложение в течение 30 минут.</p>
+                  <div className="flex flex-col gap-6">
+                    <div className="text-left w-full space-y-2">
+                      <h4 className="font-bold text-2xl text-white">Уточнить цену</h4>
+                      <p className="text-slate-400 text-sm">Наш менеджер подготовит индивидуальное коммерческое предложение и уточнит актуальные сроки поставки в течение 30 минут.</p>
                     </div>
-                    <RequestModal 
-                      productId={product.id}
-                      productName={product.name}
-                      trigger={
-                        <Button size="lg" className="h-16 px-12 text-lg font-bold rounded-xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all border-none bg-primary text-white w-full md:w-auto">
-                          Запросить КП
-                        </Button>
-                      }
-                    />
+                    <div className="flex justify-center w-full">
+                      <RequestModal 
+                        productId={product.id}
+                        productName={product.name}
+                        trigger={
+                          <Button size="lg" className="h-16 px-12 text-lg font-bold rounded-xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all border-none bg-primary text-white w-full md:w-auto">
+                            Запросить цену
+                          </Button>
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
 

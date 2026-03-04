@@ -75,6 +75,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteCategory(id: number): Promise<void> {
+    // First, null out references in products
+    await db.update(products).set({ categoryId: null }).where(eq(products.categoryId, id));
+    // Then delete the category
     await db.delete(categories).where(eq(categories.id, id));
   }
 
@@ -142,7 +145,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createRequest(insertRequest: InsertRequest): Promise<Request> {
-    const [request] = await db.insert(requests).values(insertRequest).returning();
+    // Ensure email is present even if null in input
+    const values = {
+      ...insertRequest,
+      email: insertRequest.email || null
+    };
+    const [request] = await db.insert(requests).values(values).returning();
     return request;
   }
 
