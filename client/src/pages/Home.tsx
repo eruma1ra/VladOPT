@@ -71,11 +71,11 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselNext className="right-8 bg-transparent hover:bg-white/10 border-none text-white transition-all [&_svg]:w-10 [&_svg]:h-10">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <CarouselNext className="right-8 bg-transparent hover:bg-transparent border-none text-white/40 hover:text-white/80 transition-opacity [&_svg]:w-14 [&_svg]:h-14 shadow-none translate-x-0">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </CarouselNext>
-          <CarouselPrevious className="left-8 bg-transparent hover:bg-white/10 border-none text-white transition-all [&_svg]:w-10 [&_svg]:h-10">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <CarouselPrevious className="left-8 bg-transparent hover:bg-transparent border-none text-white/40 hover:text-white/80 transition-opacity [&_svg]:w-14 [&_svg]:h-14 shadow-none translate-x-0">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
           </CarouselPrevious>
         </Carousel>
       </section>
