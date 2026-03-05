@@ -10,6 +10,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
   const navLinks = [
     { href: "/", label: "Главная" },
     { href: "/catalog", label: "Каталог" },
+    { href: "/news", label: "Новости" },
     { href: "/about", label: "О компании" },
     { href: "/contacts", label: "Контакты" },
   ];
@@ -133,6 +134,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-semibold text-white mb-4">Навигация</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link href="/catalog" className="hover:text-primary transition-colors">Каталог</Link></li>
+                <li><Link href="/news" className="hover:text-primary transition-colors">Новости</Link></li>
                 <li><Link href="/about" className="hover:text-primary transition-colors">О компании</Link></li>
                 <li><Link href="/contacts" className="hover:text-primary transition-colors">Контакты</Link></li>
               </ul>

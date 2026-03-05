@@ -24,6 +24,8 @@ import AdminCategories from "@/pages/admin/AdminCategories";
 import AdminRequests from "@/pages/admin/AdminRequests";
 import AdminNews from "@/pages/admin/AdminNews";
 
+import NewsDetail from "@/pages/NewsDetail";
+
 function Router() {
   return (
     <Switch>
@@ -46,6 +48,9 @@ function Router() {
       </Route>
       <Route path="/news">
         <PublicLayout><News /></PublicLayout>
+      </Route>
+      <Route path="/news/:id">
+        <PublicLayout><NewsDetail /></PublicLayout>
       </Route>
       <Route path="/about">
         <PublicLayout><About /></PublicLayout>

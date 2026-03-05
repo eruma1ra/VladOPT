@@ -71,8 +71,12 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-4" />
-          <CarouselNext className="right-4" />
+          <CarouselNext className="right-8 bg-transparent hover:bg-white/10 border-none text-white transition-all [&_svg]:w-10 [&_svg]:h-10">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </CarouselNext>
+          <CarouselPrevious className="left-8 bg-transparent hover:bg-white/10 border-none text-white transition-all [&_svg]:w-10 [&_svg]:h-10">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </CarouselPrevious>
         </Carousel>
       </section>
 
