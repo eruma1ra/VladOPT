@@ -49,6 +49,15 @@ export const requests = pgTable("requests", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const news = pgTable("news", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  image: text("image"),
+  status: text("status").default("active").notNull(), // active, archived, limited_offer
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const categoriesRelations = relations(categories, ({ many }) => ({
   products: many(products),
@@ -82,6 +91,7 @@ export const insertRequestSchema = createInsertSchema(requests, {
   phone: z.string().min(10, "Введите корректный номер телефона"),
   comment: z.string().min(5, "Пожалуйста, опишите ваш запрос"),
 }).omit({ id: true, createdAt: true });
+export const insertNewsSchema = createInsertSchema(news).omit({ id: true, createdAt: true });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -93,3 +103,5 @@ export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Request = typeof requests.$inferSelect;
 export type InsertRequest = z.infer<typeof insertRequestSchema>;
+export type News = typeof news.$inferSelect;
+export type InsertNews = z.infer<typeof insertNewsSchema>;

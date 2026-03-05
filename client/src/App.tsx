@@ -15,12 +15,14 @@ import Catalog from "@/pages/Catalog";
 import ProductDetail from "@/pages/ProductDetail";
 import About from "@/pages/About";
 import Contacts from "@/pages/Contacts";
+import News from "@/pages/News";
 
 // Admin Pages
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminCategories from "@/pages/admin/AdminCategories";
 import AdminRequests from "@/pages/admin/AdminRequests";
+import AdminNews from "@/pages/admin/AdminNews";
 
 function Router() {
   return (
@@ -30,6 +32,7 @@ function Router() {
       <Route path="/admin/products" component={() => <AdminLayout><AdminProducts /></AdminLayout>} />
       <Route path="/admin/categories" component={() => <AdminLayout><AdminCategories /></AdminLayout>} />
       <Route path="/admin/requests" component={() => <AdminLayout><AdminRequests /></AdminLayout>} />
+      <Route path="/admin/news" component={() => <AdminLayout><AdminNews /></AdminLayout>} />
 
       {/* Public Routes */}
       <Route path="/">
@@ -40,6 +43,9 @@ function Router() {
       </Route>
       <Route path="/catalog/:id">
         <PublicLayout><ProductDetail /></PublicLayout>
+      </Route>
+      <Route path="/news">
+        <PublicLayout><News /></PublicLayout>
       </Route>
       <Route path="/about">
         <PublicLayout><About /></PublicLayout>

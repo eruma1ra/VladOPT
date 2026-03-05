@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useProducts } from "@/hooks/use-products";
 import { useRequests } from "@/hooks/use-requests";
-import { Package, InboxIcon, TrendingUp, AlertCircle, Clock, MapPin, Phone } from "lucide-react";
+import { Package, InboxIcon, TrendingUp, AlertCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -73,67 +73,6 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-xl font-bold text-slate-900 mt-1">Система работает</div>
             <p className="text-xs text-slate-500 mt-2">Публичный каталог доступен</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader>
-            <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <Clock className="w-5 h-5 text-primary" /> Памятка по работе с заявками
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
-              <p className="text-sm text-slate-700 leading-relaxed">
-                Рекомендуемое время ответа на новую заявку — <strong>30 минут</strong>. 
-                После обработки заявки в ручном режиме (звонок или email), не забывайте менять статус на «В работе» или «Закрыта».
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div className="p-3 border rounded-lg">
-                <div className="font-bold text-slate-900 mb-1">Новая</div>
-                <div className="text-slate-500 text-xs">Только что поступила, требует звонка.</div>
-              </div>
-              <div className="p-3 border rounded-lg">
-                <div className="font-bold text-slate-900 mb-1">В работе</div>
-                <div className="text-slate-500 text-xs">КП отправлено, идет обсуждение.</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-sm border-slate-200">
-          <CardHeader>
-            <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-primary" /> Справочная информация
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Phone className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-slate-900">Контакты отдела продаж</div>
-                <div className="text-sm text-slate-500">8 (924) 730-82-83 | sale@vladopt.ru</div>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <MapPin className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <div className="text-sm font-bold text-slate-900">Адрес склада</div>
-                <div className="text-sm text-slate-500">г. Владивосток, ул. Примерная, 10</div>
-              </div>
-            </div>
-            <div className="pt-4 mt-4 border-t border-slate-100">
-              <div className="text-xs text-slate-400 italic">
-                ВладОПТ — Качественные вентили и инструменты для вашего бизнеса.
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

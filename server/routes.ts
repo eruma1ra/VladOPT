@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
-import { insertRequestSchema } from "@shared/schema";
+import { insertRequestSchema, insertNewsSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
@@ -218,6 +218,49 @@ export async function registerRoutes(
 
   app.delete("/api/requests/:id", isAuthenticated, async (req, res) => {
     await storage.deleteRequest(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // News
+  app.get("/api/news", async (req, res) => {
+    const news = await storage.getNews();
+    res.json(news);
+  });
+
+  app.get("/api/news/:id", async (req, res) => {
+    const item = await storage.getNewsItem(Number(req.params.id));
+    if (!item) return res.status(404).json({ message: "News not found" });
+    res.json(item);
+  });
+
+  app.post("/api/news", isAuthenticated, async (req, res) => {
+    try {
+      const input = insertNewsSchema.parse(req.body);
+      const item = await storage.createNews(input);
+      res.status(201).json(item);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.put("/api/news/:id", isAuthenticated, async (req, res) => {
+    try {
+      const input = insertNewsSchema.partial().parse(req.body);
+      const item = await storage.updateNews(Number(req.params.id), input);
+      res.json(item);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.delete("/api/news/:id", isAuthenticated, async (req, res) => {
+    await storage.deleteNews(Number(req.params.id));
     res.status(204).send();
   });
 

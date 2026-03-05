@@ -1,6 +1,6 @@
-import { users, type User, type InsertUser, categories, type Category, type InsertCategory, products, type Product, type InsertProduct, requests, type Request, type InsertRequest, brands, type Brand, type InsertBrand } from "@shared/schema";
+import { users, type User, type InsertUser, categories, type Category, type InsertCategory, products, type Product, type InsertProduct, requests, type Request, type InsertRequest, brands, type Brand, type InsertBrand, news, type News, type InsertNews } from "@shared/schema";
 import { db } from "./db";
-import { eq, or, ilike, and } from "drizzle-orm";
+import { eq, or, ilike, and, desc } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
@@ -32,6 +32,13 @@ export interface IStorage {
   createRequest(request: InsertRequest): Promise<Request>;
   updateRequestStatus(id: number, status: string): Promise<Request>;
   deleteRequest(id: number): Promise<void>;
+
+  // News
+  getNews(): Promise<News[]>;
+  getNewsItem(id: number): Promise<News | undefined>;
+  createNews(news: InsertNews): Promise<News>;
+  updateNews(id: number, news: Partial<InsertNews>): Promise<News>;
+  deleteNews(id: number): Promise<void>;
 
   sessionStore: session.Store;
 }
@@ -162,6 +169,29 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRequest(id: number): Promise<void> {
     await db.delete(requests).where(eq(requests.id, id));
+  }
+
+  async getNews(): Promise<News[]> {
+    return await db.select().from(news).orderBy(desc(news.createdAt));
+  }
+
+  async getNewsItem(id: number): Promise<News | undefined> {
+    const [item] = await db.select().from(news).where(eq(news.id, id));
+    return item;
+  }
+
+  async createNews(insertNews: InsertNews): Promise<News> {
+    const [item] = await db.insert(news).values(insertNews).returning();
+    return item;
+  }
+
+  async updateNews(id: number, newsData: Partial<InsertNews>): Promise<News> {
+    const [updated] = await db.update(news).set(newsData).where(eq(news.id, id)).returning();
+    return updated;
+  }
+
+  async deleteNews(id: number): Promise<void> {
+    await db.delete(news).where(eq(news.id, id));
   }
 }
 

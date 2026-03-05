@@ -14,7 +14,7 @@ import {
   SidebarFooter,
   SidebarTrigger
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Package, Folders, InboxIcon, LogOut, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Package, Folders, InboxIcon, LogOut, ArrowLeft, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -26,6 +26,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { title: "Товары", url: "/admin/products", icon: Package },
     { title: "Категории", url: "/admin/categories", icon: Folders },
     { title: "Заявки", url: "/admin/requests", icon: InboxIcon },
+    { title: "Новости", url: "/admin/news", icon: Newspaper },
   ];
 
   return (
