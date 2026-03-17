@@ -1,5 +1,7 @@
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
 
+const MAX_CONTACT_URL = "https://max.ru/u/f9LHodD0cOJkvWZ--kfttkc1WOhrL8_Wi5cT2YxWIym59buaXyGWAYLUwOw";
+
 export default function Contacts() {
   return (
     <div className="bg-slate-50 min-h-screen py-16">
@@ -65,10 +67,12 @@ export default function Contacts() {
             <MessageCircle className="w-16 h-16 text-primary mb-6" />
             <h2 className="text-3xl font-display font-bold mb-4">Быстрая связь в Max</h2>
             <p className="text-slate-300 mb-8 max-w-md">
-              Наши менеджеры постоянно на связи в Max. Номер для связи: +7 (924) 730-82-83.
+              Наши менеджеры постоянно на связи в Max. Напишите нам по ссылке.
             </p>
             <a 
-              href="tel:+79247308283" 
+              href={MAX_CONTACT_URL}
+              target="_blank"
+              rel="noreferrer"
               className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/30 flex items-center gap-3 z-10"
             >
               Связаться в Max

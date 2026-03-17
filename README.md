@@ -14,6 +14,8 @@
 - `GOOGLE_CLIENT_ID` (required when `AUTH_MODE=google`)
 - `GOOGLE_CLIENT_SECRET` (required when `AUTH_MODE=google`)
 - `GOOGLE_CALLBACK_URL` (required when `AUTH_MODE=google`, example `https://YOUR_DOMAIN/api/callback`)
+- `REQUEST_NOTIFY_EMAIL` optional recipient for new price requests (default `sale@vladopt.ru`)
+- SMTP for request emails: `SMTP_URL` or (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, optional `SMTP_FROM`)
 - `PORT` optional (default `5000`)
 - `REPL_ID` optional legacy mode (only when `AUTH_MODE=replit`)
 - `ISSUER_URL` optional legacy mode (default `https://replit.com/oidc`)
@@ -70,6 +72,8 @@ chmod 600 .env
 - set `GOOGLE_CLIENT_ID`
 - set `GOOGLE_CLIENT_SECRET`
 - set `GOOGLE_CALLBACK_URL=https://vladopt.ru/api/callback`
+- configure SMTP (`SMTP_URL` or `SMTP_HOST`/`SMTP_USER`/...) so price requests are also sent to email
+- set `REQUEST_NOTIFY_EMAIL=sale@vladopt.ru` (or another mailbox if needed)
 4. Validate configuration and DB connection:
 ```bash
 npm run doctor:prod

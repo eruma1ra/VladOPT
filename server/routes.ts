@@ -7,6 +7,7 @@ import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import { setupAuth, registerAuthRoutes, isAdmin } from "./replit_integrations/auth";
+import { sendRequestNotificationByEmail } from "./services/request-notifier";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -193,6 +194,19 @@ export async function registerRoutes(
     try {
       const input = insertRequestSchema.parse(req.body);
       const request = await storage.createRequest(input);
+
+      let productPreview: { name: string; sku: string } | null = null;
+      if (request.productId) {
+        const product = await storage.getProduct(request.productId);
+        if (product) {
+          productPreview = { name: product.name, sku: product.sku };
+        }
+      }
+
+      sendRequestNotificationByEmail({ request, product: productPreview }).catch((emailErr) => {
+        console.error("Request notification email error:", emailErr);
+      });
+
       res.status(201).json(request);
     } catch (err) {
       if (err instanceof z.ZodError) {

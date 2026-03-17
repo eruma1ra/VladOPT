@@ -25,6 +25,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { MessageCircle, Send } from "lucide-react";
 
+const MAX_CONTACT_URL = "https://max.ru/u/f9LHodD0cOJkvWZ--kfttkc1WOhrL8_Wi5cT2YxWIym59buaXyGWAYLUwOw";
+
 interface RequestModalProps {
   productId?: number;
   productName?: string;
@@ -47,6 +49,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
     defaultValues: {
       productId: productId || null,
       name: "",
+      email: "",
       phone: "",
       company: "",
       comment: productName ? `Интересует: ${productName}` : "",
@@ -60,7 +63,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
       onSuccess: () => {
         toast({
           title: "Заявка успешно отправлена",
-          description: "Наш менеджер свяжется с вами в ближайшее время для обсуждения условий.",
+          description: "Мы свяжемся с вами в ближайшее время для обсуждения условий.",
         });
         form.reset();
         handleOpenChange?.(false);
@@ -90,7 +93,9 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
           <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex flex-col items-center text-center gap-3">
             <p className="text-sm text-blue-800">Нужен быстрый ответ в Max?</p>
             <a 
-              href="tel:+79247308283" 
+              href={MAX_CONTACT_URL}
+              target="_blank"
+              rel="noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:shadow-lg hover:-translate-y-0.5"
             >
               <MessageCircle className="w-5 h-5" />
@@ -130,6 +135,19 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
                     <FormLabel>Номер телефона</FormLabel>
                     <FormControl>
                       <Input placeholder="+7 (999) 000-00-00" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="example@mail.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

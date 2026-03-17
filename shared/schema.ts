@@ -89,6 +89,7 @@ export const insertBrandSchema = createInsertSchema(brands).omit({ id: true });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true });
 export const insertRequestSchema = createInsertSchema(requests, {
   name: z.string().min(2, "Введите ваше имя"),
+  email: z.string().trim().email("Введите корректный email"),
   phone: z.string().min(10, "Введите корректный номер телефона"),
   comment: z.string().min(5, "Пожалуйста, опишите ваш запрос"),
 }).omit({ id: true, createdAt: true });

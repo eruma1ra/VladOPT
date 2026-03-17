@@ -154,10 +154,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createRequest(insertRequest: InsertRequest): Promise<Request> {
-    // Ensure email is present even if null in input
     const values = {
       ...insertRequest,
-      email: insertRequest.email || null
+      email: insertRequest.email.trim(),
     };
     const [request] = await db.insert(requests).values(values).returning();
     return request;
