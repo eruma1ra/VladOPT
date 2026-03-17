@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useProducts, useDeleteProduct, useImportProducts, useCreateProduct, useUpdateProduct } from "@/hooks/use-products";
+import { useProducts, useDeleteProduct, useDeleteAllProducts, useImportProducts, useCreateProduct, useUpdateProduct } from "@/hooks/use-products";
 import { useCategories } from "@/hooks/use-categories";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -19,6 +19,7 @@ export default function AdminProducts() {
   const { data: products, isLoading: productsLoading } = useProducts();
   const { data: categories } = useCategories();
   const deleteProduct = useDeleteProduct();
+  const deleteAllProducts = useDeleteAllProducts();
   const importProducts = useImportProducts();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
@@ -70,10 +71,25 @@ export default function AdminProducts() {
       formData.append("file", e.target.files[0]);
       importProducts.mutate(formData, {
         onSuccess: (res) => {
-          toast({ title: "Импорт завершен", description: `Загружено: ${res.imported}, Обновлено: ${res.updated}` });
+          const errorCount = Array.isArray(res?.errors) ? res.errors.length : 0;
+          const baseDescription = `Загружено: ${res.imported}, Обновлено: ${res.updated}`;
+
+          if (errorCount > 0) {
+            toast({
+              title: "Импорт завершен с предупреждениями",
+              description: `${baseDescription}, Ошибки: ${errorCount}`,
+              variant: "destructive",
+            });
+          } else {
+            toast({ title: "Импорт завершен", description: baseDescription });
+          }
         },
-        onError: () => {
-          toast({ title: "Ошибка импорта", variant: "destructive" });
+        onError: (error: any) => {
+          toast({
+            title: "Ошибка импорта",
+            description: error?.message || "Не удалось импортировать файл",
+            variant: "destructive",
+          });
         }
       });
       e.target.value = "";
@@ -86,6 +102,30 @@ export default function AdminProducts() {
         onSuccess: () => toast({ title: "Товар удален" }),
       });
     }
+  };
+
+  const handleDeleteAll = () => {
+    if (!products?.length) {
+      toast({ title: "Список товаров уже пуст" });
+      return;
+    }
+
+    if (!confirm(`Удалить все товары (${products.length} шт.)? Это действие нельзя отменить.`)) {
+      return;
+    }
+
+    deleteAllProducts.mutate(undefined, {
+      onSuccess: (res) => {
+        toast({ title: "Все товары удалены", description: `Удалено: ${res?.deleted ?? 0}` });
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Ошибка удаления",
+          description: error?.message || "Не удалось удалить товары",
+          variant: "destructive",
+        });
+      },
+    });
   };
 
   const handleSave = () => {
@@ -130,7 +170,7 @@ export default function AdminProducts() {
           <h1 className="text-3xl font-display font-bold text-slate-900">Товары</h1>
           <p className="text-slate-500">Управление ассортиментом каталога.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto">
           <Button 
             variant="outline" 
             className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium" 
@@ -155,6 +195,15 @@ export default function AdminProducts() {
               {importProducts.isPending ? "Загрузка..." : "Импорт"}
             </Button>
           </div>
+          <Button
+            variant="outline"
+            className="rounded-lg h-10 px-4 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors shadow-sm font-medium"
+            onClick={handleDeleteAll}
+            disabled={deleteAllProducts.isPending}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {deleteAllProducts.isPending ? "Удаление..." : "Удалить все"}
+          </Button>
           <Button 
             className="rounded-lg h-10 px-4 bg-primary text-white hover:bg-primary/90 transition-colors shadow-md border-none font-bold" 
             onClick={() => { setEditingProduct(null); setIsDialogOpen(true); }}

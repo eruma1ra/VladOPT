@@ -18,6 +18,7 @@ export interface IStorage {
   createCategory(category: InsertCategory): Promise<Category>;
   updateCategory(id: number, category: Partial<InsertCategory>): Promise<Category>;
   deleteCategory(id: number): Promise<void>;
+  deleteAllCategories(): Promise<number>;
 
   // Products
   getProducts(filter?: { categoryId?: number; search?: string }): Promise<(Product & { category: Category | null })[]>;
@@ -26,6 +27,7 @@ export interface IStorage {
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, product: Partial<InsertProduct>): Promise<Product>;
   deleteProduct(id: number): Promise<void>;
+  deleteAllProducts(): Promise<number>;
 
   // Requests
   getRequests(): Promise<(Request & { product: Product | null })[]>;
@@ -90,6 +92,12 @@ export class DatabaseStorage implements IStorage {
     await db.delete(categories).where(eq(categories.id, id));
   }
 
+  async deleteAllCategories(): Promise<number> {
+    await db.update(products).set({ categoryId: null });
+    const deleted = await db.delete(categories).returning({ id: categories.id });
+    return deleted.length;
+  }
+
   async getProducts(filter?: { categoryId?: number; search?: string }): Promise<(Product & { category: Category | null })[]> {
     const allProducts = await db.query.products.findMany({
       with: {
@@ -142,6 +150,12 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProduct(id: number): Promise<void> {
     await db.delete(products).where(eq(products.id, id));
+  }
+
+  async deleteAllProducts(): Promise<number> {
+    await db.update(requests).set({ productId: null });
+    const deleted = await db.delete(products).returning({ id: products.id });
+    return deleted.length;
   }
 
   async getRequests(): Promise<(Request & { product: Product | null })[]> {

@@ -5,7 +5,7 @@ import fs from "fs/promises";
 import path from "path";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
-import { insertRequestSchema, insertNewsSchema } from "@shared/schema";
+import { insertRequestSchema, insertNewsSchema, type InsertProduct } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
@@ -23,6 +23,70 @@ const imageMimeToExtension: Record<string, string> = {
   "image/png": ".png",
   "image/webp": ".webp",
 };
+
+const productCsvColumns = {
+  code: 0,
+  group: 4,
+  sku: 12,
+  name: 14,
+  quantity: 15,
+} as const;
+
+const productCsvWidth = 16;
+
+function readCsvCell(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  return String(value).replace(/\u00A0/g, " ").trim();
+}
+
+function normalizeCategoryName(value: string): string {
+  return value
+    .replace(/^\d+\s*[-.)]?\s*/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeKey(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function slugify(value: string): string {
+  const normalized = value
+    .toLowerCase()
+    .replace(/[^a-z0-9а-яё]+/gi, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return normalized || "category";
+}
+
+function parseQuantity(value: string): number | null {
+  if (!value) return null;
+
+  const compact = value.replace(/\s+/g, "");
+  if (!compact) return null;
+
+  const normalized = /^-?\d{1,3}(,\d{3})+$/.test(compact)
+    ? compact.replace(/,/g, "")
+    : compact.replace(",", ".");
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getAvailabilityFromQuantity(quantity: number | null): "in_stock" | "out_of_stock" {
+  return quantity !== null && quantity > 0 ? "in_stock" : "out_of_stock";
+}
+
+function emptyProductCsvRow(): string[] {
+  return Array.from({ length: productCsvWidth }, () => "");
+}
+
+function escapeCsv(value: string): string {
+  if (/[",\r\n]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
 
 export async function registerRoutes(
   httpServer: Server,
@@ -69,6 +133,11 @@ export async function registerRoutes(
     res.status(204).send();
   });
 
+  app.delete(api.categories.deleteAll.path, isAdmin, async (_req, res) => {
+    const deleted = await storage.deleteAllCategories();
+    res.json({ message: "Все категории удалены", deleted });
+  });
+
   // Products
   app.get(api.products.list.path, async (req, res) => {
     const categoryId = req.query.categoryId ? Number(req.query.categoryId) : undefined;
@@ -78,8 +147,13 @@ export async function registerRoutes(
     res.json(products);
   });
 
-  app.get(api.products.get.path, async (req, res) => {
-    const product = await storage.getProduct(Number(req.params.id));
+  app.get(api.products.get.path, async (req, res, next) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) {
+      return next();
+    }
+
+    const product = await storage.getProduct(id);
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   });
@@ -115,27 +189,63 @@ export async function registerRoutes(
     res.status(204).send();
   });
 
+  app.delete(api.products.deleteAll.path, isAdmin, async (_req, res) => {
+    const deleted = await storage.deleteAllProducts();
+    res.json({ message: "Все товары удалены", deleted });
+  });
+
   // Export CSV
   app.get(api.products.exportCsv.path, isAdmin, async (req, res) => {
     const products = await storage.getProducts();
-    const csvRows = [
-      ["sku", "name", "description_short", "images", "attributes", "availability"].join(",")
-    ];
+    const dateLabel = new Date().toLocaleDateString("ru-RU", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    const titleRow = emptyProductCsvRow();
+    titleRow[0] = `Прайс-лист на ${dateLabel} г.`;
+
+    const spacerRow = emptyProductCsvRow();
+
+    const headerRow = emptyProductCsvRow();
+    headerRow[productCsvColumns.code] = "Код";
+    headerRow[productCsvColumns.group] = "Группа";
+    headerRow[productCsvColumns.sku] = "Артикул";
+    headerRow[productCsvColumns.name] = "Номенклатура";
+    headerRow[productCsvColumns.quantity] = "Склад Владивосток";
+
+    const subHeaderRow = emptyProductCsvRow();
+    subHeaderRow[productCsvColumns.quantity] = "Остаток";
+
+    const csvRows: string[][] = [titleRow, spacerRow, headerRow, subHeaderRow];
 
     for (const p of products) {
-      csvRows.push([
-        `"${p.sku}"`,
-        `"${p.name}"`,
-        `"${p.descriptionShort || ''}"`,
-        `"${(p.images as string[]).join(',')}"`,
-        `'${JSON.stringify(p.attributes)}'`,
-        `"${p.availability}"`
-      ].join(","));
+      const attributes = (p.attributes ?? {}) as Record<string, unknown>;
+      const code = readCsvCell(attributes["Код"]) || p.sku;
+      const groupFromAttributes = normalizeCategoryName(readCsvCell(attributes["Группа"]));
+      const groupFromCategory = normalizeCategoryName(p.category?.name ?? "");
+      const group = groupFromAttributes || groupFromCategory;
+      const quantity =
+        readCsvCell(attributes["Остаток"]) || (p.availability === "in_stock" ? "1" : "0");
+
+      const row = emptyProductCsvRow();
+      row[productCsvColumns.code] = code;
+      row[productCsvColumns.group] = group;
+      row[productCsvColumns.sku] = p.sku;
+      row[productCsvColumns.name] = p.name;
+      row[productCsvColumns.quantity] = quantity;
+
+      csvRows.push(row);
     }
 
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename=products.csv');
-    res.status(200).send(csvRows.join("\n"));
+    const csvContent = csvRows
+      .map((row) => row.map((cell) => escapeCsv(cell)).join(","))
+      .join("\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", "attachment; filename=products-template.csv");
+    res.status(200).send(`\uFEFF${csvContent}`);
   });
 
   // CSV Import
@@ -146,54 +256,124 @@ export async function registerRoutes(
 
     try {
       const records = parse(req.file.buffer.toString(), {
-        columns: true,
-        skip_empty_lines: true
+        columns: false,
+        skip_empty_lines: false,
+        relax_column_count: true,
+        bom: true,
       });
 
       let imported = 0;
       let updated = 0;
       const errors: string[] = [];
+      const existingCategories = await storage.getCategories();
+      const categoryByKey = new Map<string, number>();
+      const usedSlugs = new Set<string>();
+
+      for (const category of existingCategories) {
+        categoryByKey.set(normalizeKey(category.name), category.id);
+        categoryByKey.set(normalizeKey(normalizeCategoryName(category.name)), category.id);
+        usedSlugs.add(category.slug);
+      }
+
+      const resolveCategoryId = async (groupRaw: string): Promise<number | null> => {
+        const categoryName = normalizeCategoryName(groupRaw);
+        if (!categoryName) return null;
+
+        const key = normalizeKey(categoryName);
+        const fromMap = categoryByKey.get(key);
+        if (fromMap) return fromMap;
+
+        const baseSlug = slugify(categoryName);
+        let slug = baseSlug;
+        let suffix = 2;
+
+        while (usedSlugs.has(slug)) {
+          slug = `${baseSlug}-${suffix}`;
+          suffix++;
+        }
+
+        const created = await storage.createCategory({ name: categoryName, slug });
+        categoryByKey.set(key, created.id);
+        usedSlugs.add(created.slug);
+        return created.id;
+      };
 
       for (let i = 0; i < records.length; i++) {
-        const row = records[i];
+        const row = records[i] as unknown[];
         try {
-          if (!row.sku || !row.name) {
-            errors.push(`Row ${i + 1}: Missing required fields sku or name`);
+          const sku = readCsvCell(row[productCsvColumns.sku]);
+          const name = readCsvCell(row[productCsvColumns.name]);
+
+          if (!sku && !name) {
             continue;
           }
 
-          let attributes = {};
-          try {
-            if (row.attributes) attributes = JSON.parse(row.attributes);
-          } catch (e) {
-            // keep as empty object if not valid JSON
+          const isHeaderRow =
+            sku.toLowerCase() === "артикул" || name.toLowerCase() === "номенклатура";
+          if (isHeaderRow) {
+            continue;
           }
 
-          const productData = {
-            sku: row.sku,
-            name: row.name,
-            descriptionShort: row.description_short || null,
-            images: row.images ? row.images.split(',').map((s: string) => s.trim()) : [],
-            attributes,
-            availability: row.availability || 'in_stock'
-          };
+          if (!sku || !name) {
+            errors.push(`Строка ${i + 1}: не заполнены Артикул или Номенклатура`);
+            continue;
+          }
 
-          const existingProduct = await storage.getProductBySku(row.sku);
+          const code = readCsvCell(row[productCsvColumns.code]);
+          const groupRaw = readCsvCell(row[productCsvColumns.group]);
+          const normalizedGroup = normalizeCategoryName(groupRaw);
+          const quantityRaw = readCsvCell(row[productCsvColumns.quantity]);
+          const quantity = parseQuantity(quantityRaw);
+          const availability = getAvailabilityFromQuantity(quantity);
+          const categoryId = await resolveCategoryId(groupRaw);
+
+          const importedAttributes: Record<string, unknown> = {};
+          if (code) importedAttributes["Код"] = code;
+          if (normalizedGroup) importedAttributes["Группа"] = normalizedGroup;
+          importedAttributes["Остаток"] = quantityRaw || "0";
+
+          const existingProduct = await storage.getProductBySku(sku);
           if (existingProduct) {
-            await storage.updateProduct(existingProduct.id, productData);
+            const existingAttributes =
+              (existingProduct.attributes ?? {}) as Record<string, unknown>;
+            const updateData: Partial<InsertProduct> = {
+              name,
+              availability,
+              attributes: {
+                ...existingAttributes,
+                ...importedAttributes,
+              },
+            };
+
+            if (categoryId !== null) {
+              updateData.categoryId = categoryId;
+            }
+
+            await storage.updateProduct(existingProduct.id, updateData);
             updated++;
           } else {
-            await storage.createProduct(productData);
+            const newProduct: InsertProduct = {
+              sku,
+              name,
+              descriptionShort: null,
+              categoryId,
+              brandId: null,
+              images: [],
+              attributes: importedAttributes,
+              availability,
+            };
+
+            await storage.createProduct(newProduct);
             imported++;
           }
         } catch (e: any) {
-          errors.push(`Row ${i + 1} (${row.sku}): ${e.message}`);
+          errors.push(`Строка ${i + 1}: ${e.message}`);
         }
       }
 
-      res.json({ message: "Import completed", imported, updated, errors });
+      res.json({ message: "Импорт завершен", imported, updated, errors });
     } catch (e: any) {
-      res.status(400).json({ message: `CSV parsing error: ${e.message}` });
+      res.status(400).json({ message: `Ошибка чтения CSV: ${e.message}` });
     }
   });
 

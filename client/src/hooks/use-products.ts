@@ -87,6 +87,30 @@ export function useDeleteProduct() {
   });
 }
 
+export function useDeleteAllProducts() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(api.products.deleteAll.path, {
+        method: api.products.deleteAll.method,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        let message = "Failed to delete all products";
+        try {
+          const payload = await res.json();
+          if (payload?.message) message = payload.message;
+        } catch {
+          // ignore parsing errors and keep fallback message
+        }
+        throw new Error(message);
+      }
+      return await res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.products.list.path] }),
+  });
+}
+
 export function useImportProducts() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -96,7 +120,16 @@ export function useImportProducts() {
         body: formData,
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Failed to import products");
+      if (!res.ok) {
+        let message = "Failed to import products";
+        try {
+          const payload = await res.json();
+          if (payload?.message) message = payload.message;
+        } catch {
+          // ignore parsing errors and keep fallback message
+        }
+        throw new Error(message);
+      }
       return await res.json();
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.products.list.path] }),

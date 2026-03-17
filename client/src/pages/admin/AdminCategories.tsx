@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useCategories, useDeleteCategory, useCreateCategory, useUpdateCategory } from "@/hooks/use-categories";
+import { useCategories, useDeleteCategory, useDeleteAllCategories, useCreateCategory, useUpdateCategory } from "@/hooks/use-categories";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Trash2, Edit } from "lucide-react";
@@ -14,6 +14,7 @@ export default function AdminCategories() {
   const { isAuthenticated, isLoading } = useAuth();
   const { data: categories } = useCategories();
   const deleteCategory = useDeleteCategory();
+  const deleteAllCategories = useDeleteAllCategories();
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
   const { toast } = useToast();
@@ -43,6 +44,30 @@ export default function AdminCategories() {
     }
   };
 
+  const handleDeleteAll = () => {
+    if (!categories?.length) {
+      toast({ title: "Список категорий уже пуст" });
+      return;
+    }
+
+    if (!confirm(`Удалить все категории (${categories.length} шт.)? Товары сохранятся, но категории у них очистятся.`)) {
+      return;
+    }
+
+    deleteAllCategories.mutate(undefined, {
+      onSuccess: (res) => {
+        toast({ title: "Все категории удалены", description: `Удалено: ${res?.deleted ?? 0}` });
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Ошибка удаления",
+          description: error?.message || "Не удалось удалить категории",
+          variant: "destructive",
+        });
+      },
+    });
+  };
+
   const handleSave = () => {
     if (editingCategory) {
       updateCategory.mutate({ id: editingCategory.id, ...formData }, {
@@ -70,9 +95,20 @@ export default function AdminCategories() {
           <h1 className="text-3xl font-display font-bold text-slate-900">Категории</h1>
           <p className="text-slate-500">Управление структурой каталога.</p>
         </div>
-        <Button className="rounded-xl border-none" onClick={() => { setEditingCategory(null); setIsDialogOpen(true); }}>
-          <Plus className="w-4 h-4 mr-2" /> Добавить категорию
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+            onClick={handleDeleteAll}
+            disabled={deleteAllCategories.isPending}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {deleteAllCategories.isPending ? "Удаление..." : "Удалить все"}
+          </Button>
+          <Button className="rounded-xl border-none" onClick={() => { setEditingCategory(null); setIsDialogOpen(true); }}>
+            <Plus className="w-4 h-4 mr-2" /> Добавить категорию
+          </Button>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

@@ -62,3 +62,30 @@ export function useDeleteCategory() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [api.categories.list.path] }),
   });
 }
+
+export function useDeleteAllCategories() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch(api.categories.deleteAll.path, {
+        method: api.categories.deleteAll.method,
+        credentials: "include",
+      });
+      if (!res.ok) {
+        let message = "Failed to delete all categories";
+        try {
+          const payload = await res.json();
+          if (payload?.message) message = payload.message;
+        } catch {
+          // ignore parsing errors and keep fallback message
+        }
+        throw new Error(message);
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.categories.list.path] });
+      queryClient.invalidateQueries({ queryKey: [api.products.list.path] });
+    },
+  });
+}

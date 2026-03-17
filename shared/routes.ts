@@ -32,6 +32,14 @@ export const api = {
       path: '/api/categories/:id' as const,
       responses: { 204: z.void(), 404: errorSchemas.notFound, 401: errorSchemas.unauthorized },
     },
+    deleteAll: {
+      method: 'DELETE' as const,
+      path: '/api/categories' as const,
+      responses: {
+        200: z.object({ message: z.string(), deleted: z.number() }),
+        401: errorSchemas.unauthorized,
+      },
+    },
   },
   products: {
     list: {
@@ -64,6 +72,14 @@ export const api = {
       method: 'DELETE' as const,
       path: '/api/products/:id' as const,
       responses: { 204: z.void(), 404: errorSchemas.notFound, 401: errorSchemas.unauthorized },
+    },
+    deleteAll: {
+      method: 'DELETE' as const,
+      path: '/api/products' as const,
+      responses: {
+        200: z.object({ message: z.string(), deleted: z.number() }),
+        401: errorSchemas.unauthorized,
+      },
     },
     importCsv: {
       method: 'POST' as const,
