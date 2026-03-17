@@ -68,7 +68,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
       onError: (error: any) => {
         toast({
           title: "Ошибка при отправке",
-          description: error.message || "Пожалуйста, попробуйте позже или свяжитесь с нами через Telegram.",
+          description: error.message || "Пожалуйста, попробуйте позже или свяжитесь с нами через Max.",
           variant: "destructive",
         });
       },
@@ -88,15 +88,13 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
 
         <div className="flex flex-col gap-6 py-4">
           <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100 flex flex-col items-center text-center gap-3">
-            <p className="text-sm text-blue-800">Нужен быстрый ответ?</p>
+            <p className="text-sm text-blue-800">Нужен быстрый ответ в Max?</p>
             <a 
-              href="https://t.me/example_vladopt" 
-              target="_blank" 
-              rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 bg-[#0088cc] hover:bg-[#0077b5] text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:shadow-lg hover:-translate-y-0.5"
+              href="tel:+79247308283" 
+              className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg font-medium transition-all hover:shadow-lg hover:-translate-y-0.5"
             >
               <MessageCircle className="w-5 h-5" />
-              Написать нам в Telegram
+              Написать нам в Max
             </a>
           </div>
 

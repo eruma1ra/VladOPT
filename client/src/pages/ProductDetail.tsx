@@ -66,8 +66,8 @@ export default function ProductDetail() {
                 {product.availability === 'in_stock' && (
                   <Badge className="bg-green-500 hover:bg-green-600 shadow-sm border-none text-white font-medium">В наличии</Badge>
                 )}
-                {product.availability === 'preorder' && (
-                  <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200 font-medium">Под заказ</Badge>
+                {product.availability !== 'in_stock' && (
+                  <Badge variant="secondary" className="bg-red-400/85 text-white border-none font-medium">Ожидается</Badge>
                 )}
                 <span className="text-sm font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
                   Арт: {product.sku}
@@ -110,8 +110,8 @@ export default function ProductDetail() {
                 <div className="bg-slate-900 rounded-2xl p-8 text-white mb-8 shadow-2xl shadow-slate-200">
                   <div className="flex flex-col gap-6">
                     <div className="text-left w-full space-y-2">
-                      <h4 className="font-bold text-2xl text-white">Уточнить цену</h4>
-                      <p className="text-slate-400 text-sm">Наш менеджер подготовит индивидуальное коммерческое предложение и уточнит актуальные сроки поставки в течение 30 минут.</p>
+                      <h4 className="font-bold text-2xl text-white">Цена</h4>
+                      <p className="text-slate-400 text-sm">Вышлем прайс по запросу.</p>
                     </div>
                     <div className="flex justify-center w-full">
                       <RequestModal 
@@ -119,7 +119,7 @@ export default function ProductDetail() {
                         productName={product.name}
                         trigger={
                           <Button size="lg" className="h-16 px-12 text-lg font-bold rounded-xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all border-none bg-primary text-white w-full md:w-auto">
-                            Запросить цену
+                            Запросить стоимость
                           </Button>
                         }
                       />

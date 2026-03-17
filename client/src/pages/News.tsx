@@ -48,10 +48,10 @@ export default function News() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 md:mb-14">
           <h1 className="text-4xl md:text-6xl font-display font-bold text-slate-900 tracking-tight leading-[1.05] max-w-4xl">
-            Новости компании и обновления ассортимента
+            Новости компании и информация о товаре
           </h1>
           <p className="mt-5 text-slate-600 text-lg max-w-2xl leading-relaxed">
-            Поставки, поступления, спецусловия и важные изменения по каталогу. Все в одном месте, без лишней воды.
+            Поступления, акции, изменения по каталогу и другая информация о товаре.
           </p>
         </div>
 

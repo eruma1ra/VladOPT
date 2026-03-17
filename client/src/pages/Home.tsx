@@ -111,7 +111,7 @@ export default function Home() {
             <div>
               <h2 className="text-3xl font-display font-bold text-slate-900 mb-4">Наш каталог</h2>
               <p className="text-slate-500 max-w-2xl">
-                Профессиональное оборудование и инструменты для вашего бизнеса.
+                Инструменты и расходные материалы для шиноремонта
               </p>
             </div>
             <Link href="/catalog" className="hidden sm:flex items-center text-primary font-semibold hover:gap-2 transition-all">

@@ -11,7 +11,7 @@ type ProductSeed = {
   brandSlug: string;
   images: string[];
   attributes: Record<string, string>;
-  availability: "in_stock" | "preorder" | "out_of_stock";
+  availability: "in_stock" | "out_of_stock";
 };
 type NewsSeed = {
   title: string;
@@ -62,7 +62,7 @@ const products: ProductSeed[] = [
       Диаметр: "50 мм",
       Исполнение: "Промышленное",
     },
-    availability: "preorder",
+    availability: "out_of_stock",
   },
   {
     sku: "FIT-014",

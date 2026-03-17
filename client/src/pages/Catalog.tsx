@@ -28,14 +28,13 @@ export default function Catalog() {
         <div className="mb-8 flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
           <div>
             <h1 className="text-3xl font-display font-bold text-slate-900">Каталог продукции</h1>
-            <p className="text-slate-500 text-sm mt-1">Цены предоставляются по запросу.</p>
           </div>
-          <div className="w-full md:w-96 flex gap-2">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+          <div className="w-full md:w-[440px] flex gap-2">
+            <div className="relative flex-grow rounded-xl border-2 border-primary/35 bg-white focus-within:border-primary">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
               <Input 
                 placeholder="Поиск по артикулу или названию..." 
-                className="pl-10 rounded-xl bg-slate-50 border-transparent focus-visible:ring-primary/20 focus-visible:border-primary"
+                className="pl-12 h-12 rounded-xl bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 text-[15px] placeholder:text-slate-400"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />

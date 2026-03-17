@@ -17,19 +17,6 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-slate-50/50">
-      {/* Top Bar */}
-      <div className="bg-slate-900 text-slate-300 py-2 px-4 text-xs font-medium hidden md:block">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2"><MapPin className="w-3 h-3" /> Владивосток, Приморский край</span>
-            <span className="flex items-center gap-2"><Mail className="w-3 h-3" /> sale@vladopt.ru</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>Оптовые поставки</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Nav */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
@@ -66,7 +53,10 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               <a href="tel:+79247308283" className="block font-display font-bold text-lg text-slate-900 hover:text-primary transition-colors">
                 8 (924) 730-82-83
               </a>
-              <span className="text-xs text-slate-500">Пн-Пт 9:00 - 18:00</span>
+              <span className="text-xs text-slate-500 inline-flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                Владивосток
+              </span>
             </div>
             <Link href="/catalog" className="inline-flex">
               <Button className="rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all border-none">
@@ -126,7 +116,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 <span className="font-display font-bold text-xl text-white">ВладОПТ</span>
               </div>
               <p className="text-sm text-slate-500 max-w-sm mb-6">
-                Оптовый поставщик вентилей и профессионального инструмента.
+                Оптовый поставщик материалов и инструмента для шиноремонта.
               </p>
             </div>
             
@@ -152,8 +142,16 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                   <a href="tel:+79247308283" className="hover:text-white transition-colors">8 (924) 730-82-83</a>
                 </li>
                 <li className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-slate-600" />
+                  <a href="tel:+79146610768" className="hover:text-white transition-colors">8 (914) 661-07-68</a>
+                </li>
+                <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-slate-600" />
                   <a href="mailto:sale@vladopt.ru" className="hover:text-white transition-colors">sale@vladopt.ru</a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-slate-600" />
+                  <a href="mailto:sp@vladopt.ru" className="hover:text-white transition-colors">sp@vladopt.ru</a>
                 </li>
               </ul>
             </div>

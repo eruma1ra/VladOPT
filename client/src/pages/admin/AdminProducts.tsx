@@ -46,7 +46,7 @@ export default function AdminProducts() {
         name: editingProduct.name || "",
         descriptionShort: editingProduct.descriptionShort || "",
         categoryId: editingProduct.categoryId?.toString() || "",
-        availability: editingProduct.availability || "in_stock",
+        availability: editingProduct.availability === "in_stock" ? "in_stock" : "out_of_stock",
         images: Array.isArray(editingProduct.images) ? editingProduct.images.join(", ") : "",
         attributes: JSON.stringify(editingProduct.attributes || {})
       });
@@ -185,8 +185,12 @@ export default function AdminProducts() {
                   <TableCell className="font-semibold text-slate-900">{p.name}</TableCell>
                   <TableCell className="text-slate-600 font-medium">{p.category?.name || '-'}</TableCell>
                   <TableCell>
-                    <Badge variant={p.availability === 'in_stock' ? 'default' : 'secondary'} className="border-none font-medium">
-                      {p.availability === 'in_stock' ? 'В наличии' : p.availability === 'preorder' ? 'Под заказ' : 'Нет в наличии'}
+                    <Badge
+                      className={`border-none font-medium ${
+                        p.availability === 'in_stock' ? 'bg-green-500 text-white' : 'bg-red-400/85 text-white'
+                      }`}
+                    >
+                      {p.availability === 'in_stock' ? 'В наличии' : 'Ожидается'}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -226,8 +230,7 @@ export default function AdminProducts() {
                   <SelectTrigger className="bg-slate-50"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="in_stock">В наличии</SelectItem>
-                    <SelectItem value="preorder">Под заказ</SelectItem>
-                    <SelectItem value="out_of_stock">Нет в наличии</SelectItem>
+                    <SelectItem value="out_of_stock">Ожидается</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

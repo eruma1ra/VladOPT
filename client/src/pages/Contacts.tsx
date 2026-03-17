@@ -27,7 +27,10 @@ export default function Contacts() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-slate-900 mb-1">Телефон</h4>
-                  <a href="tel:+79247308283" className="text-lg font-bold text-slate-900 hover:text-primary transition-colors">8 (924) 730-82-83</a>
+                  <div className="flex flex-col">
+                    <a href="tel:+79247308283" className="text-lg font-bold text-slate-900 hover:text-primary transition-colors">8 (924) 730-82-83</a>
+                    <a href="tel:+79146610768" className="text-lg font-bold text-slate-900 hover:text-primary transition-colors">8 (914) 661-07-68</a>
+                  </div>
                 </div>
               </div>
 
@@ -37,7 +40,10 @@ export default function Contacts() {
                 </div>
                 <div>
                   <h4 className="font-semibold text-slate-900 mb-1">Email</h4>
-                  <a href="mailto:sale@vladopt.ru" className="text-slate-600 hover:text-primary transition-colors">sale@vladopt.ru</a>
+                  <div className="flex flex-col">
+                    <a href="mailto:sale@vladopt.ru" className="text-slate-600 hover:text-primary transition-colors">sale@vladopt.ru</a>
+                    <a href="mailto:sp@vladopt.ru" className="text-slate-600 hover:text-primary transition-colors">sp@vladopt.ru</a>
+                  </div>
                 </div>
               </div>
 
@@ -46,9 +52,8 @@ export default function Contacts() {
                   <Clock className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-1">Режим работы</h4>
-                  <p className="text-slate-600">Понедельник - Пятница: 09:00 - 18:00</p>
-                  <p className="text-slate-600">Выходные: Закрыто (заявки принимаются автоматически)</p>
+                  <h4 className="font-semibold text-slate-900 mb-1">Часовой пояс</h4>
+                  <p className="text-slate-600">Работаем по часовому поясу Владивостока (МСК +7)</p>
                 </div>
               </div>
             </div>
@@ -58,17 +63,15 @@ export default function Contacts() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             
             <MessageCircle className="w-16 h-16 text-primary mb-6" />
-            <h2 className="text-3xl font-display font-bold mb-4">Быстрая связь в Telegram</h2>
+            <h2 className="text-3xl font-display font-bold mb-4">Быстрая связь в Max</h2>
             <p className="text-slate-300 mb-8 max-w-md">
-              Наши менеджеры постоянно на связи в официальном Telegram-канале в рабочее время.
+              Наши менеджеры постоянно на связи в Max. Номер для связи: +7 (924) 730-82-83.
             </p>
             <a 
-              href="https://t.me/example_vladopt" 
-              target="_blank" 
-              rel="noreferrer"
-              className="bg-[#0088cc] hover:bg-[#0077b5] text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-[#0088cc]/30 flex items-center gap-3 z-10"
+              href="tel:+79247308283" 
+              className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-primary/30 flex items-center gap-3 z-10"
             >
-              Открыть чат Telegram
+              Связаться в Max
             </a>
           </div>
         </div>

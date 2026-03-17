@@ -35,9 +35,9 @@ export function ProductCard({ product }: ProductCardProps) {
               В наличии
             </Badge>
           )}
-          {product.availability === 'preorder' && (
-            <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200">
-              Под заказ
+          {product.availability !== 'in_stock' && (
+            <Badge variant="secondary" className="bg-red-400/85 text-white border-none">
+              Ожидается
             </Badge>
           )}
         </div>
@@ -66,7 +66,7 @@ export function ProductCard({ product }: ProductCardProps) {
             productName={product.name}
             trigger={
               <Button className="flex-1 rounded-xl border-none" variant="outline">
-                Запросить цену
+                Запросить стоимость
               </Button>
             }
           />
