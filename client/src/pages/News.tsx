@@ -1,11 +1,39 @@
-import { useNews } from "@/hooks/use-news";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, Loader2, Image as ImageIcon, ArrowRight } from "lucide-react";
+import { useMemo } from "react";
 import { Link } from "wouter";
+import { ArrowRight, Image as ImageIcon, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { useNews } from "@/hooks/use-news";
+
+function formatNewsDate(value: Date | string) {
+  return new Date(value).toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function statusLabel(status: string) {
+  if (status === "limited_offer") return "Спецпредложение";
+  if (status === "active") return "Новость";
+  return "Архив";
+}
+
+function statusBadgeClass(status: string) {
+  if (status === "limited_offer") {
+    return "rounded-full border-none bg-orange-500 text-white text-[10px] font-bold uppercase tracking-[0.15em]";
+  }
+
+  return "rounded-full border border-slate-200 bg-slate-50 text-slate-700 text-[10px] font-bold uppercase tracking-[0.15em]";
+}
 
 export default function News() {
   const { data: newsItems, isLoading } = useNews();
+
+  const activeNews = useMemo(
+    () => (newsItems?.filter((item) => item.status !== "archived") ?? []),
+    [newsItems]
+  );
 
   if (isLoading) {
     return (
@@ -15,80 +43,75 @@ export default function News() {
     );
   }
 
-  const activeNews = newsItems?.filter(item => item.status !== 'archived') || [];
-
   return (
-    <div className="bg-white min-h-screen py-16 md:py-24">
-      <div className="max-w-6xl mx-auto px-6 lg:px-8">
-        <div className="mb-20">
-          <h1 className="text-5xl md:text-6xl font-display font-bold text-slate-900 mb-6 tracking-tight text-center md:text-left">Новости</h1>
-          <div className="h-1.5 w-24 bg-primary rounded-full mb-8 mx-auto md:mx-0" />
-          <p className="text-slate-500 text-xl max-w-2xl leading-relaxed text-center md:text-left">Последние события, обновления ассортимента и эксклюзивные предложения от компании ВладОПТ.</p>
+    <div className="min-h-screen bg-[radial-gradient(1200px_500px_at_0%_0%,rgba(37,99,235,0.10),transparent_60%),radial-gradient(1000px_450px_at_100%_10%,rgba(15,23,42,0.07),transparent_60%),#f8fafc] py-16 md:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 md:mb-14">
+          <h1 className="text-4xl md:text-6xl font-display font-bold text-slate-900 tracking-tight leading-[1.05] max-w-4xl">
+            Новости компании и обновления ассортимента
+          </h1>
+          <p className="mt-5 text-slate-600 text-lg max-w-2xl leading-relaxed">
+            Поставки, поступления, спецусловия и важные изменения по каталогу. Все в одном месте, без лишней воды.
+          </p>
         </div>
 
-        <div className="space-y-16">
-          {activeNews.map((item) => (
-            <Link key={item.id} href={`/news/${item.id}`}>
-              <Card className="group border-none shadow-none bg-transparent cursor-pointer overflow-visible">
-                <div className="flex flex-col md:flex-row gap-8 md:gap-12 lg:gap-16 items-center">
-                  {/* Image Container */}
-                  <div className="relative w-full md:w-[45%] aspect-[16/10] md:aspect-auto md:h-[380px] rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-200/50 flex-shrink-0">
+        {activeNews.length > 0 ? (
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-7">
+            {activeNews.map((item) => (
+              <Link key={item.id} href={`/news/${item.id}`} className="block h-full">
+                <Card
+                  className="group h-full overflow-hidden border-slate-200/70 bg-white/90 backdrop-blur-sm shadow-lg shadow-slate-200/60 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
+                >
+                  <div className="relative h-52">
                     {item.image ? (
-                      <img 
-                        src={item.image} 
-                        alt={item.title} 
-                        className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (
                       <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                        <ImageIcon className="w-16 h-16 text-slate-300" />
+                        <ImageIcon className="w-12 h-12 text-slate-300" />
                       </div>
                     )}
-                    {item.status === 'limited_offer' && (
-                      <div className="absolute top-6 left-6 z-10">
-                        <Badge className="bg-primary/90 backdrop-blur-md border-none text-white font-bold py-2 px-5 rounded-2xl shadow-xl uppercase tracking-widest text-[10px]">
-                          Спецпредложение
-                        </Badge>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors duration-500" />
                   </div>
 
-                  {/* Content Container */}
-                  <CardContent className="p-0 flex-grow">
-                    <div className="flex items-center gap-3 text-primary font-bold text-xs uppercase tracking-[0.2em] mb-6">
-                      <span className="w-8 h-[2px] bg-primary/30" />
-                      {new Date(item.createdAt).toLocaleDateString("ru-RU", { day: 'numeric', month: 'long', year: 'numeric' })}
+                  <CardContent className="p-5">
+                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                      {item.isFeatured ? (
+                        <Badge className="rounded-full border-none bg-primary text-white text-[10px] font-bold uppercase tracking-[0.15em]">
+                          На переднем плане
+                        </Badge>
+                      ) : null}
+                      <Badge className={statusBadgeClass(item.status)}>{statusLabel(item.status)}</Badge>
+                      <span className="ml-auto text-xs text-slate-500">{formatNewsDate(item.createdAt)}</span>
                     </div>
-                    
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-6 leading-[1.15] tracking-tight group-hover:text-slate-900 transition-none">
+
+                    <h3 className="text-xl font-display font-bold text-slate-900 leading-tight mb-3 line-clamp-2">
                       {item.title}
-                    </h2>
-                    
-                    <p className="text-slate-500 text-lg md:text-xl leading-relaxed line-clamp-3 mb-10 font-normal">
-                      {item.content}
-                    </p>
-                    
-                    <div className="inline-flex items-center gap-4 text-slate-900 font-bold text-lg group-hover:gap-6 transition-all duration-300">
-                      Подробнее 
-                      <div className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-colors duration-300">
-                        <ArrowRight className="w-5 h-5 group-hover:text-white transition-colors" />
-                      </div>
+                    </h3>
+                    <p className="text-slate-600 leading-relaxed line-clamp-4 text-sm">{item.content}</p>
+
+                    <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary group-hover:gap-3 transition-all">
+                      Подробнее
+                      <ArrowRight className="w-4 h-4" />
                     </div>
                   </CardContent>
-                </div>
-              </Card>
-            </Link>
-          ))}
-          
-          {activeNews.length === 0 && (
-            <div className="py-32 text-center">
-              <div className="max-w-md mx-auto">
-                <p className="text-slate-400 italic text-xl">Раздел временно пуст. Новые новости появятся совсем скоро.</p>
-              </div>
-            </div>
-          )}
-        </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        ) : null}
+
+        {activeNews.length === 0 ? (
+          <Card className="border-dashed border-slate-300 bg-white/80">
+            <CardContent className="py-20 text-center">
+              <p className="text-slate-500 text-lg">Новости скоро появятся. Сейчас раздел на обновлении.</p>
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
     </div>
   );

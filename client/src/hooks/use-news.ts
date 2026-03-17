@@ -48,3 +48,17 @@ export function useDeleteNews() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/news"] }),
   });
 }
+
+export function useToggleNewsFeatured() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, isFeatured }: { id: number; isFeatured: boolean }) => {
+      const res = await apiRequest("PATCH", `/api/news/${id}/feature`, { isFeatured });
+      return res.json();
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/news"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/news", variables.id] });
+    },
+  });
+}

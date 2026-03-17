@@ -1,6 +1,6 @@
 import { users, type User, type InsertUser, categories, type Category, type InsertCategory, products, type Product, type InsertProduct, requests, type Request, type InsertRequest, brands, type Brand, type InsertBrand, news, type News, type InsertNews } from "@shared/schema";
 import { db } from "./db";
-import { eq, or, ilike, and, desc } from "drizzle-orm";
+import { eq, or, ilike, and, desc, ne } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
@@ -38,6 +38,7 @@ export interface IStorage {
   getNewsItem(id: number): Promise<News | undefined>;
   createNews(news: InsertNews): Promise<News>;
   updateNews(id: number, news: Partial<InsertNews>): Promise<News>;
+  setNewsFeatured(id: number, isFeatured: boolean): Promise<News>;
   deleteNews(id: number): Promise<void>;
 
   sessionStore: session.Store;
@@ -172,7 +173,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getNews(): Promise<News[]> {
-    return await db.select().from(news).orderBy(desc(news.createdAt));
+    return await db.select().from(news).orderBy(desc(news.isFeatured), desc(news.createdAt));
   }
 
   async getNewsItem(id: number): Promise<News | undefined> {
@@ -181,13 +182,64 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createNews(insertNews: InsertNews): Promise<News> {
-    const [item] = await db.insert(news).values(insertNews).returning();
-    return item;
+    return await db.transaction(async (tx) => {
+      if (insertNews.isFeatured) {
+        await tx.update(news).set({ isFeatured: false });
+      }
+
+      const [item] = await tx.insert(news).values(insertNews).returning();
+      return item;
+    });
   }
 
   async updateNews(id: number, newsData: Partial<InsertNews>): Promise<News> {
-    const [updated] = await db.update(news).set(newsData).where(eq(news.id, id)).returning();
-    return updated;
+    const entries = Object.entries(newsData).filter(([, value]) => value !== undefined);
+    if (entries.length === 0) {
+      const [existing] = await db.select().from(news).where(eq(news.id, id));
+      if (!existing) {
+        throw new Error("News not found");
+      }
+      return existing;
+    }
+
+    const sanitizedData = Object.fromEntries(entries) as Partial<InsertNews>;
+
+    return await db.transaction(async (tx) => {
+      if (sanitizedData.isFeatured === true) {
+        await tx
+          .update(news)
+          .set({ isFeatured: false })
+          .where(and(eq(news.isFeatured, true), ne(news.id, id)));
+      }
+
+      const [updated] = await tx.update(news).set(sanitizedData).where(eq(news.id, id)).returning();
+      if (!updated) {
+        throw new Error("News not found");
+      }
+      return updated;
+    });
+  }
+
+  async setNewsFeatured(id: number, isFeatured: boolean): Promise<News> {
+    return await db.transaction(async (tx) => {
+      if (isFeatured) {
+        await tx
+          .update(news)
+          .set({ isFeatured: false })
+          .where(and(eq(news.isFeatured, true), ne(news.id, id)));
+      }
+
+      const [updated] = await tx
+        .update(news)
+        .set({ isFeatured })
+        .where(eq(news.id, id))
+        .returning();
+
+      if (!updated) {
+        throw new Error("News not found");
+      }
+      return updated;
+    });
   }
 
   async deleteNews(id: number): Promise<void> {

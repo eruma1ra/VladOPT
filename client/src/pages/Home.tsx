@@ -50,6 +50,8 @@ export default function Home() {
                   <img
                     src={slide.img}
                     alt={slide.title}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/50" />
@@ -71,12 +73,34 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselNext className="right-8 bg-transparent hover:bg-transparent border-none text-white/40 hover:text-white/80 transition-opacity [&_svg]:w-14 [&_svg]:h-14 shadow-none translate-x-0">
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </CarouselNext>
-          <CarouselPrevious className="left-8 bg-transparent hover:bg-transparent border-none text-white/40 hover:text-white/80 transition-opacity [&_svg]:w-14 [&_svg]:h-14 shadow-none translate-x-0">
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          <CarouselPrevious className="left-5 md:left-8 h-16 w-16 border-none bg-transparent text-white/55 hover:text-white transition-colors shadow-none translate-x-0">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-14 w-14"
+              aria-hidden="true"
+            >
+              <path d="M15 4 L8 12 L15 20" />
+            </svg>
           </CarouselPrevious>
+          <CarouselNext className="right-5 md:right-8 h-16 w-16 border-none bg-transparent text-white/55 hover:text-white transition-colors shadow-none translate-x-0">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-14 w-14"
+              aria-hidden="true"
+            >
+              <path d="M9 4 L16 12 L9 20" />
+            </svg>
+          </CarouselNext>
         </Carousel>
       </section>
 

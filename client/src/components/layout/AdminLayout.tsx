@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -16,9 +17,11 @@ import {
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, Package, Folders, InboxIcon, LogOut, ArrowLeft, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const { toast } = useToast();
   const [location] = useLocation();
 
   const menuItems = [
@@ -28,6 +31,28 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { title: "Заявки", url: "/admin/requests", icon: InboxIcon },
     { title: "Новости", url: "/admin/news", icon: Newspaper },
   ];
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (!isAuthenticated) {
+      window.location.href = "/api/login";
+      return;
+    }
+
+    if (!user?.isAdmin) {
+      toast({
+        title: "Нет доступа",
+        description: "У вашей учетной записи нет прав администратора.",
+        variant: "destructive",
+      });
+      window.location.href = "/";
+    }
+  }, [isLoading, isAuthenticated, user, toast]);
+
+  if (isLoading || !isAuthenticated || !user?.isAdmin) {
+    return null;
+  }
 
   return (
     <SidebarProvider>

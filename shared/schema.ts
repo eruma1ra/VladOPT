@@ -55,6 +55,7 @@ export const news = pgTable("news", {
   content: text("content").notNull(),
   image: text("image"),
   status: text("status").default("active").notNull(), // active, archived, limited_offer
+  isFeatured: boolean("is_featured").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

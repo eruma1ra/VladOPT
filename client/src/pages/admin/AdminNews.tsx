@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { useNews, useCreateNews, useUpdateNews, useDeleteNews } from "@/hooks/use-news";
+import { useNews, useCreateNews, useUpdateNews, useDeleteNews, useToggleNewsFeatured } from "@/hooks/use-news";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -17,16 +17,19 @@ export default function AdminNews() {
   const { data: newsItems, isLoading: newsLoading } = useNews();
   const createNews = useCreateNews();
   const updateNews = useUpdateNews();
+  const toggleFeatured = useToggleNewsFeatured();
   const deleteNews = useDeleteNews();
   const { toast } = useToast();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [togglingFeaturedId, setTogglingFeaturedId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     image: "",
-    status: "active"
+    status: "active",
+    isFeatured: false,
   });
 
   useEffect(() => {
@@ -39,14 +42,16 @@ export default function AdminNews() {
         title: editingItem.title || "",
         content: editingItem.content || "",
         image: editingItem.image || "",
-        status: editingItem.status || "active"
+        status: editingItem.status || "active",
+        isFeatured: Boolean(editingItem.isFeatured),
       });
     } else {
       setFormData({
         title: "",
         content: "",
         image: "",
-        status: "active"
+        status: "active",
+        isFeatured: false,
       });
     }
   }, [editingItem]);
@@ -55,8 +60,35 @@ export default function AdminNews() {
     if (confirm("Вы уверены, что хотите удалить эту новость?")) {
       deleteNews.mutate(id, {
         onSuccess: () => toast({ title: "Новость удалена" }),
+        onError: (error: any) =>
+          toast({
+            title: "Ошибка удаления",
+            description: error?.message ?? "Не удалось удалить новость",
+            variant: "destructive",
+          }),
       });
     }
+  };
+
+  const handleToggleFeatured = (item: any) => {
+    setTogglingFeaturedId(item.id);
+    toggleFeatured.mutate(
+      { id: item.id, isFeatured: !item.isFeatured },
+      {
+        onSuccess: () => {
+          toast({
+            title: !item.isFeatured ? "Закреплено на переднем плане" : "Снято с переднего плана",
+          });
+        },
+        onError: (error: any) =>
+          toast({
+            title: "Ошибка сохранения",
+            description: error?.message ?? "Не удалось изменить передний план",
+            variant: "destructive",
+          }),
+        onSettled: () => setTogglingFeaturedId(null),
+      },
+    );
   };
 
   const handleSave = () => {
@@ -70,14 +102,26 @@ export default function AdminNews() {
         onSuccess: () => {
           toast({ title: "Новость обновлена" });
           setIsDialogOpen(false);
-        }
+        },
+        onError: (error: any) =>
+          toast({
+            title: "Ошибка сохранения",
+            description: error?.message ?? "Не удалось сохранить новость",
+            variant: "destructive",
+          }),
       });
     } else {
       createNews.mutate(formData as any, {
         onSuccess: () => {
           toast({ title: "Новость создана" });
           setIsDialogOpen(false);
-        }
+        },
+        onError: (error: any) =>
+          toast({
+            title: "Ошибка создания",
+            description: error?.message ?? "Не удалось создать новость",
+            variant: "destructive",
+          }),
       });
     }
   };
@@ -109,6 +153,7 @@ export default function AdminNews() {
                 <TableHead className="font-bold py-4 text-slate-700">Дата</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Заголовок</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Статус</TableHead>
+                <TableHead className="font-bold py-4 text-slate-700">Передний план</TableHead>
                 <TableHead className="text-right font-bold py-4 text-slate-700">Действия</TableHead>
               </TableRow>
             </TableHeader>
@@ -129,6 +174,23 @@ export default function AdminNews() {
                        item.status === 'limited_offer' ? 'Предложение' : 'Архив'}
                     </Badge>
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="h-8 px-2.5 border-none"
+                      disabled={togglingFeaturedId === item.id}
+                      onClick={() => handleToggleFeatured(item)}
+                    >
+                      {togglingFeaturedId === item.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                      ) : item.isFeatured ? (
+                        <Badge className="border-none bg-primary/15 text-primary">Да</Badge>
+                      ) : (
+                        <Badge className="border-none bg-slate-100 text-slate-500">Нет</Badge>
+                      )}
+                    </Button>
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary transition-colors" onClick={() => { setEditingItem(item); setIsDialogOpen(true); }}>
                       <Edit className="w-4 h-4" />
@@ -141,7 +203,7 @@ export default function AdminNews() {
               ))}
               {newsItems?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-slate-500 py-20 font-medium italic">Новости не найдены.</TableCell>
+                  <TableCell colSpan={5} className="text-center text-slate-500 py-20 font-medium italic">Новости не найдены.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -173,6 +235,23 @@ export default function AdminNews() {
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Ссылка на фото</Label>
               <Input value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} placeholder="https://..." className="bg-slate-50 focus:bg-white transition-colors" />
+            </div>
+            <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+              <input
+                id="is-featured-news"
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 accent-primary"
+                checked={formData.isFeatured}
+                onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="is-featured-news" className="text-slate-700 font-bold cursor-pointer">
+                  Поместить на передний план
+                </Label>
+                <p className="text-xs text-slate-500">
+                  Новость будет показана в начале списка на странице новостей.
+                </p>
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Текст новости</Label>

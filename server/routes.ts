@@ -6,7 +6,7 @@ import { insertRequestSchema, insertNewsSchema } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
-import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+import { setupAuth, registerAuthRoutes, isAdmin } from "./replit_integrations/auth";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -24,7 +24,7 @@ export async function registerRoutes(
     res.json(categories);
   });
 
-  app.post(api.categories.create.path, isAuthenticated, async (req, res) => {
+  app.post(api.categories.create.path, isAdmin, async (req, res) => {
     try {
       const input = api.categories.create.input.parse(req.body);
       const category = await storage.createCategory(input);
@@ -37,7 +37,7 @@ export async function registerRoutes(
     }
   });
 
-  app.put(api.categories.update.path, isAuthenticated, async (req, res) => {
+  app.put(api.categories.update.path, isAdmin, async (req, res) => {
     try {
       const input = api.categories.update.input.parse(req.body);
       const category = await storage.updateCategory(Number(req.params.id), input);
@@ -50,7 +50,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete(api.categories.delete.path, isAuthenticated, async (req, res) => {
+  app.delete(api.categories.delete.path, isAdmin, async (req, res) => {
     await storage.deleteCategory(Number(req.params.id));
     res.status(204).send();
   });
@@ -70,7 +70,7 @@ export async function registerRoutes(
     res.json(product);
   });
 
-  app.post(api.products.create.path, isAuthenticated, async (req, res) => {
+  app.post(api.products.create.path, isAdmin, async (req, res) => {
     try {
       const input = api.products.create.input.parse(req.body);
       const product = await storage.createProduct(input);
@@ -83,7 +83,7 @@ export async function registerRoutes(
     }
   });
 
-  app.put(api.products.update.path, isAuthenticated, async (req, res) => {
+  app.put(api.products.update.path, isAdmin, async (req, res) => {
     try {
       const input = api.products.update.input.parse(req.body);
       const product = await storage.updateProduct(Number(req.params.id), input);
@@ -96,13 +96,13 @@ export async function registerRoutes(
     }
   });
 
-  app.delete(api.products.delete.path, isAuthenticated, async (req, res) => {
+  app.delete(api.products.delete.path, isAdmin, async (req, res) => {
     await storage.deleteProduct(Number(req.params.id));
     res.status(204).send();
   });
 
   // Export CSV
-  app.get(api.products.exportCsv.path, isAuthenticated, async (req, res) => {
+  app.get(api.products.exportCsv.path, isAdmin, async (req, res) => {
     const products = await storage.getProducts();
     const csvRows = [
       ["sku", "name", "description_short", "images", "attributes", "availability"].join(",")
@@ -125,7 +125,7 @@ export async function registerRoutes(
   });
 
   // CSV Import
-  app.post(api.products.importCsv.path, isAuthenticated, upload.single('file'), async (req, res) => {
+  app.post(api.products.importCsv.path, isAdmin, upload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
@@ -184,7 +184,7 @@ export async function registerRoutes(
   });
 
   // Requests
-  app.get(api.requests.list.path, isAuthenticated, async (req, res) => {
+  app.get(api.requests.list.path, isAdmin, async (req, res) => {
     const requests = await storage.getRequests();
     res.json(requests);
   });
@@ -203,7 +203,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch(api.requests.updateStatus.path, isAuthenticated, async (req, res) => {
+  app.patch(api.requests.updateStatus.path, isAdmin, async (req, res) => {
     try {
       const { status } = api.requests.updateStatus.input.parse(req.body);
       const request = await storage.updateRequestStatus(Number(req.params.id), status);
@@ -216,7 +216,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/requests/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/requests/:id", isAdmin, async (req, res) => {
     await storage.deleteRequest(Number(req.params.id));
     res.status(204).send();
   });
@@ -233,7 +233,7 @@ export async function registerRoutes(
     res.json(item);
   });
 
-  app.post("/api/news", isAuthenticated, async (req, res) => {
+  app.post("/api/news", isAdmin, async (req, res) => {
     try {
       const input = insertNewsSchema.parse(req.body);
       const item = await storage.createNews(input);
@@ -246,9 +246,12 @@ export async function registerRoutes(
     }
   });
 
-  app.put("/api/news/:id", isAuthenticated, async (req, res) => {
+  app.put("/api/news/:id", isAdmin, async (req, res) => {
     try {
       const input = insertNewsSchema.partial().parse(req.body);
+      if (Object.keys(input).length === 0) {
+        return res.status(400).json({ message: "Нет данных для обновления" });
+      }
       const item = await storage.updateNews(Number(req.params.id), input);
       res.json(item);
     } catch (err) {
@@ -259,7 +262,20 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/news/:id", isAuthenticated, async (req, res) => {
+  app.patch("/api/news/:id/feature", isAdmin, async (req, res) => {
+    try {
+      const input = z.object({ isFeatured: z.boolean() }).parse(req.body);
+      const item = await storage.setNewsFeatured(Number(req.params.id), input.isFeatured);
+      res.json(item);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.delete("/api/news/:id", isAdmin, async (req, res) => {
     await storage.deleteNews(Number(req.params.id));
     res.status(204).send();
   });

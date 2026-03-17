@@ -1,30 +1,44 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
+import { Loader2 } from "lucide-react";
+
+const NotFound = lazy(() => import("@/pages/not-found"));
 
 // Layouts
-import { PublicLayout } from "@/components/layout/PublicLayout";
-import { AdminLayout } from "@/components/layout/AdminLayout";
+const PublicLayout = lazy(() =>
+  import("@/components/layout/PublicLayout").then((module) => ({ default: module.PublicLayout }))
+);
+const AdminLayout = lazy(() =>
+  import("@/components/layout/AdminLayout").then((module) => ({ default: module.AdminLayout }))
+);
 
 // Public Pages
-import Home from "@/pages/Home";
-import Catalog from "@/pages/Catalog";
-import ProductDetail from "@/pages/ProductDetail";
-import About from "@/pages/About";
-import Contacts from "@/pages/Contacts";
-import News from "@/pages/News";
+const Home = lazy(() => import("@/pages/Home"));
+const Catalog = lazy(() => import("@/pages/Catalog"));
+const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
+const About = lazy(() => import("@/pages/About"));
+const Contacts = lazy(() => import("@/pages/Contacts"));
+const News = lazy(() => import("@/pages/News"));
+const NewsDetail = lazy(() => import("@/pages/NewsDetail"));
 
 // Admin Pages
-import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AdminProducts from "@/pages/admin/AdminProducts";
-import AdminCategories from "@/pages/admin/AdminCategories";
-import AdminRequests from "@/pages/admin/AdminRequests";
-import AdminNews from "@/pages/admin/AdminNews";
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const AdminProducts = lazy(() => import("@/pages/admin/AdminProducts"));
+const AdminCategories = lazy(() => import("@/pages/admin/AdminCategories"));
+const AdminRequests = lazy(() => import("@/pages/admin/AdminRequests"));
+const AdminNews = lazy(() => import("@/pages/admin/AdminNews"));
 
-import NewsDetail from "@/pages/NewsDetail";
+function RouteFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -72,7 +86,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Router />
+        <Suspense fallback={<RouteFallback />}>
+          <Router />
+        </Suspense>
       </TooltipProvider>
     </QueryClientProvider>
   );
