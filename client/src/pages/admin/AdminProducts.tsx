@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageDropzone } from "@/components/admin/ImageDropzone";
 
 export default function AdminProducts() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -31,7 +32,7 @@ export default function AdminProducts() {
     descriptionShort: "",
     categoryId: "",
     availability: "in_stock",
-    images: "",
+    images: [] as string[],
     attributes: ""
   });
 
@@ -47,7 +48,7 @@ export default function AdminProducts() {
         descriptionShort: editingProduct.descriptionShort || "",
         categoryId: editingProduct.categoryId?.toString() || "",
         availability: editingProduct.availability === "in_stock" ? "in_stock" : "out_of_stock",
-        images: Array.isArray(editingProduct.images) ? editingProduct.images.join(", ") : "",
+        images: Array.isArray(editingProduct.images) ? editingProduct.images : [],
         attributes: JSON.stringify(editingProduct.attributes || {})
       });
     } else {
@@ -57,7 +58,7 @@ export default function AdminProducts() {
         descriptionShort: "",
         categoryId: "",
         availability: "in_stock",
-        images: "",
+        images: [],
         attributes: "{}"
       });
     }
@@ -88,7 +89,6 @@ export default function AdminProducts() {
   };
 
   const handleSave = () => {
-    const images = formData.images.split(",").map(s => s.trim()).filter(s => s);
     let attributes = {};
     try {
       attributes = JSON.parse(formData.attributes);
@@ -100,7 +100,7 @@ export default function AdminProducts() {
     const data = {
       ...formData,
       categoryId: formData.categoryId ? parseInt(formData.categoryId) : null,
-      images,
+      images: formData.images,
       attributes
     };
 
@@ -253,8 +253,14 @@ export default function AdminProducts() {
               <Textarea value={formData.descriptionShort} onChange={e => setFormData({...formData, descriptionShort: e.target.value})} placeholder="Основные преимущества или особенности" className="min-h-[100px] bg-slate-50 focus:bg-white transition-colors" />
             </div>
             <div className="space-y-2">
-              <Label className="text-slate-700 font-bold">Ссылки на изображения (через запятую)</Label>
-              <Input value={formData.images} onChange={e => setFormData({...formData, images: e.target.value})} placeholder="https://image1.jpg, https://image2.jpg" className="bg-slate-50 focus:bg-white transition-colors" />
+              <Label className="text-slate-700 font-bold">Изображения товара</Label>
+              <ImageDropzone
+                value={formData.images}
+                onChange={(images) => setFormData({ ...formData, images })}
+                maxFiles={8}
+                previewAspect="square"
+                hint="Рекомендуемый формат товара: квадрат 1:1."
+              />
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Технические характеристики (JSON)</Label>

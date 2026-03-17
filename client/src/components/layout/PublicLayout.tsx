@@ -51,7 +51,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
           <div className="hidden md:flex items-center gap-4">
             <div className="text-right mr-4">
               <a href="tel:+79247308283" className="block font-display font-bold text-lg text-slate-900 hover:text-primary transition-colors">
-                8 (924) 730-82-83
+                +7 (924) 730-82-83
               </a>
               <span className="text-xs text-slate-500 inline-flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
@@ -92,7 +92,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
             <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-4">
               <a href="tel:+79247308283" className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg font-display font-bold text-lg text-slate-900">
                 <Phone className="w-5 h-5 text-primary" />
-                8 (924) 730-82-83
+                +7 (924) 730-82-83
               </a>
               <Link href="/catalog" className="inline-flex" onClick={() => setMobileMenuOpen(false)}>
                 <Button className="w-full rounded-xl border-none" size="lg">Перейти в каталог</Button>
@@ -139,11 +139,11 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-slate-600" />
-                  <a href="tel:+79247308283" className="hover:text-white transition-colors">8 (924) 730-82-83</a>
+                  <a href="tel:+79247308283" className="hover:text-white transition-colors">+7 (924) 730-82-83</a>
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-slate-600" />
-                  <a href="tel:+79146610768" className="hover:text-white transition-colors">8 (914) 661-07-68</a>
+                  <a href="tel:+79146610768" className="hover:text-white transition-colors">+7 (914) 661-07-68</a>
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-slate-600" />

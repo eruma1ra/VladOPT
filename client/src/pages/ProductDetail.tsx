@@ -1,14 +1,43 @@
+import { useEffect, useState } from "react";
 import { useParams, Link } from "wouter";
 import { useProduct } from "@/hooks/use-products";
 import { RequestModal } from "@/components/RequestModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Loader2, ShieldCheck, Truck, PackageCheck, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Image as ImageIcon } from "lucide-react";
+
+function formatAttributeValue(value: unknown): string {
+  if (value === null || value === undefined || value === "") return "—";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
 
 export default function ProductDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0", 10);
   const { data: product, isLoading } = useProduct(id);
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const imageList = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
+  const activeImage = imageList[activeImageIdx];
+  const attributesList = product?.attributes ? Object.entries(product.attributes) : [];
+
+  useEffect(() => {
+    setActiveImageIdx(0);
+  }, [product?.id]);
+
+  const goPrevImage = () => {
+    if (imageList.length === 0) return;
+    setActiveImageIdx((prev) => (prev - 1 + imageList.length) % imageList.length);
+  };
+
+  const goNextImage = () => {
+    if (imageList.length === 0) return;
+    setActiveImageIdx((prev) => (prev + 1) % imageList.length);
+  };
 
   if (isLoading) {
     return (
@@ -30,9 +59,6 @@ export default function ProductDetail() {
     );
   }
 
-  const mainImage = product.images?.[0];
-  const attributesList = product.attributes ? Object.entries(product.attributes) : [];
-
   return (
     <div className="bg-slate-50 min-h-screen py-8 md:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -45,23 +71,68 @@ export default function ProductDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-2">
             
             {/* Image Section */}
-            <div className="bg-slate-100/50 p-8 flex items-center justify-center border-b lg:border-b-0 lg:border-r border-slate-100 min-h-[400px]">
-              {mainImage ? (
-                <img 
-                  src={mainImage} 
-                  alt={product.name} 
-                  className="max-w-full max-h-[500px] object-contain drop-shadow-xl"
-                />
-              ) : (
-                <div className="flex flex-col items-center text-slate-400">
-                  <ImageIcon className="w-24 h-24 mb-4 opacity-20" />
-                  <p>Изображение отсутствует</p>
+            <div className="bg-white p-5 md:p-8 border-b lg:border-b-0 lg:border-r border-slate-100">
+              <div className="mb-3 flex items-center justify-between text-xs text-slate-500">
+                <span className="font-semibold tracking-wide uppercase">Фото товара</span>
+                {imageList.length > 1 && <span>{activeImageIdx + 1} / {imageList.length}</span>}
+              </div>
+
+              <div className="relative overflow-hidden rounded-2xl bg-white aspect-square">
+                {activeImage ? (
+                  <img
+                    src={activeImage}
+                    alt={product.name}
+                    className="h-full w-full object-contain p-5 md:p-7"
+                  />
+                ) : (
+                  <div className="h-full w-full flex flex-col items-center justify-center text-slate-400">
+                    <ImageIcon className="w-24 h-24 mb-4 opacity-20" />
+                    <p>Изображение отсутствует</p>
+                  </div>
+                )}
+
+                {imageList.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={goPrevImage}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 hover:bg-white text-slate-700 border border-slate-200 shadow-sm flex items-center justify-center transition-colors"
+                      aria-label="Предыдущее изображение"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goNextImage}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 hover:bg-white text-slate-700 border border-slate-200 shadow-sm flex items-center justify-center transition-colors"
+                      aria-label="Следующее изображение"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {imageList.length > 1 && (
+                <div className="mt-4 grid grid-cols-5 gap-2">
+                  {imageList.map((imageUrl, idx) => (
+                    <button
+                      key={`${imageUrl}-${idx}`}
+                      type="button"
+                      onClick={() => setActiveImageIdx(idx)}
+                      className={`overflow-hidden rounded-lg aspect-square transition-opacity ${
+                        activeImageIdx === idx ? "opacity-100" : "opacity-65 hover:opacity-85"
+                      }`}
+                    >
+                      <img src={imageUrl} alt={`${product.name} ${idx + 1}`} className="h-full w-full object-cover bg-white" />
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
 
             {/* Details Section */}
-            <div className="p-8 md:p-12 flex flex-col">
+            <div className="p-8 md:p-10 flex flex-col bg-white">
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 {product.availability === 'in_stock' && (
                   <Badge className="bg-green-500 hover:bg-green-600 shadow-sm border-none text-white font-medium">В наличии</Badge>
@@ -84,67 +155,59 @@ export default function ProductDetail() {
                 </p>
               )}
 
-              <p className="text-slate-600 text-lg mb-8 leading-relaxed">
-                {product.descriptionShort || "Профессиональное оборудование, соответствующее высоким стандартам качества. Для получения КП и документации отправьте запрос."}
-              </p>
+              <section className="mb-8">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400 mb-2">Описание</p>
+                <p className="text-slate-700 text-[1.08rem] md:text-[1.18rem] leading-relaxed">
+                  {product.descriptionShort || "Профессиональное оборудование, соответствующее высоким стандартам качества. Для получения КП и документации отправьте запрос."}
+                </p>
+                <div className="mt-4 h-[2px] w-24 bg-gradient-to-r from-primary to-primary/30 rounded-full" />
+              </section>
 
               {attributesList.length > 0 && (
-                <div className="mb-10">
-                  <h3 className="font-bold text-slate-900 mb-4 text-lg border-l-4 border-primary pl-3">Характеристики</h3>
-                  <div className="bg-slate-50 rounded-xl border border-slate-100 overflow-hidden">
-                    <table className="w-full text-sm">
+                <section className="mb-8">
+                  <h3 className="font-bold text-slate-900 mb-4 text-xl">Характеристики</h3>
+                  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <table className="w-full border-collapse">
                       <tbody>
                         {attributesList.map(([key, value], idx) => (
-                          <tr key={key} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                            <td className="py-3 px-4 text-slate-500 font-medium w-1/3 border-r border-slate-100">{key}</td>
-                            <td className="py-3 px-4 text-slate-900 font-medium">{value as React.ReactNode}</td>
+                          <tr
+                            key={key}
+                            className={`group transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/60"} hover:bg-primary/[0.05] ${
+                              idx === attributesList.length - 1 ? "" : "border-b border-slate-100"
+                            }`}
+                          >
+                            <td className="py-2.5 px-4 text-slate-500 text-[11px] md:text-[12px] font-semibold uppercase tracking-[0.08em] w-[42%] border-r border-slate-100 align-top">
+                              {key}
+                            </td>
+                            <td className="py-2.5 px-4 text-slate-900 text-[14px] md:text-[15px] font-semibold break-words">
+                              {formatAttributeValue(value)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </section>
               )}
 
               <div className="mt-auto">
-                <div className="bg-slate-900 rounded-2xl p-8 text-white mb-8 shadow-2xl shadow-slate-200">
-                  <div className="flex flex-col gap-6">
+                <div className="rounded-2xl p-6 mb-8 border border-slate-200 bg-white shadow-sm">
+                  <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
                     <div className="text-left w-full space-y-2">
-                      <h4 className="font-bold text-2xl text-white">Цена</h4>
-                      <p className="text-slate-400 text-sm">Вышлем прайс по запросу.</p>
+                      <h4 className="font-bold text-2xl text-slate-900">Цена</h4>
+                      <p className="text-slate-500 text-sm">Вышлем прайс по запросу.</p>
                     </div>
-                    <div className="flex justify-center w-full">
+                    <div className="flex justify-center w-full md:w-auto">
                       <RequestModal 
                         productId={product.id}
                         productName={product.name}
                         trigger={
-                          <Button size="lg" className="h-16 px-12 text-lg font-bold rounded-xl shadow-xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all border-none bg-primary text-white w-full md:w-auto">
+                          <Button size="lg" className="h-14 px-10 text-base font-bold rounded-xl transition-all border-none bg-primary text-white w-full md:w-auto">
                             Запросить стоимость
                           </Button>
                         }
                       />
                     </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div className="flex flex-col items-center text-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                      <ShieldCheck className="w-6 h-6 text-primary" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Гарантия качества</span>
-                  </div>
-                  <div className="flex flex-col items-center text-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                      <Truck className="w-6 h-6 text-primary" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Быстрая отгрузка</span>
-                  </div>
-                  <div className="flex flex-col items-center text-center p-5 bg-white rounded-2xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                      <PackageCheck className="w-6 h-6 text-primary" />
-                    </div>
-                    <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Надежная упаковка</span>
                   </div>
                 </div>
               </div>

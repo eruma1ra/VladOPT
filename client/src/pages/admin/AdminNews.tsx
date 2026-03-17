@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ImageDropzone } from "@/components/admin/ImageDropzone";
 
 export default function AdminNews() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -233,8 +234,14 @@ export default function AdminNews() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-slate-700 font-bold">Ссылка на фото</Label>
-              <Input value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} placeholder="https://..." className="bg-slate-50 focus:bg-white transition-colors" />
+              <Label className="text-slate-700 font-bold">Фото новости</Label>
+              <ImageDropzone
+                value={formData.image ? [formData.image] : []}
+                onChange={(images) => setFormData({ ...formData, image: images[0] ?? "" })}
+                maxFiles={1}
+                previewAspect="landscape"
+                hint="Рекомендуемый формат новости: горизонтальный 16:9."
+              />
             </div>
             <div className="flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
               <input

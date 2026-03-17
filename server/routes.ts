@@ -1,5 +1,8 @@
 import type { Express } from "express";
 import type { Server } from "http";
+import { randomUUID } from "crypto";
+import fs from "fs/promises";
+import path from "path";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
 import { insertRequestSchema, insertNewsSchema } from "@shared/schema";
@@ -9,7 +12,17 @@ import { parse } from "csv-parse/sync";
 import { setupAuth, registerAuthRoutes, isAdmin } from "./replit_integrations/auth";
 import { sendRequestNotificationByEmail } from "./services/request-notifier";
 
-const upload = multer({ storage: multer.memoryStorage() });
+const csvUpload = multer({ storage: multer.memoryStorage() });
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+});
+
+const imageMimeToExtension: Record<string, string> = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/webp": ".webp",
+};
 
 export async function registerRoutes(
   httpServer: Server,
@@ -126,7 +139,7 @@ export async function registerRoutes(
   });
 
   // CSV Import
-  app.post(api.products.importCsv.path, isAdmin, upload.single('file'), async (req, res) => {
+  app.post(api.products.importCsv.path, isAdmin, csvUpload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
@@ -182,6 +195,41 @@ export async function registerRoutes(
     } catch (e: any) {
       res.status(400).json({ message: `CSV parsing error: ${e.message}` });
     }
+  });
+
+  // Image Upload (admin)
+  app.post("/api/uploads/image", isAdmin, (req, res) => {
+    imageUpload.single("file")(req, res, async (err: unknown) => {
+      if (err) {
+        if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+          return res.status(400).json({ message: "Файл слишком большой. Максимум 8 МБ." });
+        }
+        return res.status(400).json({ message: "Не удалось загрузить файл." });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ message: "Файл не передан." });
+      }
+
+      try {
+        const extension = imageMimeToExtension[req.file.mimetype];
+        if (!extension) {
+          return res.status(400).json({ message: "Допустимы только JPG, JPEG, PNG или WEBP." });
+        }
+
+        const uploadsDir = path.resolve(process.cwd(), "uploads");
+        await fs.mkdir(uploadsDir, { recursive: true });
+
+        const fileName = `${Date.now()}-${randomUUID()}${extension}`;
+        const targetPath = path.join(uploadsDir, fileName);
+
+        await fs.writeFile(targetPath, req.file.buffer);
+        return res.status(201).json({ url: `/uploads/${fileName}` });
+      } catch (writeError) {
+        console.error("Image upload save error:", writeError);
+        return res.status(500).json({ message: "Не удалось сохранить файл." });
+      }
+    });
   });
 
   // Requests

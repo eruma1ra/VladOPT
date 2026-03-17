@@ -30,8 +30,8 @@ export default function Contacts() {
                 <div>
                   <h4 className="font-semibold text-slate-900 mb-1">Телефон</h4>
                   <div className="flex flex-col">
-                    <a href="tel:+79247308283" className="text-lg font-bold text-slate-900 hover:text-primary transition-colors">8 (924) 730-82-83</a>
-                    <a href="tel:+79146610768" className="text-lg font-bold text-slate-900 hover:text-primary transition-colors">8 (914) 661-07-68</a>
+                    <a href="tel:+79247308283" className="text-lg font-bold text-slate-900 hover:text-primary transition-colors">+7 (924) 730-82-83</a>
+                    <a href="tel:+79146610768" className="text-lg font-bold text-slate-900 hover:text-primary transition-colors">+7 (914) 661-07-68</a>
                   </div>
                 </div>
               </div>
@@ -67,7 +67,7 @@ export default function Contacts() {
             <MessageCircle className="w-16 h-16 text-primary mb-6" />
             <h2 className="text-3xl font-display font-bold mb-4">Быстрая связь в Max</h2>
             <p className="text-slate-300 mb-8 max-w-md">
-              Наши менеджеры постоянно на связи в Max. Напишите нам по ссылке.
+              Вы можете узнать необходимую информацию в Max. Напишите нам по ссылке.
             </p>
             <a 
               href={MAX_CONTACT_URL}

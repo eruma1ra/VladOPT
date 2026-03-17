@@ -95,6 +95,14 @@ npm run start
 - Non-admin users receive `403 Forbidden`.
 - Admin API routes are protected by server-side `isAdmin` middleware.
 
+## Image uploads (admin)
+- In admin panel, images for products and news can be uploaded via drag-and-drop (`JPG/JPEG/PNG/WEBP`, up to `8 MB`).
+- Products support multiple images (up to `8`), news supports one image.
+- Recommended format: products `1:1` (square), news `16:9` (horizontal).
+- Uploaded files are stored on the server in `./uploads` and available by URL `/uploads/<filename>`.
+- This works well on VPS or any hosting with persistent disk.
+- On stateless/ephemeral hosting, local files may disappear after redeploy/restart; in that case move uploads to S3-compatible object storage.
+
 ## Google Console setup
 1. Open Google Cloud Console -> APIs & Services -> Credentials.
 2. Create OAuth 2.0 Client ID (`Web application`).
