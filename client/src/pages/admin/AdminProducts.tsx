@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, FileUp, Edit, FileDown, Loader2 } from "lucide-react";
+import { Plus, Trash2, FileUp, Edit, FileDown, Loader2, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +16,11 @@ import { ImageDropzone } from "@/components/admin/ImageDropzone";
 
 export default function AdminProducts() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { data: products, isLoading: productsLoading } = useProducts();
+  const [search, setSearch] = useState("");
+  const normalizedSearch = search.trim();
+  const { data: products, isLoading: productsLoading } = useProducts({
+    search: normalizedSearch.length > 0 ? normalizedSearch : undefined,
+  });
   const { data: categories } = useCategories();
   const deleteProduct = useDeleteProduct();
   const deleteAllProducts = useDeleteAllProducts();
@@ -169,6 +173,15 @@ export default function AdminProducts() {
         <div>
           <h1 className="text-3xl font-display font-bold text-slate-900">Товары</h1>
           <p className="text-slate-500">Управление ассортиментом каталога.</p>
+          <div className="catalog-search-shell mt-3 w-full max-w-md">
+            <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Поиск по названию или артикулу"
+              className="pl-12 h-12 rounded-xl bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 focus-visible:shadow-none text-[15px] placeholder:text-slate-400"
+            />
+          </div>
         </div>
         <div className="flex flex-nowrap items-center gap-2 overflow-x-auto">
           <Button 
@@ -271,12 +284,12 @@ export default function AdminProducts() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold">Артикул (SKU)</Label>
-                <Input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="Напр: VLV-100" className="bg-slate-50 focus:bg-white transition-colors" />
+                <Input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="Напр: VLV-100" />
               </div>
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold">Статус наличия</Label>
                 <Select value={formData.availability} onValueChange={v => setFormData({...formData, availability: v})}>
-                  <SelectTrigger className="bg-slate-50"><SelectValue /></SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="in_stock">В наличии</SelectItem>
                     <SelectItem value="out_of_stock">Ожидается</SelectItem>
@@ -286,12 +299,12 @@ export default function AdminProducts() {
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Наименование товара</Label>
-              <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Полное название товара" className="bg-slate-50 focus:bg-white transition-colors" />
+              <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Полное название товара" />
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Категория каталога</Label>
               <Select value={formData.categoryId} onValueChange={v => setFormData({...formData, categoryId: v})}>
-                <SelectTrigger className="bg-slate-50"><SelectValue placeholder="Выберите категорию" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Выберите категорию" /></SelectTrigger>
                 <SelectContent>
                   {categories?.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}
                 </SelectContent>
@@ -299,7 +312,7 @@ export default function AdminProducts() {
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Краткое описание (для сайта)</Label>
-              <Textarea value={formData.descriptionShort} onChange={e => setFormData({...formData, descriptionShort: e.target.value})} placeholder="Основные преимущества или особенности" className="min-h-[100px] bg-slate-50 focus:bg-white transition-colors" />
+              <Textarea value={formData.descriptionShort} onChange={e => setFormData({...formData, descriptionShort: e.target.value})} placeholder="Основные преимущества или особенности" className="min-h-[100px]" />
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Изображения товара</Label>

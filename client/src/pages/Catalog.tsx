@@ -34,7 +34,7 @@ export default function Catalog() {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-primary w-5 h-5" />
               <Input 
                 placeholder="Поиск по артикулу или названию..." 
-                className="pl-12 h-12 rounded-xl bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 text-[15px] placeholder:text-slate-400"
+                className="pl-12 h-12 rounded-xl bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 focus-visible:shadow-none text-[15px] placeholder:text-slate-400"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />

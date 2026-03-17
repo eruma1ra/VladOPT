@@ -1,11 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCategories, useDeleteCategory, useDeleteAllCategories, useCreateCategory, useUpdateCategory } from "@/hooks/use-categories";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Trash2, Edit } from "lucide-react";
+import { Plus, Trash2, Edit, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -22,6 +21,7 @@ export default function AdminCategories() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [formData, setFormData] = useState({ name: "", slug: "" });
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) window.location.href = "/api/login";
@@ -88,6 +88,15 @@ export default function AdminCategories() {
 
   if (isLoading || !isAuthenticated) return null;
 
+  const filteredCategories = useMemo(() => {
+    if (!categories) return [];
+
+    const query = search.trim().toLowerCase();
+    if (!query) return categories;
+
+    return categories.filter((category) => category.name.toLowerCase().includes(query));
+  }, [categories, search]);
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -111,6 +120,16 @@ export default function AdminCategories() {
         </div>
       </div>
 
+      <div className="catalog-search-shell mb-4 w-full max-w-md">
+        <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Поиск по названию категории"
+          className="pl-12 h-12 rounded-xl bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 focus-visible:shadow-none text-[15px] placeholder:text-slate-400"
+        />
+      </div>
+
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <Table>
           <TableHeader>
@@ -122,7 +141,7 @@ export default function AdminCategories() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories?.map((c) => (
+            {filteredCategories.map((c) => (
               <TableRow key={c.id}>
                 <TableCell>{c.id}</TableCell>
                 <TableCell className="font-medium text-slate-900">{c.name}</TableCell>
@@ -137,6 +156,13 @@ export default function AdminCategories() {
                 </TableCell>
               </TableRow>
             ))}
+            {filteredCategories.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center text-slate-500 py-16 font-medium italic">
+                  Категории не найдены.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

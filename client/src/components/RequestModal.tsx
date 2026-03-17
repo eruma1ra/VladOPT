@@ -81,7 +81,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {!isControlled && trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-display">Оптовый запрос</DialogTitle>
           <DialogDescription>

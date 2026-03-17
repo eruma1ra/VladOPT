@@ -2,12 +2,13 @@ import { ArrowRight } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useProducts } from "@/hooks/use-products";
+import { useHeroSlides } from "@/hooks/use-hero-slides";
 import { ProductCard } from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
-const slides = [
+const fallbackSlides = [
   {
     title: "Оптовые поставки вентилей",
     desc: "Прямые поставки от ведущих заводов-изготовителей. Гарантия качества и надежная логистика.",
@@ -27,6 +28,15 @@ const slides = [
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();
+  const { data: heroSlides } = useHeroSlides({ refetchInterval: 10_000 });
+  const slides =
+    heroSlides && heroSlides.length > 0
+      ? heroSlides.map((slide) => ({
+          title: slide.title,
+          desc: slide.description,
+          img: slide.image,
+        }))
+      : fallbackSlides;
 
   return (
     <div className="flex flex-col min-h-screen">

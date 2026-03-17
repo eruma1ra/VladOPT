@@ -59,6 +59,15 @@ export const news = pgTable("news", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const heroSlides = pgTable("hero_slides", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  image: text("image").notNull(),
+  sortOrder: integer("sort_order").default(1).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 export const categoriesRelations = relations(categories, ({ many }) => ({
   products: many(products),
@@ -94,6 +103,7 @@ export const insertRequestSchema = createInsertSchema(requests, {
   comment: z.string().min(5, "Пожалуйста, опишите ваш запрос"),
 }).omit({ id: true, createdAt: true });
 export const insertNewsSchema = createInsertSchema(news).omit({ id: true, createdAt: true });
+export const insertHeroSlideSchema = createInsertSchema(heroSlides).omit({ id: true, createdAt: true });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -107,3 +117,10 @@ export type Request = typeof requests.$inferSelect;
 export type InsertRequest = z.infer<typeof insertRequestSchema>;
 export type News = typeof news.$inferSelect;
 export type InsertNews = z.infer<typeof insertNewsSchema>;
+export type HeroSlide = typeof heroSlides.$inferSelect;
+export type InsertHeroSlide = z.infer<typeof insertHeroSlideSchema>;
+export type ProductQueryParams = {
+  categoryId?: number;
+  brandId?: number;
+  search?: string;
+};

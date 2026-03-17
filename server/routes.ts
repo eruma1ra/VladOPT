@@ -5,7 +5,7 @@ import fs from "fs/promises";
 import path from "path";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
-import { insertRequestSchema, insertNewsSchema, type InsertProduct } from "@shared/schema";
+import { insertRequestSchema, insertNewsSchema, insertHeroSlideSchema, type InsertProduct } from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
@@ -314,44 +314,43 @@ export async function registerRoutes(
             continue;
           }
 
-          if (!sku || !name) {
-            errors.push(`Строка ${i + 1}: не заполнены Артикул или Номенклатура`);
+          if (!sku) {
+            errors.push(`Строка ${i + 1}: не заполнен Артикул`);
             continue;
           }
 
-          const code = readCsvCell(row[productCsvColumns.code]);
-          const groupRaw = readCsvCell(row[productCsvColumns.group]);
-          const normalizedGroup = normalizeCategoryName(groupRaw);
           const quantityRaw = readCsvCell(row[productCsvColumns.quantity]);
           const quantity = parseQuantity(quantityRaw);
           const availability = getAvailabilityFromQuantity(quantity);
-          const categoryId = await resolveCategoryId(groupRaw);
-
-          const importedAttributes: Record<string, unknown> = {};
-          if (code) importedAttributes["Код"] = code;
-          if (normalizedGroup) importedAttributes["Группа"] = normalizedGroup;
-          importedAttributes["Остаток"] = quantityRaw || "0";
 
           const existingProduct = await storage.getProductBySku(sku);
           if (existingProduct) {
             const existingAttributes =
               (existingProduct.attributes ?? {}) as Record<string, unknown>;
-            const updateData: Partial<InsertProduct> = {
-              name,
+            await storage.updateProduct(existingProduct.id, {
               availability,
               attributes: {
                 ...existingAttributes,
-                ...importedAttributes,
+                "Остаток": quantityRaw || "0",
               },
-            };
-
-            if (categoryId !== null) {
-              updateData.categoryId = categoryId;
-            }
-
-            await storage.updateProduct(existingProduct.id, updateData);
+            });
             updated++;
           } else {
+            if (!name) {
+              errors.push(`Строка ${i + 1}: для нового товара не заполнена Номенклатура`);
+              continue;
+            }
+
+            const code = readCsvCell(row[productCsvColumns.code]);
+            const groupRaw = readCsvCell(row[productCsvColumns.group]);
+            const normalizedGroup = normalizeCategoryName(groupRaw);
+            const categoryId = await resolveCategoryId(groupRaw);
+
+            const importedAttributes: Record<string, unknown> = {};
+            if (code) importedAttributes["Код"] = code;
+            if (normalizedGroup) importedAttributes["Группа"] = normalizedGroup;
+            importedAttributes["Остаток"] = quantityRaw || "0";
+
             const newProduct: InsertProduct = {
               sku,
               name,
@@ -519,6 +518,46 @@ export async function registerRoutes(
 
   app.delete("/api/news/:id", isAdmin, async (req, res) => {
     await storage.deleteNews(Number(req.params.id));
+    res.status(204).send();
+  });
+
+  // Hero Slides
+  app.get("/api/hero-slides", async (_req, res) => {
+    const slides = await storage.getHeroSlides();
+    res.json(slides);
+  });
+
+  app.post("/api/hero-slides", isAdmin, async (req, res) => {
+    try {
+      const input = insertHeroSlideSchema.parse(req.body);
+      const slide = await storage.createHeroSlide(input);
+      res.status(201).json(slide);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.put("/api/hero-slides/:id", isAdmin, async (req, res) => {
+    try {
+      const input = insertHeroSlideSchema.partial().parse(req.body);
+      if (Object.keys(input).length === 0) {
+        return res.status(400).json({ message: "Нет данных для обновления" });
+      }
+      const slide = await storage.updateHeroSlide(Number(req.params.id), input);
+      res.json(slide);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
+  });
+
+  app.delete("/api/hero-slides/:id", isAdmin, async (req, res) => {
+    await storage.deleteHeroSlide(Number(req.params.id));
     res.status(204).send();
   });
 

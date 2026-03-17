@@ -65,7 +65,7 @@ export function ProductCard({ product }: ProductCardProps) {
             productId={product.id}
             productName={product.name}
             trigger={
-              <Button className="flex-1 rounded-xl border-none" variant="outline">
+              <Button className="flex-1 h-11 rounded-xl border-none bg-slate-600 text-white font-semibold shadow-sm hover:bg-slate-700">
                 Запросить стоимость
               </Button>
             }

@@ -1,6 +1,6 @@
-import { users, type User, type InsertUser, categories, type Category, type InsertCategory, products, type Product, type InsertProduct, requests, type Request, type InsertRequest, brands, type Brand, type InsertBrand, news, type News, type InsertNews } from "@shared/schema";
+import { users, type User, type InsertUser, categories, type Category, type InsertCategory, products, type Product, type InsertProduct, requests, type Request, type InsertRequest, brands, type Brand, type InsertBrand, news, type News, type InsertNews, heroSlides, type HeroSlide, type InsertHeroSlide } from "@shared/schema";
 import { db } from "./db";
-import { eq, or, ilike, and, desc, ne } from "drizzle-orm";
+import { eq, or, ilike, and, desc, ne, asc } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
@@ -42,6 +42,12 @@ export interface IStorage {
   updateNews(id: number, news: Partial<InsertNews>): Promise<News>;
   setNewsFeatured(id: number, isFeatured: boolean): Promise<News>;
   deleteNews(id: number): Promise<void>;
+
+  // Hero slides
+  getHeroSlides(): Promise<HeroSlide[]>;
+  createHeroSlide(slide: InsertHeroSlide): Promise<HeroSlide>;
+  updateHeroSlide(id: number, slide: Partial<InsertHeroSlide>): Promise<HeroSlide>;
+  deleteHeroSlide(id: number): Promise<void>;
 
   sessionStore: session.Store;
 }
@@ -257,6 +263,24 @@ export class DatabaseStorage implements IStorage {
 
   async deleteNews(id: number): Promise<void> {
     await db.delete(news).where(eq(news.id, id));
+  }
+
+  async getHeroSlides(): Promise<HeroSlide[]> {
+    return await db.select().from(heroSlides).orderBy(asc(heroSlides.sortOrder), asc(heroSlides.id));
+  }
+
+  async createHeroSlide(insertSlide: InsertHeroSlide): Promise<HeroSlide> {
+    const [slide] = await db.insert(heroSlides).values(insertSlide).returning();
+    return slide;
+  }
+
+  async updateHeroSlide(id: number, slide: Partial<InsertHeroSlide>): Promise<HeroSlide> {
+    const [updated] = await db.update(heroSlides).set(slide).where(eq(heroSlides.id, id)).returning();
+    return updated;
+  }
+
+  async deleteHeroSlide(id: number): Promise<void> {
+    await db.delete(heroSlides).where(eq(heroSlides.id, id));
   }
 }
 

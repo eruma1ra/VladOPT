@@ -102,3 +102,9 @@
 .text-balance {
   text-wrap: balance;
 }
+
+@layer components {
+  .catalog-search-shell {
+    @apply relative rounded-xl border-2 border-slate-200 bg-white transition-colors duration-200 ease-out focus-within:border-slate-400;
+  }
+}

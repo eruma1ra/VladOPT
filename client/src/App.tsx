@@ -31,6 +31,7 @@ const AdminProducts = lazy(() => import("@/pages/admin/AdminProducts"));
 const AdminCategories = lazy(() => import("@/pages/admin/AdminCategories"));
 const AdminRequests = lazy(() => import("@/pages/admin/AdminRequests"));
 const AdminNews = lazy(() => import("@/pages/admin/AdminNews"));
+const AdminSlider = lazy(() => import("@/pages/admin/AdminSlider"));
 
 function RouteFallback() {
   return (
@@ -49,6 +50,7 @@ function Router() {
       <Route path="/admin/categories" component={() => <AdminLayout><AdminCategories /></AdminLayout>} />
       <Route path="/admin/requests" component={() => <AdminLayout><AdminRequests /></AdminLayout>} />
       <Route path="/admin/news" component={() => <AdminLayout><AdminNews /></AdminLayout>} />
+      <Route path="/admin/slider" component={() => <AdminLayout><AdminSlider /></AdminLayout>} />
 
       {/* Public Routes */}
       <Route path="/">

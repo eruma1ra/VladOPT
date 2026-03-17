@@ -220,12 +220,12 @@ export default function AdminNews() {
           <div className="grid gap-6 py-4">
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Заголовок</Label>
-              <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="Заголовок новости" className="bg-slate-50 focus:bg-white transition-colors" />
+              <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="Заголовок новости" />
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Статус</Label>
               <Select value={formData.status} onValueChange={v => setFormData({...formData, status: v})}>
-                <SelectTrigger className="bg-slate-50"><SelectValue /></SelectTrigger>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">Активна</SelectItem>
                   <SelectItem value="limited_offer">Ограниченное предложение</SelectItem>
@@ -262,7 +262,7 @@ export default function AdminNews() {
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Текст новости</Label>
-              <Textarea value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} placeholder="Полный текст новости" className="min-h-[200px] bg-slate-50 focus:bg-white transition-colors" />
+              <Textarea value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} placeholder="Полный текст новости" className="min-h-[200px]" />
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0 mt-4 border-t pt-6">
