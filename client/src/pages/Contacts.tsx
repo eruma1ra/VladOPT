@@ -18,7 +18,7 @@ export default function Contacts() {
                   <MapPin className="w-6 h-6" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-slate-900 mb-1">Адрес</h4>
+                  <h4 className="font-semibold text-slate-900 mb-1">Местонахождение</h4>
                   <p className="text-slate-600">Владивосток, Приморский край</p>
                 </div>
               </div>

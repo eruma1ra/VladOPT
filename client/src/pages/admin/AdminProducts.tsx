@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useProducts, useDeleteProduct, useDeleteAllProducts, useImportProducts, useCreateProduct, useUpdateProduct } from "@/hooks/use-products";
 import { useCategories } from "@/hooks/use-categories";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, FileUp, Edit, FileDown, Loader2, Search } from "lucide-react";
+import { Plus, Trash2, FileUp, Edit, FileDown, Loader2, Search, House } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,10 @@ export default function AdminProducts() {
   const { data: products, isLoading: productsLoading } = useProducts({
     search: normalizedSearch.length > 0 ? normalizedSearch : undefined,
   });
+  const sortedProducts = useMemo(
+    () => [...(products ?? [])].sort((a, b) => b.id - a.id),
+    [products],
+  );
   const { data: categories } = useCategories();
   const deleteProduct = useDeleteProduct();
   const deleteAllProducts = useDeleteAllProducts();
@@ -37,6 +41,7 @@ export default function AdminProducts() {
     descriptionShort: "",
     categoryId: "",
     availability: "in_stock",
+    showOnHome: false,
     images: [] as string[],
     attributes: ""
   });
@@ -53,6 +58,7 @@ export default function AdminProducts() {
         descriptionShort: editingProduct.descriptionShort || "",
         categoryId: editingProduct.categoryId?.toString() || "",
         availability: editingProduct.availability === "in_stock" ? "in_stock" : "out_of_stock",
+        showOnHome: Boolean(editingProduct.showOnHome),
         images: Array.isArray(editingProduct.images) ? editingProduct.images : [],
         attributes: JSON.stringify(editingProduct.attributes || {})
       });
@@ -63,6 +69,7 @@ export default function AdminProducts() {
         descriptionShort: "",
         categoryId: "",
         availability: "in_stock",
+        showOnHome: false,
         images: [],
         attributes: "{}"
       });
@@ -165,6 +172,26 @@ export default function AdminProducts() {
     }
   };
 
+  const handleToggleHomeProduct = (product: any) => {
+    updateProduct.mutate(
+      { id: product.id, showOnHome: !product.showOnHome },
+      {
+        onSuccess: () => {
+          toast({
+            title: !product.showOnHome ? "Товар добавлен на главную" : "Товар снят с главной",
+          });
+        },
+        onError: (error: any) => {
+          toast({
+            title: "Ошибка обновления",
+            description: error?.message || "Не удалось изменить отображение на главной",
+            variant: "destructive",
+          });
+        },
+      },
+    );
+  };
+
   if (authLoading || !isAuthenticated) return null;
 
   return (
@@ -230,21 +257,24 @@ export default function AdminProducts() {
         {productsLoading ? (
           <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
-          <Table className="min-w-[920px]">
+          <Table className="min-w-[1040px]">
             <TableHeader>
               <TableRow className="bg-slate-50/50">
                 <TableHead className="font-bold py-4 text-slate-700">Артикул</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Наименование</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Категория</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Статус</TableHead>
+                <TableHead className="font-bold py-4 text-slate-700">Главная</TableHead>
                 <TableHead className="text-right font-bold py-4 text-slate-700">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products?.map((p) => (
+              {sortedProducts.map((p) => (
                 <TableRow key={p.id} className="hover:bg-slate-50 transition-colors">
                   <TableCell className="font-mono text-xs text-slate-500">{p.sku}</TableCell>
-                  <TableCell className="font-semibold text-slate-900 max-w-[300px] truncate" title={p.name}>{p.name}</TableCell>
+                  <TableCell className="font-semibold text-slate-900 max-w-[380px] whitespace-normal break-words leading-5">
+                    {p.name}
+                  </TableCell>
                   <TableCell className="text-slate-600 font-medium">{p.category?.name || '-'}</TableCell>
                   <TableCell>
                     <Badge
@@ -255,7 +285,21 @@ export default function AdminProducts() {
                       {p.availability === 'in_stock' ? 'В наличии' : 'Ожидается'}
                     </Badge>
                   </TableCell>
+                  <TableCell>
+                    <Badge className={p.showOnHome ? "border-none bg-primary/15 text-primary" : "border-none bg-slate-100 text-slate-500"}>
+                      {p.showOnHome ? "Показан" : "Скрыт"}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title={p.showOnHome ? "Убрать с главной" : "Поместить на главный экран"}
+                      className={p.showOnHome ? "text-primary hover:text-primary" : "text-slate-400 hover:text-primary transition-colors"}
+                      onClick={() => handleToggleHomeProduct(p)}
+                    >
+                      <House className="w-4 h-4" />
+                    </Button>
                     <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary transition-colors" onClick={() => { setEditingProduct(p); setIsDialogOpen(true); }}>
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -265,9 +309,9 @@ export default function AdminProducts() {
                   </TableCell>
                 </TableRow>
               ))}
-              {products?.length === 0 && (
+              {sortedProducts.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-slate-500 py-20 font-medium italic">Товары не найдены. Добавьте новые или импортируйте из CSV.</TableCell>
+                  <TableCell colSpan={6} className="text-center text-slate-500 py-20 font-medium italic">Товары не найдены. Добавьте новые или импортируйте из CSV.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -296,6 +340,20 @@ export default function AdminProducts() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Показ на главной</p>
+                <p className="text-xs text-slate-500">Если включено, товар будет отображаться на главном экране.</p>
+              </div>
+              <Button
+                type="button"
+                variant={formData.showOnHome ? "default" : "outline"}
+                className={formData.showOnHome ? "border-none" : "border-slate-300"}
+                onClick={() => setFormData((prev) => ({ ...prev, showOnHome: !prev.showOnHome }))}
+              >
+                {formData.showOnHome ? "Показан" : "Скрыт"}
+              </Button>
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Наименование товара</Label>

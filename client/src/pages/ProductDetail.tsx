@@ -16,6 +16,13 @@ function formatAttributeValue(value: unknown): string {
   }
 }
 
+const hiddenAttributeKeyPrefixes = ["код", "остаток", "quantity", "qty", "stock"];
+
+function isPublicAttributeKey(rawKey: string): boolean {
+  const normalizedKey = rawKey.toLowerCase().replace(/[\s._-]+/g, "");
+  return !hiddenAttributeKeyPrefixes.some((prefix) => normalizedKey.startsWith(prefix));
+}
+
 export default function ProductDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0", 10);
@@ -23,7 +30,9 @@ export default function ProductDetail() {
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const imageList = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
   const activeImage = imageList[activeImageIdx];
-  const attributesList = product?.attributes ? Object.entries(product.attributes) : [];
+  const attributesList = product?.attributes
+    ? Object.entries(product.attributes).filter(([key]) => isPublicAttributeKey(key))
+    : [];
 
   useEffect(() => {
     setActiveImageIdx(0);
@@ -161,7 +170,7 @@ export default function ProductDetail() {
               <section className="mb-8">
                 <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400 mb-2">Описание</p>
                 <p className="text-slate-700 text-[1.08rem] md:text-[1.18rem] leading-relaxed">
-                  {product.descriptionShort || "Профессиональное оборудование, соответствующее высоким стандартам качества. Для получения КП и документации отправьте запрос."}
+                  {product.descriptionShort || "Описание товара предоставляется по запросу."}
                 </p>
                 <div className="mt-4 h-[2px] w-24 bg-gradient-to-r from-primary to-primary/30 rounded-full" />
               </section>

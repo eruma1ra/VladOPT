@@ -54,41 +54,40 @@ export default function AdminRequests() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <Table className="min-w-[980px]">
+        <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead>Дата</TableHead>
-              <TableHead>Клиент</TableHead>
-              <TableHead>Контакт</TableHead>
+              <TableHead className="w-[110px]">Дата</TableHead>
+              <TableHead className="w-[250px]">Клиент</TableHead>
               <TableHead>Запрос</TableHead>
-              <TableHead>Статус</TableHead>
-              <TableHead className="text-right">Действия</TableHead>
+              <TableHead className="w-[130px]">Статус</TableHead>
+              <TableHead className="w-[90px] text-right">Действия</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {requests?.map((r) => (
               <TableRow key={r.id} className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => setSelectedRequest(r)}>
-                <TableCell className="text-sm text-slate-500">
+                <TableCell className="text-sm text-slate-500 py-3">
                   {new Date(r.createdAt).toLocaleDateString("ru-RU")}
                 </TableCell>
-                <TableCell>
-                  <div className="font-medium text-slate-900">{r.name}</div>
-                  {r.company && <div className="text-xs text-slate-500">{r.company}</div>}
+                <TableCell className="py-3">
+                  <div className="font-medium text-slate-900 whitespace-normal break-words leading-5">{r.name}</div>
+                  {r.company && <div className="text-xs text-slate-500 whitespace-normal break-words">{r.company}</div>}
+                  <div className="mt-1 font-mono text-xs text-slate-500 whitespace-normal break-all">{r.phone}</div>
                 </TableCell>
-                <TableCell className="font-mono text-sm">{r.phone}</TableCell>
-                <TableCell>
-                  <div className="max-w-xs text-sm truncate" title={r.comment || ''}>
+                <TableCell className="py-3">
+                  <div className="max-w-[280px] lg:max-w-[320px] xl:max-w-[360px] text-sm whitespace-normal break-words leading-5">
                     {r.comment || '-'}
                   </div>
                   {r.product && (
-                    <div className="text-xs text-primary font-medium mt-1 truncate">
+                    <div className="max-w-[280px] lg:max-w-[320px] xl:max-w-[360px] text-xs text-primary font-medium mt-2 whitespace-normal break-all leading-5">
                       Товар: {r.product.name}
                     </div>
                   )}
                 </TableCell>
-                <TableCell onClick={(e) => e.stopPropagation()}>
+                <TableCell className="py-3" onClick={(e) => e.stopPropagation()}>
                   <Select value={r.status} onValueChange={(val) => handleStatusChange(r.id, val)}>
-                    <SelectTrigger className={`w-32 h-8 text-xs border-none ${
+                    <SelectTrigger className={`w-full h-8 text-xs border-none ${
                       r.status === 'new' ? 'bg-primary/10 text-primary' :
                       r.status === 'in_progress' ? 'bg-amber-50 text-amber-800' :
                       'bg-slate-100 text-slate-600'
@@ -102,7 +101,7 @@ export default function AdminRequests() {
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell className="text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                <TableCell className="text-right whitespace-nowrap py-3" onClick={(e) => e.stopPropagation()}>
                   <div className="inline-flex items-center gap-1.5 sm:gap-2">
                     <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary" onClick={() => setSelectedRequest(r)}>
                       <Eye className="w-4 h-4" />
@@ -116,7 +115,7 @@ export default function AdminRequests() {
             ))}
             {requests?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-slate-500 py-8">Заявок пока нет.</TableCell>
+                <TableCell colSpan={5} className="text-center text-slate-500 py-8">Заявок пока нет.</TableCell>
               </TableRow>
             )}
           </TableBody>

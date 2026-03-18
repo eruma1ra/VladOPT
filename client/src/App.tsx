@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -67,6 +67,18 @@ function SiteThemeRuntime() {
   return null;
 }
 
+function RouteScrollRuntime() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    if (location === "/" || location === "/catalog") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+  }, [location]);
+
+  return null;
+}
+
 function Router() {
   return (
     <Switch>
@@ -112,9 +124,10 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <SiteThemeRuntime />
-        <Toaster />
+        <TooltipProvider>
+          <SiteThemeRuntime />
+          <RouteScrollRuntime />
+          <Toaster />
         <Suspense fallback={<RouteFallback />}>
           <Router />
         </Suspense>

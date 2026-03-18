@@ -35,6 +35,7 @@ export const products = pgTable("products", {
   images: jsonb("images").$type<string[]>().default([]).notNull(),
   attributes: jsonb("attributes").$type<Record<string, any>>().default({}).notNull(),
   availability: text("availability").default("in_stock").notNull(), // in_stock, out_of_stock
+  showOnHome: boolean("show_on_home").default(false).notNull(),
 });
 
 export const requests = pgTable("requests", {

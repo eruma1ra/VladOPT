@@ -1,11 +1,33 @@
 import { Link, useLocation } from "wouter";
 import { Menu, X, Phone, Mail, MapPin } from "lucide-react";
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
 
 export function PublicLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  };
+
+  const handleTopRouteClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+    const isTopRoute = href === "/" || href === "/catalog";
+    if (!isTopRoute) {
+      setMobileMenuOpen(false);
+      return;
+    }
+
+    if (location === href) {
+      event.preventDefault();
+      scrollToTop();
+      setMobileMenuOpen(false);
+      return;
+    }
+
+    requestAnimationFrame(scrollToTop);
+    setMobileMenuOpen(false);
+  };
 
   const navLinks = [
     { href: "/", label: "Главная" },
@@ -20,7 +42,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
       {/* Main Nav */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center group">
+          <Link href="/" className="flex items-center group" onClick={(event) => handleTopRouteClick(event, "/")}>
             <img
               src="/branding/vladopt-logo-transparent.png"
               alt="Влад-Опт Маркет"
@@ -36,6 +58,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               <Link 
                 key={link.href} 
                 href={link.href}
+                onClick={(event) => handleTopRouteClick(event, link.href)}
                 className={`font-medium text-sm transition-colors hover:text-primary relative py-2 ${
                   location === link.href ? "text-primary" : "text-slate-600"
                 }`}
@@ -58,7 +81,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 Владивосток
               </span>
             </div>
-            <Link href="/catalog" className="inline-flex">
+            <Link href="/catalog" className="inline-flex" onClick={(event) => handleTopRouteClick(event, "/catalog")}>
               <Button className="rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all border-none">
                 Каталог
               </Button>
@@ -86,12 +109,12 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
               <Link 
                 key={link.href} 
                 href={link.href}
+                onClick={(event) => handleTopRouteClick(event, link.href)}
                 className={`flex items-center rounded-xl px-3 py-3 font-medium transition-colors ${
                   location === link.href
                     ? "bg-primary/10 text-primary"
                     : "text-slate-700 hover:bg-slate-100/80 hover:text-slate-900"
                 }`}
-                onClick={() => setMobileMenuOpen(false)}
               >
                 {link.label}
               </Link>
@@ -101,7 +124,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 <Phone className="w-5 h-5 text-primary" />
                 +7 (924) 730-82-83
               </a>
-              <Link href="/catalog" className="inline-flex" onClick={() => setMobileMenuOpen(false)}>
+              <Link href="/catalog" className="inline-flex" onClick={(event) => handleTopRouteClick(event, "/catalog")}>
                 <Button className="w-full rounded-xl border-none" size="lg">Перейти в каталог</Button>
               </Link>
             </div>
@@ -129,13 +152,14 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 <span className="font-display font-bold text-xl text-white">ВладОПТ</span>
               </div>
               <p className="text-sm text-slate-500 max-w-sm mb-6">
-                Оптовый поставщик материалов и инструмента для шиноремонта.
+                Оптовый поставщик инструмента и материалов для шиноремонта.
               </p>
             </div>
             
             <div>
               <h4 className="font-semibold text-white mb-4">Навигация</h4>
               <ul className="space-y-2 text-sm">
+                <li><Link href="/" className="hover:text-primary transition-colors">Главная</Link></li>
                 <li><Link href="/catalog" className="hover:text-primary transition-colors">Каталог</Link></li>
                 <li><Link href="/news" className="hover:text-primary transition-colors">Новости</Link></li>
                 <li><Link href="/about" className="hover:text-primary transition-colors">О компании</Link></li>

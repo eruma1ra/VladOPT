@@ -62,7 +62,16 @@ export function useUpdateProduct() {
         body: JSON.stringify(data),
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Failed to update product");
+      if (!res.ok) {
+        let message = "Failed to update product";
+        try {
+          const payload = await res.json();
+          if (payload?.message) message = payload.message;
+        } catch {
+          // keep fallback message
+        }
+        throw new Error(message);
+      }
       return await res.json();
     },
     onSuccess: (data, variables) => {

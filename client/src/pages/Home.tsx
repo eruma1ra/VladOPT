@@ -29,6 +29,7 @@ const fallbackSlides = [
 export default function Home() {
   const { data: products, isLoading } = useProducts();
   const { data: heroSlides } = useHeroSlides({ refetchInterval: 10_000 });
+  const homeProducts = (products ?? []).filter((product) => product.showOnHome);
   const slides =
     heroSlides && heroSlides.length > 0
       ? heroSlides.map((slide) => ({
@@ -107,42 +108,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Immediate Catalog Section */}
-      <section className="py-16 bg-slate-50" id="catalog">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl font-display font-bold text-slate-900 mb-4">Наш каталог</h2>
-              <p className="text-slate-500 max-w-2xl">
-                Инструменты и расходные материалы для шиноремонта
-              </p>
+      {!isLoading && homeProducts.length > 0 && (
+        <section className="py-16 bg-slate-50" id="catalog">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-end mb-12">
+              <div>
+                <h2 className="text-3xl font-display font-bold text-slate-900 mb-4">
+                  Инструменты и расходные материалы для шиноремонта
+                </h2>
+              </div>
+              <Link
+                href="/catalog"
+                className="hidden sm:inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors"
+              >
+                Весь каталог <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
-            <Link href="/catalog" className="hidden sm:flex items-center text-primary font-semibold hover:gap-2 transition-all">
-              Весь каталог <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </div>
 
-          {isLoading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            </div>
-          ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {products?.slice(0, 8).map((product) => (
+              {homeProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
-          )}
 
-          <div className="mt-12 text-center sm:hidden">
-            <Link href="/catalog">
-              <Button variant="outline" className="w-full rounded-xl border-none">
-                Смотреть все товары
-              </Button>
-            </Link>
+            <div className="mt-12 text-center sm:hidden">
+              <Link href="/catalog">
+                <Button variant="outline" className="w-full rounded-xl border-none">
+                  Смотреть все товары
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

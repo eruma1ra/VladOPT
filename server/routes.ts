@@ -180,6 +180,9 @@ export async function registerRoutes(
   app.put(api.products.update.path, isAdmin, async (req, res) => {
     try {
       const input = api.products.update.input.parse(req.body);
+      if (Object.keys(input).length === 0) {
+        return res.status(400).json({ message: "Нет данных для обновления" });
+      }
       const product = await storage.updateProduct(Number(req.params.id), input);
       res.json(product);
     } catch (err) {
