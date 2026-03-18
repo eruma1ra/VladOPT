@@ -9,6 +9,12 @@ import { Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
+const getRequestStatusClass = (status: string) => {
+  if (status === "in_progress") return "bg-amber-50 text-amber-800";
+  if (status === "closed") return "bg-emerald-50 text-emerald-700";
+  return "bg-slate-100 text-slate-700";
+};
+
 export default function AdminRequests() {
   const { isAuthenticated, isLoading } = useAuth();
   const { data: requests } = useRequests();
@@ -61,7 +67,7 @@ export default function AdminRequests() {
               <TableHead className="w-[250px]">Клиент</TableHead>
               <TableHead>Запрос</TableHead>
               <TableHead className="w-[130px]">Статус</TableHead>
-              <TableHead className="w-[90px] text-right">Действия</TableHead>
+              <TableHead className="w-[120px] text-right">Действия</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -87,11 +93,7 @@ export default function AdminRequests() {
                 </TableCell>
                 <TableCell className="py-3" onClick={(e) => e.stopPropagation()}>
                   <Select value={r.status} onValueChange={(val) => handleStatusChange(r.id, val)}>
-                    <SelectTrigger className={`w-full h-8 text-xs border-none ${
-                      r.status === 'new' ? 'bg-primary/10 text-primary' :
-                      r.status === 'in_progress' ? 'bg-amber-50 text-amber-800' :
-                      'bg-slate-100 text-slate-600'
-                    }`}>
+                    <SelectTrigger className={`w-full h-8 text-xs border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 ${getRequestStatusClass(r.status)}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -101,15 +103,13 @@ export default function AdminRequests() {
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell className="text-right whitespace-nowrap py-3" onClick={(e) => e.stopPropagation()}>
-                  <div className="inline-flex items-center gap-1.5 sm:gap-2">
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary" onClick={() => setSelectedRequest(r)}>
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive" onClick={() => handleDelete(r.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary transition-colors" onClick={() => setSelectedRequest(r)}>
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive transition-colors" onClick={() => handleDelete(r.id)}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -140,11 +140,7 @@ export default function AdminRequests() {
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Статус</label>
                   <div className="mt-1">
                     <Select value={selectedRequest.status} onValueChange={(val) => handleStatusChange(selectedRequest.id, val)}>
-                      <SelectTrigger className={`w-32 h-8 text-xs border-none ${
-                        selectedRequest.status === 'new' ? 'bg-primary/10 text-primary' :
-                        selectedRequest.status === 'in_progress' ? 'bg-amber-50 text-amber-800' :
-                        'bg-slate-100 text-slate-600'
-                      }`}>
+                      <SelectTrigger className={`w-32 h-8 text-xs border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 ${getRequestStatusClass(selectedRequest.status)}`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

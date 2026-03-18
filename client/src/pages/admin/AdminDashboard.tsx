@@ -137,7 +137,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-12 border-none shadow-xl shadow-primary/20 bg-white rounded-2xl overflow-hidden">
+        <Card className="lg:col-span-12 border-none shadow-xl shadow-slate-200/60 bg-white rounded-2xl overflow-hidden">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold text-slate-500">Статусы заявок</CardTitle>
           </CardHeader>
