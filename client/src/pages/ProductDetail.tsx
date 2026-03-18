@@ -63,8 +63,11 @@ export default function ProductDetail() {
     <div className="bg-slate-50 min-h-screen py-8 md:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <Link href="/catalog" className="inline-flex items-center text-sm text-slate-500 hover:text-primary mb-8 transition-colors">
-          <ArrowLeft className="w-4 h-4 mr-1" /> Назад в каталог
+        <Link
+          href="/catalog"
+          className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Назад в каталог
         </Link>
 
         <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">

@@ -41,12 +41,12 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Banner Carousel */}
-      <section className="relative w-full">
+      <section className="group/slider relative w-full">
         <Carousel
           className="w-full"
           plugins={[
             Autoplay({
-              delay: 5000,
+              delay: 9000,
             }),
           ]}
           opts={{
@@ -64,7 +64,7 @@ export default function Home() {
                     decoding="async"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/50" />
+                  <div className="absolute inset-0 bg-black/20" />
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
                     <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 max-w-4xl">
                       {slide.title}
@@ -73,7 +73,7 @@ export default function Home() {
                       {slide.desc}
                     </p>
                     <Link href="/catalog">
-                      <Button size="lg" className="h-14 px-8 text-lg rounded-xl border-none">
+                      <Button size="lg" className="h-14 px-8 text-lg rounded-xl border-none bg-primary text-white transition-all hover:brightness-90">
                         Перейти в каталог
                         <ArrowRight className="ml-2 w-5 h-5" />
                       </Button>
@@ -83,29 +83,35 @@ export default function Home() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-5 md:left-8 h-16 w-16 border-none bg-transparent text-white/55 hover:text-white transition-colors shadow-none translate-x-0">
+          <CarouselPrevious
+            variant="ghost"
+            className="left-0 md:left-2 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] opacity-100 md:opacity-0 pointer-events-auto md:pointer-events-none md:-translate-x-10 md:group-hover/slider:opacity-100 md:group-hover/slider:translate-x-0 md:group-hover/slider:pointer-events-auto"
+          >
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.6"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-14 w-14"
+              className="h-16 w-16"
               aria-hidden="true"
             >
               <path d="M15 4 L8 12 L15 20" />
             </svg>
           </CarouselPrevious>
-          <CarouselNext className="right-5 md:right-8 h-16 w-16 border-none bg-transparent text-white/55 hover:text-white transition-colors shadow-none translate-x-0">
+          <CarouselNext
+            variant="ghost"
+            className="right-0 md:right-2 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] opacity-100 md:opacity-0 pointer-events-auto md:pointer-events-none md:translate-x-10 md:group-hover/slider:opacity-100 md:group-hover/slider:translate-x-0 md:group-hover/slider:pointer-events-auto"
+          >
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.6"
+              strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="h-14 w-14"
+              className="h-16 w-16"
               aria-hidden="true"
             >
               <path d="M9 4 L16 12 L9 20" />
