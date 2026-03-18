@@ -5,7 +5,13 @@ import fs from "fs/promises";
 import path from "path";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
-import { insertRequestSchema, insertNewsSchema, insertHeroSlideSchema, type InsertProduct } from "@shared/schema";
+import {
+  insertRequestSchema,
+  insertNewsSchema,
+  insertHeroSlideSchema,
+  siteThemeModeSchema,
+  type InsertProduct,
+} from "@shared/schema";
 import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
@@ -559,6 +565,25 @@ export async function registerRoutes(
   app.delete("/api/hero-slides/:id", isAdmin, async (req, res) => {
     await storage.deleteHeroSlide(Number(req.params.id));
     res.status(204).send();
+  });
+
+  // Site settings
+  app.get("/api/site-settings", async (_req, res) => {
+    const settings = await storage.getSiteSettings();
+    res.json(settings);
+  });
+
+  app.put("/api/site-settings", isAdmin, async (req, res) => {
+    try {
+      const { themeMode } = z.object({ themeMode: siteThemeModeSchema }).parse(req.body);
+      const updated = await storage.updateSiteThemeMode(themeMode);
+      res.json(updated);
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        return res.status(400).json({ message: err.errors[0].message });
+      }
+      throw err;
+    }
   });
 
   return httpServer;

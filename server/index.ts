@@ -71,6 +71,11 @@ app.use((req, res, next) => {
 (async () => {
   await registerRoutes(httpServer, app);
 
+  // Return JSON for unknown API endpoints instead of falling back to HTML.
+  app.use("/api", (_req, res) => {
+    return res.status(404).json({ message: "API route not found" });
+  });
+
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";

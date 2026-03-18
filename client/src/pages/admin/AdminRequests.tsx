@@ -89,7 +89,7 @@ export default function AdminRequests() {
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <Select value={r.status} onValueChange={(val) => handleStatusChange(r.id, val)}>
                     <SelectTrigger className={`w-32 h-8 text-xs border-none ${
-                      r.status === 'new' ? 'bg-blue-50 text-blue-800' :
+                      r.status === 'new' ? 'bg-primary/10 text-primary' :
                       r.status === 'in_progress' ? 'bg-amber-50 text-amber-800' :
                       'bg-slate-100 text-slate-600'
                     }`}>
@@ -142,7 +142,7 @@ export default function AdminRequests() {
                   <div className="mt-1">
                     <Select value={selectedRequest.status} onValueChange={(val) => handleStatusChange(selectedRequest.id, val)}>
                       <SelectTrigger className={`w-32 h-8 text-xs border-none ${
-                        selectedRequest.status === 'new' ? 'bg-blue-50 text-blue-800' :
+                        selectedRequest.status === 'new' ? 'bg-primary/10 text-primary' :
                         selectedRequest.status === 'in_progress' ? 'bg-amber-50 text-amber-800' :
                         'bg-slate-100 text-slate-600'
                       }`}>

@@ -64,8 +64,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           {
             "--sidebar-background": "0 0% 100%",
             "--sidebar-foreground": "222 47% 11%",
-            "--sidebar-accent": "221 83% 95%",
-            "--sidebar-accent-foreground": "221 83% 45%",
+            "--sidebar-accent": "210 25% 96%",
+            "--sidebar-accent-foreground": "222 47% 20%",
             "--sidebar-border": "214 32% 90%",
           } as CSSProperties
         }
@@ -84,7 +84,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 <SidebarMenu>
                   {menuItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild isActive={location === item.url}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={location === item.url}
+                        className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary hover:bg-slate-100 hover:text-slate-900"
+                      >
                         <Link href={item.url} className="flex items-center gap-3">
                           <item.icon className="w-4 h-4" />
                           <span>{item.title}</span>

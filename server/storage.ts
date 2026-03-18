@@ -1,4 +1,29 @@
-import { users, type User, type InsertUser, categories, type Category, type InsertCategory, products, type Product, type InsertProduct, requests, type Request, type InsertRequest, brands, type Brand, type InsertBrand, news, type News, type InsertNews, heroSlides, type HeroSlide, type InsertHeroSlide } from "@shared/schema";
+import {
+  users,
+  type User,
+  type InsertUser,
+  categories,
+  type Category,
+  type InsertCategory,
+  products,
+  type Product,
+  type InsertProduct,
+  requests,
+  type Request,
+  type InsertRequest,
+  brands,
+  type Brand,
+  type InsertBrand,
+  news,
+  type News,
+  type InsertNews,
+  heroSlides,
+  type HeroSlide,
+  type InsertHeroSlide,
+  siteSettings,
+  type SiteSettings,
+  type SiteThemeMode,
+} from "@shared/schema";
 import { db } from "./db";
 import { eq, or, ilike, and, desc, ne, asc } from "drizzle-orm";
 import session from "express-session";
@@ -48,6 +73,10 @@ export interface IStorage {
   createHeroSlide(slide: InsertHeroSlide): Promise<HeroSlide>;
   updateHeroSlide(id: number, slide: Partial<InsertHeroSlide>): Promise<HeroSlide>;
   deleteHeroSlide(id: number): Promise<void>;
+
+  // Site settings
+  getSiteSettings(): Promise<SiteSettings>;
+  updateSiteThemeMode(themeMode: SiteThemeMode): Promise<SiteSettings>;
 
   sessionStore: session.Store;
 }
@@ -281,6 +310,27 @@ export class DatabaseStorage implements IStorage {
 
   async deleteHeroSlide(id: number): Promise<void> {
     await db.delete(heroSlides).where(eq(heroSlides.id, id));
+  }
+
+  async getSiteSettings(): Promise<SiteSettings> {
+    const [settings] = await db.select().from(siteSettings).orderBy(asc(siteSettings.id)).limit(1);
+    if (settings) return settings;
+
+    const [created] = await db
+      .insert(siteSettings)
+      .values({ themeMode: "blue" })
+      .returning();
+    return created;
+  }
+
+  async updateSiteThemeMode(themeMode: SiteThemeMode): Promise<SiteSettings> {
+    const current = await this.getSiteSettings();
+    const [updated] = await db
+      .update(siteSettings)
+      .set({ themeMode, updatedAt: new Date() })
+      .where(eq(siteSettings.id, current.id))
+      .returning();
+    return updated;
   }
 }
 

@@ -10,6 +10,7 @@ const requiredTables = [
   "products",
   "requests",
   "news",
+  "site_settings",
 ];
 
 function parseAdminEmails(raw: string | undefined): string[] {

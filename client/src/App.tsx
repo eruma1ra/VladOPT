@@ -1,10 +1,12 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2 } from "lucide-react";
+import { useSiteSettings } from "@/hooks/use-site-settings";
+import type { SiteThemeMode } from "@shared/schema";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 
@@ -39,6 +41,30 @@ function RouteFallback() {
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </div>
   );
+}
+
+function applyThemeMode(mode: SiteThemeMode) {
+  const root = document.documentElement;
+
+  if (mode === "red") {
+    root.style.setProperty("--primary", "0 79% 53%");
+    root.style.setProperty("--ring", "0 79% 53%");
+    return;
+  }
+
+  root.style.setProperty("--primary", "221 83% 53%");
+  root.style.setProperty("--ring", "221 83% 53%");
+}
+
+function SiteThemeRuntime() {
+  const { data } = useSiteSettings({ refetchInterval: 30_000 });
+
+  useEffect(() => {
+    const mode: SiteThemeMode = data?.themeMode === "red" ? "red" : "blue";
+    applyThemeMode(mode);
+  }, [data?.themeMode]);
+
+  return null;
 }
 
 function Router() {
@@ -87,6 +113,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <SiteThemeRuntime />
         <Toaster />
         <Suspense fallback={<RouteFallback />}>
           <Router />

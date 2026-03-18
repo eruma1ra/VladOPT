@@ -68,6 +68,12 @@ export const heroSlides = pgTable("hero_slides", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  themeMode: text("theme_mode").default("blue").notNull(), // blue, red
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Relations
 export const categoriesRelations = relations(categories, ({ many }) => ({
   products: many(products),
@@ -104,6 +110,10 @@ export const insertRequestSchema = createInsertSchema(requests, {
 }).omit({ id: true, createdAt: true });
 export const insertNewsSchema = createInsertSchema(news).omit({ id: true, createdAt: true });
 export const insertHeroSlideSchema = createInsertSchema(heroSlides).omit({ id: true, createdAt: true });
+export const siteThemeModeSchema = z.enum(["blue", "red"]);
+export const insertSiteSettingsSchema = createInsertSchema(siteSettings, {
+  themeMode: siteThemeModeSchema,
+}).omit({ id: true, updatedAt: true });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -119,6 +129,9 @@ export type News = typeof news.$inferSelect;
 export type InsertNews = z.infer<typeof insertNewsSchema>;
 export type HeroSlide = typeof heroSlides.$inferSelect;
 export type InsertHeroSlide = z.infer<typeof insertHeroSlideSchema>;
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
+export type SiteThemeMode = z.infer<typeof siteThemeModeSchema>;
 export type ProductQueryParams = {
   categoryId?: number;
   brandId?: number;
