@@ -13,7 +13,6 @@ import { Plus, Trash2, Edit, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
 
 export default function AdminSlider() {
@@ -27,11 +26,20 @@ export default function AdminSlider() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSlide, setEditingSlide] = useState<any>(null);
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
     image: "",
     sortOrder: "1",
   });
+
+  const getNextSortOrder = () => {
+    if (!slides?.length) return 1;
+    return (
+      Math.max(
+        ...slides.map((slide) =>
+          Number.isFinite(slide.sortOrder) ? slide.sortOrder : 0,
+        ),
+      ) + 1
+    );
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) window.location.href = "/api/login";
@@ -40,15 +48,11 @@ export default function AdminSlider() {
   useEffect(() => {
     if (editingSlide) {
       setFormData({
-        title: editingSlide.title || "",
-        description: editingSlide.description || "",
         image: editingSlide.image || "",
         sortOrder: String(editingSlide.sortOrder ?? 1),
       });
     } else {
       setFormData({
-        title: "",
-        description: "",
         image: "",
         sortOrder: "1",
       });
@@ -69,39 +73,37 @@ export default function AdminSlider() {
   };
 
   const handleSave = () => {
-    const title = formData.title.trim();
-    const description = formData.description.trim();
     const image = formData.image.trim();
-    const sortOrderNumber = Number.parseInt(formData.sortOrder, 10);
+    const parsedSortOrder = Number.parseInt(formData.sortOrder, 10);
+    const sortOrderNumber = Number.isFinite(parsedSortOrder) && parsedSortOrder > 0
+      ? parsedSortOrder
+      : null;
 
-    if (!title || !description || !image) {
+    if (!image) {
       toast({
-        title: "Заполните обязательные поля",
-        description: "Укажите заголовок, текст и фото слайда.",
+        title: "Загрузите фото",
+        description: "Для слайда нужно выбрать изображение.",
         variant: "destructive",
       });
       return;
     }
 
-    if (!Number.isFinite(sortOrderNumber)) {
+    if (!sortOrderNumber) {
       toast({
         title: "Некорректный порядок",
-        description: "Введите число в поле порядка показа.",
+        description: "Введите число больше 0.",
         variant: "destructive",
       });
       return;
     }
-
-    const payload = {
-      title,
-      description,
-      image,
-      sortOrder: sortOrderNumber,
-    };
 
     if (editingSlide) {
       updateSlide.mutate(
-        { id: editingSlide.id, ...payload },
+        {
+          id: editingSlide.id,
+          image,
+          sortOrder: sortOrderNumber,
+        },
         {
           onSuccess: () => {
             toast({ title: "Слайд обновлен" });
@@ -118,33 +120,45 @@ export default function AdminSlider() {
       return;
     }
 
-    createSlide.mutate(payload as any, {
-      onSuccess: () => {
-        toast({ title: "Слайд добавлен" });
-        setIsDialogOpen(false);
+    createSlide.mutate(
+      {
+        title: `Слайд ${sortOrderNumber}`,
+        description: "",
+        image,
+        sortOrder: sortOrderNumber,
+      } as any,
+      {
+        onSuccess: () => {
+          toast({ title: "Слайд добавлен" });
+          setIsDialogOpen(false);
+        },
+        onError: (error: any) =>
+          toast({
+            title: "Ошибка создания",
+            description: error?.message || "Не удалось создать слайд",
+            variant: "destructive",
+          }),
       },
-      onError: (error: any) =>
-        toast({
-          title: "Ошибка создания",
-          description: error?.message || "Не удалось создать слайд",
-          variant: "destructive",
-        }),
-    });
+    );
   };
 
   if (authLoading || !isAuthenticated) return null;
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Слайдер</h1>
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 sm:mb-8">
+        <div className="w-full md:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900">Слайдер</h1>
           <p className="text-slate-500">Управление слайдами на главной странице.</p>
         </div>
         <Button
-          className="rounded-lg h-10 px-4 bg-primary text-white hover:bg-primary/90 transition-colors shadow-md border-none font-bold"
+          className="rounded-lg h-10 px-4 bg-primary text-white hover:bg-primary/90 transition-colors shadow-md border-none font-bold w-full md:w-auto"
           onClick={() => {
             setEditingSlide(null);
+            setFormData({
+              image: "",
+              sortOrder: String(getNextSortOrder()),
+            });
             setIsDialogOpen(true);
           }}
         >
@@ -158,11 +172,10 @@ export default function AdminSlider() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <Table>
+          <Table className="min-w-[700px]">
             <TableHeader>
               <TableRow className="bg-slate-50/50">
                 <TableHead className="font-bold py-4 text-slate-700">Порядок</TableHead>
-                <TableHead className="font-bold py-4 text-slate-700">Слайд</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Изображение</TableHead>
                 <TableHead className="text-right font-bold py-4 text-slate-700">Действия</TableHead>
               </TableRow>
@@ -172,14 +185,10 @@ export default function AdminSlider() {
                 <TableRow key={slide.id} className="hover:bg-slate-50 transition-colors">
                   <TableCell className="text-slate-500">{slide.sortOrder}</TableCell>
                   <TableCell>
-                    <div className="font-semibold text-slate-900">{slide.title}</div>
-                    <div className="text-sm text-slate-500 line-clamp-2 max-w-lg">{slide.description}</div>
-                  </TableCell>
-                  <TableCell>
                     <img
                       src={slide.image}
-                      alt={slide.title}
-                      className="w-40 aspect-video object-cover rounded-md border border-slate-200"
+                      alt={`Слайд ${slide.sortOrder}`}
+                      className="w-52 aspect-video object-contain rounded-md border border-slate-200 bg-slate-100"
                     />
                   </TableCell>
                   <TableCell className="text-right">
@@ -207,7 +216,7 @@ export default function AdminSlider() {
               ))}
               {slides?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-slate-500 py-20 font-medium italic">
+                  <TableCell colSpan={3} className="text-center text-slate-500 py-20 font-medium italic">
                     Слайды не добавлены.
                   </TableCell>
                 </TableRow>
@@ -218,7 +227,7 @@ export default function AdminSlider() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[640px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-[640px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">
               {editingSlide ? "Редактировать слайд" : "Новый слайд"}
@@ -226,30 +235,13 @@ export default function AdminSlider() {
           </DialogHeader>
           <div className="grid gap-6 py-4">
             <div className="space-y-2">
-              <Label className="text-slate-700 font-bold">Заголовок</Label>
-              <Input
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Заголовок для слайда"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-slate-700 font-bold">Текст</Label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Краткий текст слайда"
-                className="min-h-[120px]"
-              />
-            </div>
-            <div className="space-y-2">
               <Label className="text-slate-700 font-bold">Фото слайда</Label>
               <ImageDropzone
                 value={formData.image ? [formData.image] : []}
                 onChange={(images) => setFormData({ ...formData, image: images[0] ?? "" })}
                 maxFiles={1}
                 previewAspect="landscape"
-                hint="Рекомендуемый формат: горизонтальный 16:9 или 21:9."
+                hint="Горизонтальный формат 21:9."
               />
             </div>
             <div className="space-y-2">
@@ -259,14 +251,15 @@ export default function AdminSlider() {
                 min={1}
                 value={formData.sortOrder}
                 onChange={(e) => setFormData({ ...formData, sortOrder: e.target.value })}
+                placeholder="Например, 1"
               />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0 mt-4 border-t pt-6">
-            <Button variant="ghost" className="font-bold text-slate-500 hover:text-slate-900" onClick={() => setIsDialogOpen(false)}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 mt-4 border-t pt-6">
+            <Button variant="ghost" className="w-full sm:w-auto font-bold text-slate-500 hover:text-slate-900" onClick={() => setIsDialogOpen(false)}>
               Отмена
             </Button>
-            <Button className="border-none bg-primary hover:bg-primary/90 text-white font-bold px-10 h-11 shadow-lg shadow-primary/20 transition-all" onClick={handleSave}>
+            <Button className="w-full sm:w-auto border-none bg-primary hover:bg-primary/90 text-white font-bold px-10 h-11 shadow-lg shadow-primary/20 transition-all" onClick={handleSave}>
               {editingSlide ? "Сохранить изменения" : "Создать слайд"}
             </Button>
           </DialogFooter>

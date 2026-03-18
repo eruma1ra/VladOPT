@@ -41,83 +41,70 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Banner Carousel */}
-      <section className="group/slider relative w-full">
-        <Carousel
-          className="w-full"
-          plugins={[
-            Autoplay({
-              delay: 9000,
-            }),
-          ]}
-          opts={{
-            loop: true,
-          }}
-        >
-          <CarouselContent>
-            {slides.map((slide, i) => (
-              <CarouselItem key={i}>
-                <div className="relative h-[600px] w-full overflow-hidden">
-                  <img
-                    src={slide.img}
-                    alt={slide.title}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/20" />
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                    <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 max-w-4xl">
-                      {slide.title}
-                    </h2>
-                    <p className="text-xl text-slate-200 mb-8 max-w-2xl">
-                      {slide.desc}
-                    </p>
-                    <Link href="/catalog">
-                      <Button size="lg" className="h-14 px-8 text-lg rounded-xl border-none bg-primary text-white transition-all hover:brightness-90">
-                        Перейти в каталог
-                        <ArrowRight className="ml-2 w-5 h-5" />
-                      </Button>
-                    </Link>
+      <section className="group/slider w-full py-4 sm:py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Carousel
+            className="w-full"
+            plugins={[
+              Autoplay({
+                delay: 9000,
+              }),
+            ]}
+            opts={{
+              loop: true,
+            }}
+          >
+            <CarouselContent>
+              {slides.map((slide, i) => (
+                <CarouselItem key={i}>
+                  <div className="relative aspect-[21/9] w-full overflow-hidden bg-slate-100">
+                    <img
+                      src={slide.img}
+                      alt={`Слайд ${i + 1}`}
+                      loading={i === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                      className="absolute inset-0 h-full w-full object-contain"
+                    />
                   </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious
-            variant="ghost"
-            className="left-0 md:left-2 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] opacity-100 md:opacity-0 pointer-events-auto md:pointer-events-none md:-translate-x-10 md:group-hover/slider:opacity-100 md:group-hover/slider:translate-x-0 md:group-hover/slider:pointer-events-auto"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-16 w-16"
-              aria-hidden="true"
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious
+              variant="ghost"
+              className="-left-4 sm:-left-6 md:-left-6 lg:-left-16 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] -translate-x-6 opacity-0 pointer-events-none group-hover/slider:opacity-100 group-hover/slider:translate-x-0 group-hover/slider:pointer-events-auto"
             >
-              <path d="M15 4 L8 12 L15 20" />
-            </svg>
-          </CarouselPrevious>
-          <CarouselNext
-            variant="ghost"
-            className="right-0 md:right-2 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] opacity-100 md:opacity-0 pointer-events-auto md:pointer-events-none md:translate-x-10 md:group-hover/slider:opacity-100 md:group-hover/slider:translate-x-0 md:group-hover/slider:pointer-events-auto"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-16 w-16"
-              aria-hidden="true"
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-16 w-16"
+                aria-hidden="true"
+              >
+                <path d="M15 4 L8 12 L15 20" />
+              </svg>
+            </CarouselPrevious>
+            <CarouselNext
+              variant="ghost"
+              className="-right-4 sm:-right-6 md:-right-6 lg:-right-16 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] translate-x-6 opacity-0 pointer-events-none group-hover/slider:opacity-100 group-hover/slider:translate-x-0 group-hover/slider:pointer-events-auto"
             >
-              <path d="M9 4 L16 12 L9 20" />
-            </svg>
-          </CarouselNext>
-        </Carousel>
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-16 w-16"
+                aria-hidden="true"
+              >
+                <path d="M9 4 L16 12 L9 20" />
+              </svg>
+            </CarouselNext>
+          </Carousel>
+        </div>
       </section>
 
       {/* Immediate Catalog Section */}

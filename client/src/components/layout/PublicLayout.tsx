@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { PackageSearch, Menu, X, Phone, Mail, MapPin } from "lucide-react";
+import { Menu, X, Phone, Mail, MapPin } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -20,18 +20,18 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
       {/* Main Nav */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="bg-primary text-white p-2 rounded-xl group-hover:scale-105 transition-transform shadow-md shadow-primary/20">
-              <PackageSearch className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="font-display font-bold text-2xl tracking-tight text-slate-900 leading-none">ВладОПТ</h1>
-              <span className="text-[10px] uppercase tracking-widest text-primary font-bold">Вентили и инструменты</span>
-            </div>
+          <Link href="/" className="flex items-center group">
+            <img
+              src="/branding/vladopt-logo-transparent.png"
+              alt="Влад-Опт Маркет"
+              className="h-9 sm:h-10 md:h-12 w-auto object-contain"
+              loading="eager"
+              decoding="async"
+            />
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link 
                 key={link.href} 
@@ -48,7 +48,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
             <div className="text-right mr-4">
               <a href="tel:+79247308283" className="block font-display font-bold text-lg text-slate-900 hover:text-primary transition-colors">
                 +7 (924) 730-82-83
@@ -67,8 +67,13 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
 
           {/* Mobile Menu Toggle */}
           <button 
-            className="md:hidden p-2 text-slate-600 hover:text-primary transition-colors"
+            className={`lg:hidden inline-flex h-11 w-11 items-center justify-center rounded-xl transition-all ${
+              mobileMenuOpen
+                ? "bg-primary text-white shadow-lg shadow-primary/25"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Открыть меню"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -76,21 +81,23 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Nav */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-slate-200 p-4 shadow-xl flex flex-col gap-4 animate-in slide-in-from-top-2">
+          <div className="lg:hidden absolute top-[calc(100%-0.35rem)] left-3 right-3 rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur-xl p-3 shadow-2xl shadow-slate-900/15 flex flex-col gap-2 animate-in slide-in-from-top-2">
             {navLinks.map((link) => (
               <Link 
                 key={link.href} 
                 href={link.href}
-                className={`p-3 rounded-lg font-medium ${
-                  location === link.href ? "bg-primary/10 text-primary" : "text-slate-700 hover:bg-slate-50"
+                className={`flex items-center rounded-xl px-3 py-3 font-medium transition-colors ${
+                  location === link.href
+                    ? "bg-primary/10 text-primary"
+                    : "text-slate-700 hover:bg-slate-100/80 hover:text-slate-900"
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-4">
-              <a href="tel:+79247308283" className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg font-display font-bold text-lg text-slate-900">
+            <div className="mt-1 rounded-xl bg-slate-50 p-3 flex flex-col gap-3">
+              <a href="tel:+79247308283" className="flex items-center gap-3 p-2.5 rounded-lg font-display font-bold text-lg text-slate-900">
                 <Phone className="w-5 h-5 text-primary" />
                 +7 (924) 730-82-83
               </a>
@@ -111,8 +118,14 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-3 mb-4 opacity-50 grayscale">
-                <PackageSearch className="w-6 h-6" />
+              <div className="flex items-center gap-3 mb-4">
+                <img
+                  src="/branding/vladopt-logo-transparent.png"
+                  alt="Логотип Влад-Опт"
+                  className="w-8 h-8 rounded-md object-cover object-left"
+                  loading="lazy"
+                  decoding="async"
+                />
                 <span className="font-display font-bold text-xl text-white">ВладОПТ</span>
               </div>
               <p className="text-sm text-slate-500 max-w-sm mb-6">
@@ -158,7 +171,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
           </div>
           
           <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
-            <p>&copy; {new Date().getFullYear()} ВладОПТ. Все права защищены.</p>
+            <p>&copy; ВладОПТ. Все права защищены.</p>
             <a href="/admin" className="hover:text-slate-400 transition-colors">
               Вход для персонала
             </a>

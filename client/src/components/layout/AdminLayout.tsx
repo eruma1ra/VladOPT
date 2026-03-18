@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { useEffect } from "react";
+import { useEffect, type CSSProperties } from "react";
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -32,6 +32,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { title: "Слайдер", url: "/admin/slider", icon: Images },
     { title: "Новости", url: "/admin/news", icon: Newspaper },
   ];
+  const currentPageTitle = menuItems.find((item) => item.url === location)?.title ?? "Панель управления";
 
   useEffect(() => {
     if (isLoading) return;
@@ -57,12 +58,23 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full bg-slate-50">
-        <Sidebar className="border-r border-slate-200">
+      <div
+        className="flex h-dvh w-full bg-slate-50"
+        style={
+          {
+            "--sidebar-background": "0 0% 100%",
+            "--sidebar-foreground": "222 47% 11%",
+            "--sidebar-accent": "221 83% 95%",
+            "--sidebar-accent-foreground": "221 83% 45%",
+            "--sidebar-border": "214 32% 90%",
+          } as CSSProperties
+        }
+      >
+        <Sidebar className="border-r border-slate-200 bg-white">
           <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2 font-display font-bold text-xl text-slate-900">
-              <Package className="w-6 h-6 text-primary" />
-              ВладОПТ Админ
+            <div className="flex items-center gap-2 font-display font-bold text-base sm:text-lg text-slate-900">
+              <Package className="w-5 h-5 text-primary" />
+              <span className="truncate">ВладОПТ Админ</span>
             </div>
           </SidebarHeader>
           <SidebarContent>
@@ -91,7 +103,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 <p className="text-slate-500 text-xs truncate">{user?.email}</p>
               </div>
               <div className="flex flex-col gap-2">
-                <Button variant="outline" className="w-full justify-start text-muted-foreground border-none" asChild>
+                <Button variant="outline" className="w-full justify-start text-muted-foreground border-slate-200" asChild>
                   <Link href="/">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     На сайт
@@ -107,11 +119,15 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         </Sidebar>
 
         <div className="flex flex-col flex-1 min-w-0">
-          <header className="h-14 bg-white border-b border-slate-200 flex items-center px-4 shrink-0">
-            <SidebarTrigger />
+          <header className="h-16 bg-white border-b border-slate-200 flex items-center px-3 sm:px-4 shrink-0">
+            <SidebarTrigger className="h-9 w-9 rounded-lg border border-slate-200" />
+            <div className="ml-3 min-w-0">
+              <p className="text-sm font-semibold text-slate-900 truncate">{currentPageTitle}</p>
+              <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+            </div>
           </header>
-          <main className="flex-1 overflow-auto p-6">
-            <div className="max-w-6xl mx-auto">
+          <main className="flex-1 overflow-auto p-3 sm:p-6">
+            <div className="max-w-6xl mx-auto w-full">
               {children}
             </div>
           </main>

@@ -48,13 +48,13 @@ export default function AdminRequests() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-slate-900">Входящие заявки</h1>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900">Входящие заявки</h1>
         <p className="text-slate-500">Управление оптовыми запросами от клиентов.</p>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <Table>
+        <Table className="min-w-[980px]">
           <TableHeader>
             <TableRow>
               <TableHead>Дата</TableHead>
@@ -102,13 +102,15 @@ export default function AdminRequests() {
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary mr-2" onClick={() => setSelectedRequest(r)}>
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive" onClick={() => handleDelete(r.id)}>
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                <TableCell className="text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                  <div className="inline-flex items-center gap-1.5 sm:gap-2">
+                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary" onClick={() => setSelectedRequest(r)}>
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive" onClick={() => handleDelete(r.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -122,13 +124,13 @@ export default function AdminRequests() {
       </div>
 
       <Dialog open={!!selectedRequest} onOpenChange={(open) => !open && setSelectedRequest(null)}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-[560px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Детали заявки</DialogTitle>
           </DialogHeader>
           {selectedRequest && (
             <div className="space-y-6 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Дата поступления</label>
                   <div className="text-sm font-medium text-slate-900">
@@ -164,7 +166,7 @@ export default function AdminRequests() {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Телефон</label>
                   <div className="text-sm font-mono text-slate-900">{selectedRequest.phone}</div>
@@ -193,9 +195,9 @@ export default function AdminRequests() {
               </div>
             </div>
           )}
-          <DialogFooter className="border-t pt-6 gap-2">
-            <Button variant="ghost" className="text-slate-500 font-bold" onClick={() => setSelectedRequest(null)}>Закрыть</Button>
-            <Button variant="destructive" className="font-bold border-none" onClick={() => handleDelete(selectedRequest?.id)}>
+          <DialogFooter className="border-t pt-6 gap-2 flex-col-reverse sm:flex-row">
+            <Button variant="ghost" className="w-full sm:w-auto text-slate-500 font-bold" onClick={() => setSelectedRequest(null)}>Закрыть</Button>
+            <Button variant="destructive" className="w-full sm:w-auto font-bold border-none" onClick={() => handleDelete(selectedRequest?.id)}>
               <Trash2 className="w-4 h-4 mr-2" /> Удалить заявку
             </Button>
           </DialogFooter>

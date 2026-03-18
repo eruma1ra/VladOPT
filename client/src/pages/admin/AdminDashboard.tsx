@@ -26,21 +26,21 @@ export default function AdminDashboard() {
   const outOfStockProducts = (products?.length || 0) - inStockProducts;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-display font-bold text-slate-900 mb-2">С возвращением, Дмитрий!</h1>
-        <p className="text-slate-500">Обзор вашего каталога и входящих запросов.</p>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900 mb-2">С возвращением, Дмитрий!</h1>
+        <p className="text-sm sm:text-base text-slate-500">Обзор каталога и входящих запросов.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         <Card className="lg:col-span-7 border-none shadow-xl shadow-slate-200/70 bg-gradient-to-br from-white to-slate-50 rounded-2xl overflow-hidden">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-semibold text-slate-500">Всего товаров</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="flex items-start justify-between gap-6">
+            <div className="flex items-start justify-between gap-4 sm:gap-6">
               <div>
-                <div className="text-5xl font-black tracking-tight text-slate-900 leading-none">
+                <div className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900 leading-none">
                   {products?.length || 0}
                 </div>
                 <p className="text-sm text-slate-500 mt-3">Текущая карточка ассортимента</p>
@@ -67,9 +67,9 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-semibold text-slate-500">Всего запросов</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="flex items-start justify-between gap-6">
+            <div className="flex items-start justify-between gap-4 sm:gap-6">
               <div>
-                <div className="text-5xl font-black tracking-tight text-slate-900 leading-none">
+                <div className="text-4xl sm:text-5xl font-black tracking-tight text-slate-900 leading-none">
                   {requests?.length || 0}
                 </div>
                 <p className="text-sm text-slate-500 mt-3">Оптовые заявки за все время</p>
@@ -86,9 +86,9 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-semibold text-blue-100">Новые запросы</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="flex items-start justify-between gap-6">
+            <div className="flex items-start justify-between gap-4 sm:gap-6">
               <div>
-                <div className="text-5xl font-black tracking-tight leading-none">{newRequestsCount}</div>
+                <div className="text-4xl sm:text-5xl font-black tracking-tight leading-none">{newRequestsCount}</div>
                 <p className="text-sm text-blue-100 mt-3">Требуют вашего внимания</p>
               </div>
               <div className="h-14 w-14 rounded-2xl bg-white/15 flex items-center justify-center">
@@ -103,9 +103,9 @@ export default function AdminDashboard() {
             <CardTitle className="text-sm font-semibold text-emerald-100">Статус системы</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="flex items-start justify-between gap-6">
+            <div className="flex items-start justify-between gap-4 sm:gap-6">
               <div>
-                <div className="text-3xl font-black tracking-tight leading-none">Система работает</div>
+                <div className="text-2xl sm:text-3xl font-black tracking-tight leading-none">Система работает</div>
                 <p className="text-sm text-emerald-100 mt-3">Публичный каталог доступен</p>
               </div>
               <div className="h-14 w-14 rounded-2xl bg-white/15 flex items-center justify-center">

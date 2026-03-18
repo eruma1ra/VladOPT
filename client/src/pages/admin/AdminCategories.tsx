@@ -99,28 +99,28 @@ export default function AdminCategories() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Категории</h1>
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 sm:mb-8">
+        <div className="w-full md:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900">Категории</h1>
           <p className="text-slate-500">Управление структурой каталога.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="w-full md:w-auto grid grid-cols-1 sm:grid-cols-2 md:flex items-stretch gap-2">
           <Button
             variant="outline"
-            className="rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+            className="rounded-xl border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 w-full"
             onClick={handleDeleteAll}
             disabled={deleteAllCategories.isPending}
           >
             <Trash2 className="w-4 h-4 mr-2" />
             {deleteAllCategories.isPending ? "Удаление..." : "Удалить все"}
           </Button>
-          <Button className="rounded-xl border-none" onClick={() => { setEditingCategory(null); setIsDialogOpen(true); }}>
+          <Button className="rounded-xl border-none w-full" onClick={() => { setEditingCategory(null); setIsDialogOpen(true); }}>
             <Plus className="w-4 h-4 mr-2" /> Добавить категорию
           </Button>
         </div>
       </div>
 
-      <div className="catalog-search-shell mb-4 w-full max-w-md">
+      <div className="catalog-search-shell mb-4 w-full md:max-w-md">
         <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
         <Input
           value={search}
@@ -131,7 +131,7 @@ export default function AdminCategories() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <Table>
+        <Table className="min-w-[640px]">
           <TableHeader>
             <TableRow>
               <TableHead>ID</TableHead>
@@ -168,7 +168,7 @@ export default function AdminCategories() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-[520px]">
           <DialogHeader>
             <DialogTitle>{editingCategory ? "Редактировать" : "Создать"} категорию</DialogTitle>
           </DialogHeader>
@@ -182,9 +182,9 @@ export default function AdminCategories() {
               <Input value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" className="border-none" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
-            <Button className="border-none" onClick={handleSave}>Сохранить</Button>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+            <Button variant="outline" className="w-full sm:w-auto border-none" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
+            <Button className="w-full sm:w-auto border-none" onClick={handleSave}>Сохранить</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

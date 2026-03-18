@@ -169,11 +169,11 @@ export default function AdminProducts() {
 
   return (
     <div>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Товары</h1>
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6 sm:mb-8">
+        <div className="w-full xl:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900">Товары</h1>
           <p className="text-slate-500">Управление ассортиментом каталога.</p>
-          <div className="catalog-search-shell mt-3 w-full max-w-md">
+          <div className="catalog-search-shell mt-3 w-full xl:max-w-md">
             <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
             <Input
               value={search}
@@ -183,15 +183,15 @@ export default function AdminProducts() {
             />
           </div>
         </div>
-        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto">
+        <div className="w-full xl:w-auto grid grid-cols-1 sm:grid-cols-2 xl:flex items-stretch gap-2">
           <Button 
             variant="outline" 
-            className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium" 
+            className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium w-full" 
             onClick={() => window.open('/api/products/export')}
           >
             <FileDown className="w-4 h-4 mr-2" /> Экспорт
           </Button>
-          <div className="relative">
+          <div className="relative w-full">
             <input 
               type="file" 
               accept=".csv" 
@@ -201,7 +201,7 @@ export default function AdminProducts() {
             />
             <Button 
               variant="outline" 
-              className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium" 
+              className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium w-full" 
               disabled={importProducts.isPending}
             >
               <FileUp className="w-4 h-4 mr-2" />
@@ -218,7 +218,7 @@ export default function AdminProducts() {
             {deleteAllProducts.isPending ? "Удаление..." : "Удалить все"}
           </Button>
           <Button 
-            className="rounded-lg h-10 px-4 bg-primary text-white hover:bg-primary/90 transition-colors shadow-md border-none font-bold" 
+            className="rounded-lg h-10 px-4 bg-primary text-white hover:bg-primary/90 transition-colors shadow-md border-none font-bold w-full" 
             onClick={() => { setEditingProduct(null); setIsDialogOpen(true); }}
           >
             <Plus className="w-4 h-4 mr-2" /> Добавить товар
@@ -230,7 +230,7 @@ export default function AdminProducts() {
         {productsLoading ? (
           <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
-          <Table>
+          <Table className="min-w-[920px]">
             <TableHeader>
               <TableRow className="bg-slate-50/50">
                 <TableHead className="font-bold py-4 text-slate-700">Артикул</TableHead>
@@ -244,7 +244,7 @@ export default function AdminProducts() {
               {products?.map((p) => (
                 <TableRow key={p.id} className="hover:bg-slate-50 transition-colors">
                   <TableCell className="font-mono text-xs text-slate-500">{p.sku}</TableCell>
-                  <TableCell className="font-semibold text-slate-900">{p.name}</TableCell>
+                  <TableCell className="font-semibold text-slate-900 max-w-[300px] truncate" title={p.name}>{p.name}</TableCell>
                   <TableCell className="text-slate-600 font-medium">{p.category?.name || '-'}</TableCell>
                   <TableCell>
                     <Badge
@@ -276,12 +276,12 @@ export default function AdminProducts() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-[640px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">{editingProduct ? 'Редактировать товар' : 'Новый товар'}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-6 py-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-slate-700 font-bold">Артикул (SKU)</Label>
                 <Input value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="Напр: VLV-100" />
@@ -329,9 +329,9 @@ export default function AdminProducts() {
               <Textarea value={formData.attributes} onChange={e => setFormData({...formData, attributes: e.target.value})} className="font-mono text-xs bg-slate-900 text-slate-100 p-4 min-h-[120px] rounded-lg" />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0 mt-4 border-t pt-6">
-            <Button variant="ghost" className="font-bold text-slate-500 hover:text-slate-900" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
-            <Button className="border-none bg-primary hover:bg-primary/90 text-white font-bold px-10 h-11 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-95" onClick={handleSave}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 mt-4 border-t pt-6">
+            <Button variant="ghost" className="w-full sm:w-auto font-bold text-slate-500 hover:text-slate-900" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
+            <Button className="w-full sm:w-auto border-none bg-primary hover:bg-primary/90 text-white font-bold px-10 h-11 shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 active:scale-95" onClick={handleSave}>
               {editingProduct ? 'Сохранить изменения' : 'Создать товар'}
             </Button>
           </DialogFooter>

@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CalendarClock, MessageCircle, Send, X } from "lucide-react";
+import { MessageCircle, Send, X } from "lucide-react";
 
 const MAX_CONTACT_URL = "https://max.ru/u/f9LHodD0cOJkvWZ--kfttkc1WOhrL8_Wi5cT2YxWIym59buaXyGWAYLUwOw";
 
@@ -64,7 +64,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
       onSuccess: () => {
         toast({
           title: "Заявка успешно отправлена",
-          description: "Мы свяжемся с вами в ближайшее время для обсуждения условий.",
+          description: "Мы свяжемся с вами для обсуждения условий.",
         });
         form.reset();
         handleOpenChange?.(false);
@@ -96,11 +96,7 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
                 <p className="text-[11px] uppercase tracking-[0.14em] text-slate-300">Оптовый запрос</p>
                 <h2 className="mt-1 text-2xl md:text-3xl font-display font-bold text-white">Запросить стоимость</h2>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-3 py-1.5 text-xs font-medium text-white">
-                  <CalendarClock className="h-4 w-4" />
-                  Ответ в ближайшее время
-                </div>
+              <div className="flex items-center">
                 <DialogClose asChild>
                   <button
                     type="button"

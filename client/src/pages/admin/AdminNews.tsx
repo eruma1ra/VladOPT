@@ -131,13 +131,13 @@ export default function AdminNews() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-slate-900">Новости</h1>
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 sm:mb-8">
+        <div className="w-full md:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900">Новости</h1>
           <p className="text-slate-500">Управление новостями и предложениями на сайте.</p>
         </div>
         <Button 
-          className="rounded-lg h-10 px-4 bg-primary text-white hover:bg-primary/90 transition-colors shadow-md border-none font-bold" 
+          className="rounded-lg h-10 px-4 bg-primary text-white hover:bg-primary/90 transition-colors shadow-md border-none font-bold w-full md:w-auto" 
           onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
         >
           <Plus className="w-4 h-4 mr-2" /> Добавить новость
@@ -148,7 +148,7 @@ export default function AdminNews() {
         {newsLoading ? (
           <div className="p-12 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
         ) : (
-          <Table>
+          <Table className="min-w-[920px]">
             <TableHeader>
               <TableRow className="bg-slate-50/50">
                 <TableHead className="font-bold py-4 text-slate-700">Дата</TableHead>
@@ -164,7 +164,7 @@ export default function AdminNews() {
                   <TableCell className="text-sm text-slate-500">
                     {new Date(item.createdAt).toLocaleDateString("ru-RU")}
                   </TableCell>
-                  <TableCell className="font-semibold text-slate-900">{item.title}</TableCell>
+                  <TableCell className="font-semibold text-slate-900 max-w-[320px] truncate" title={item.title}>{item.title}</TableCell>
                   <TableCell>
                     <Badge className={`border-none font-medium ${
                       item.status === 'active' ? 'bg-green-100 text-green-800' :
@@ -213,7 +213,7 @@ export default function AdminNews() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-[640px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">{editingItem ? 'Редактировать новость' : 'Новая новость'}</DialogTitle>
           </DialogHeader>
@@ -265,9 +265,9 @@ export default function AdminNews() {
               <Textarea value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} placeholder="Полный текст новости" className="min-h-[200px]" />
             </div>
           </div>
-          <DialogFooter className="gap-2 sm:gap-0 mt-4 border-t pt-6">
-            <Button variant="ghost" className="font-bold text-slate-500 hover:text-slate-900" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
-            <Button className="border-none bg-primary hover:bg-primary/90 text-white font-bold px-10 h-11 shadow-lg shadow-primary/20 transition-all" onClick={handleSave}>
+          <DialogFooter className="flex-col-reverse sm:flex-row gap-2 mt-4 border-t pt-6">
+            <Button variant="ghost" className="w-full sm:w-auto font-bold text-slate-500 hover:text-slate-900" onClick={() => setIsDialogOpen(false)}>Отмена</Button>
+            <Button className="w-full sm:w-auto border-none bg-primary hover:bg-primary/90 text-white font-bold px-10 h-11 shadow-lg shadow-primary/20 transition-all" onClick={handleSave}>
               {editingItem ? 'Сохранить изменения' : 'Создать новость'}
             </Button>
           </DialogFooter>
