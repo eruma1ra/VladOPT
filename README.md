@@ -1,122 +1,86 @@
-# VladOPT: Setup and Deploy
+# VladOPT Production (Docker)
 
-## Secrets and `.env`
-- `.env` is private and must never be committed to git.
-- `.env.example` is public and contains only placeholders.
-- In production, preferred approach is environment variables in hosting panel (Render/Railway/Fly/Cloud/etc.).
-- If you deploy to your own VPS, keep `.env` on server only, with restricted permissions (`chmod 600 .env`).
+Проект запускается в Docker как 2 контейнера:
+- `app` (Node.js/Express + frontend build)
+- `db` (PostgreSQL)
 
-## Required environment variables
-- `DATABASE_URL`
-- `AUTH_MODE` (`google` for production, `local` only for local dev)
-- `SESSION_SECRET` (required when `AUTH_MODE` is not `local`)
-- `ADMIN_EMAILS` (required when `AUTH_MODE` is not `local`, comma-separated)
-- `GOOGLE_CLIENT_ID` (required when `AUTH_MODE=google`)
-- `GOOGLE_CLIENT_SECRET` (required when `AUTH_MODE=google`)
-- `GOOGLE_CALLBACK_URL` (required when `AUTH_MODE=google`, example `https://YOUR_DOMAIN/api/callback`)
-- `REQUEST_NOTIFY_EMAIL` optional recipient for new price requests (default `sale@vladopt.ru`)
-- SMTP for request emails: `SMTP_URL` or (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, optional `SMTP_FROM`)
-- `PORT` optional (default `5000`)
-- `REPL_ID` optional legacy mode (only when `AUTH_MODE=replit`)
-- `ISSUER_URL` optional legacy mode (default `https://replit.com/oidc`)
+`uploads` и `.env` хранятся на сервере снаружи контейнера.
 
-## Local development
-1. Install dependencies:
-```bash
-npm install
-```
-2. Create local env:
+## 1) Что нужно на VDS
+- Docker
+- Docker Compose plugin (`docker compose`)
+- Домен с HTTPS (для Google OAuth)
+
+## 2) Быстрый старт
 ```bash
 cp .env.example .env
-```
-3. Create local database (if missing):
-```bash
-createdb vladopt_local
-```
-4. Apply DB schema:
-```bash
-npm run db:push
-```
-Optional demo data (products/categories/news):
-```bash
-npm run seed:demo
-```
-5. Run checks:
-```bash
-npm run doctor
-```
-6. Start app:
-```bash
-npm run dev
-```
-If port `5000` is busy:
-```bash
-PORT=5050 npm run dev
-```
-
-## Production deploy (VPS example)
-1. Upload project to server, then:
-```bash
-npm ci
-```
-2. Create `.env` on server (do not commit it):
-```bash
-cp .env.production.example .env
+mkdir -p uploads
 chmod 600 .env
-```
-3. Edit `.env` for production:
-- set `AUTH_MODE=google`
-- set real `DATABASE_URL`
-- set strong `SESSION_SECRET` (32+ random chars)
-- set `ADMIN_EMAILS` with your exact admin emails
-- set `GOOGLE_CLIENT_ID`
-- set `GOOGLE_CLIENT_SECRET`
-- set `GOOGLE_CALLBACK_URL=https://vladopt.ru/api/callback`
-- configure SMTP (`SMTP_URL` or `SMTP_HOST`/`SMTP_USER`/...) so price requests are also sent to email
-- set `REQUEST_NOTIFY_EMAIL=sale@vladopt.ru` (or another mailbox if needed)
-4. Validate configuration and DB connection:
-```bash
-npm run doctor:prod
-```
-5. Apply schema:
-```bash
-npm run db:push
-```
-6. Build and start:
-```bash
-npm run build
-npm run start
+nano .env
+docker compose up -d --build
 ```
 
-## Security behavior implemented
-- Production blocks startup if `AUTH_MODE=local`.
-- In `AUTH_MODE=google`, startup fails if any required auth variable is missing.
-- Only emails from `ADMIN_EMAILS` can complete login and use admin APIs.
-- Non-admin users receive `403 Forbidden`.
-- Admin API routes are protected by server-side `isAdmin` middleware.
+После этого сайт доступен на порту `5000` сервера.
 
-## Image uploads (admin)
-- In admin panel, images for products and news can be uploaded via drag-and-drop (`JPG/JPEG/PNG/WEBP`, up to `8 MB`).
-- Products support multiple images (up to `8`), news supports one image.
-- Recommended format: products `1:1` (square), news `16:9` (horizontal).
-- Uploaded files are stored on the server in `./uploads` and available by URL `/uploads/<filename>`.
-- This works well on VPS or any hosting with persistent disk.
-- On stateless/ephemeral hosting, local files may disappear after redeploy/restart; in that case move uploads to S3-compatible object storage.
+## 3) Что заполнить в `.env`
+Обязательные поля:
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `PORT` (обычно `5000`)
+- `AUTH_MODE=google`
+- `SESSION_SECRET`
+- `ADMIN_EMAILS`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_CALLBACK_URL=https://vladopt.ru/api/callback`
+- SMTP: `SMTP_URL` **или** `SMTP_HOST` + `SMTP_PORT` + `SMTP_SECURE` + `SMTP_USER` + `SMTP_PASS`
 
-## Google Console setup
-1. Open Google Cloud Console -> APIs & Services -> Credentials.
-2. Create OAuth 2.0 Client ID (`Web application`).
-3. Add Authorized redirect URI:
-`https://vladopt.ru/api/callback`
-4. Copy `Client ID` and `Client Secret` into `.env`:
-`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`.
+Опционально:
+- `REQUEST_NOTIFY_EMAIL` (по умолчанию `sale@vladopt.ru`)
+- `SMTP_FROM`
 
-## Useful diagnostics
-- Full env/db check:
+`DATABASE_URL` руками задавать не нужно: compose формирует его автоматически как
+`postgresql://POSTGRES_USER:POSTGRES_PASSWORD@db:5432/POSTGRES_DB`.
+
+## 4) Управление
+Запуск/обновление:
 ```bash
-npm run doctor
+docker compose up -d --build
 ```
-- Show available tables:
+
+Проверка:
 ```bash
-psql "$DATABASE_URL" -c '\dt'
+docker compose ps
+docker compose logs -f app
+```
+
+Остановка:
+```bash
+docker compose down
+```
+
+## 5) Что уже сделано в конфиге
+- БД поднимается в контейнере `postgres:16-alpine`.
+- Данные БД сохраняются в Docker volume `postgres_data`.
+- `uploads` сохраняются на хосте через bind mount `./uploads:/app/uploads`.
+- Приложение при старте выполняет `npm run db:push`, затем запускается.
+- `.env` не попадает в Docker-образ (`.dockerignore`).
+
+## 6) Google OAuth
+В Google Cloud Console у OAuth-клиента должны быть:
+- Authorized JavaScript origins: `https://vladopt.ru`
+- Authorized redirect URI: `https://vladopt.ru/api/callback`
+
+Без HTTPS Google-вход в production работать корректно не будет.
+
+## 7) Бэкап БД
+Сделать дамп:
+```bash
+docker compose exec -T db pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > backup.sql
+```
+
+Восстановить из дампа:
+```bash
+cat backup.sql | docker compose exec -T db psql -U "$POSTGRES_USER" "$POSTGRES_DB"
 ```
