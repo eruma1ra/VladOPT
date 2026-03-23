@@ -57,7 +57,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
         
         <p className="text-sm text-muted-foreground line-clamp-2 mb-4 flex-grow">
-          {product.descriptionShort || "Промышленный компонент доступен для заказа."}
+          {product.descriptionShort}
         </p>
         
         <div className="flex items-center gap-2 mt-auto pt-4 border-t border-border/50">

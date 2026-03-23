@@ -8,23 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
-const fallbackSlides = [
-  {
-    title: "Оптовые поставки вентилей",
-    desc: "Прямые поставки от ведущих заводов-изготовителей. Гарантия качества и надежная логистика.",
-    img: "https://images.unsplash.com/photo-1584346133934-a3afd2a33c4c?q=80&w=1200&auto=format&fit=crop"
-  },
-  {
-    title: "Профессиональный инструмент",
-    desc: "Широкий ассортимент инструментов для монтажа и обслуживания систем.",
-    img: "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?q=80&w=1200&auto=format&fit=crop"
-  },
-  {
-    title: "Продукция со склада",
-    desc: "Большой запас продукции на складе. Быстрая отгрузка и доставка.",
-    img: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?q=80&w=1200&auto=format&fit=crop"
-  }
-];
+const fallbackSlides = [];
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();

@@ -208,16 +208,14 @@ export function getSession() {
   const sessionSecret = process.env.SESSION_SECRET ?? "local-dev-session-secret-change-me";
 
   return session({
-    secret: sessionSecret,
-    store: sessionStore,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: isProd,
-      maxAge: sessionTtl,
-    },
+  secret: process.env.SESSION_SECRET || "secret",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    sameSite: "lax",
+    httpOnly: true,
+  },
   });
 }
 
