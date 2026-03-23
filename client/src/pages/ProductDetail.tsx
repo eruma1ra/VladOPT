@@ -28,6 +28,8 @@ export default function ProductDetail() {
   const id = parseInt(params.id || "0", 10);
   const { data: product, isLoading } = useProduct(id);
   const [activeImageIdx, setActiveImageIdx] = useState(0);
+  const [isZoomViewerOpen, setIsZoomViewerOpen] = useState(false);
+  const [isZoomedIn, setIsZoomedIn] = useState(false);
   const imageList = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
   const activeImage = imageList[activeImageIdx];
   const attributesList = product?.attributes
@@ -37,6 +39,33 @@ export default function ProductDetail() {
   useEffect(() => {
     setActiveImageIdx(0);
   }, [product?.id]);
+
+  useEffect(() => {
+    setIsZoomViewerOpen(false);
+    setIsZoomedIn(false);
+  }, [product?.id]);
+
+  useEffect(() => {
+    setIsZoomedIn(false);
+  }, [activeImageIdx]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [id]);
+
+  useEffect(() => {
+    if (!isZoomViewerOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsZoomViewerOpen(false);
+        setIsZoomedIn(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isZoomViewerOpen]);
 
   const goPrevImage = () => {
     if (imageList.length === 0) return;
@@ -94,7 +123,11 @@ export default function ProductDetail() {
                   <img
                     src={activeImage}
                     alt={product.name}
-                    className="h-full w-full object-contain p-5 md:p-7"
+                    className="h-full w-full cursor-zoom-in object-contain p-5 md:p-7"
+                    onClick={() => {
+                      setIsZoomViewerOpen(true);
+                      setIsZoomedIn(false);
+                    }}
                   />
                 ) : (
                   <div className="h-full w-full flex flex-col items-center justify-center text-slate-400">
@@ -229,6 +262,49 @@ export default function ProductDetail() {
         </div>
 
       </div>
+
+      {isZoomViewerOpen && activeImage && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+          onClick={() => {
+            setIsZoomViewerOpen(false);
+            setIsZoomedIn(false);
+          }}
+        >
+          <div
+            className="relative w-full max-w-6xl rounded-3xl border border-slate-200/20 bg-white p-3 shadow-2xl md:p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Клик по фото: {isZoomedIn ? "отдалить" : "приблизить"}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsZoomViewerOpen(false);
+                  setIsZoomedIn(false);
+                }}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:text-slate-900"
+                aria-label="Закрыть просмотр"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className={`relative overflow-auto rounded-2xl bg-slate-50 ${isZoomedIn ? "cursor-zoom-out" : "cursor-zoom-in"}`}>
+              <img
+                src={activeImage}
+                alt={product.name}
+                onClick={() => setIsZoomedIn((prev) => !prev)}
+                className={`mx-auto max-h-[78vh] w-auto origin-center select-none transition-transform duration-300 ease-out ${
+                  isZoomedIn ? "scale-[1.85]" : "scale-100"
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
