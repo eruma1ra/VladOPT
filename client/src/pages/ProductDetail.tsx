@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "wouter";
+import { createPortal } from "react-dom";
 import { useProduct } from "@/hooks/use-products";
 import { RequestModal } from "@/components/RequestModal";
 import { Button } from "@/components/ui/button";
@@ -96,6 +97,46 @@ export default function ProductDetail() {
       </div>
     );
   }
+
+  const zoomViewer = isZoomViewerOpen && activeImage
+    ? createPortal(
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-3 md:p-5"
+          style={{ backgroundColor: "rgba(2, 6, 23, 0.72)" }}
+          onClick={() => {
+            setIsZoomViewerOpen(false);
+            setIsZoomedIn(false);
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setIsZoomViewerOpen(false);
+              setIsZoomedIn(false);
+            }}
+            className="absolute left-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/45 text-white/90 transition-colors hover:bg-black/60 hover:text-white md:left-5 md:top-5"
+            aria-label="Закрыть просмотр"
+          >
+            ✕
+          </button>
+
+          <img
+            src={activeImage}
+            alt={product.name}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsZoomedIn((prev) => !prev);
+            }}
+            className={`select-none object-contain transition-all duration-300 ease-out ${
+              isZoomedIn
+                ? "max-h-[95vh] max-w-[96vw] scale-100 cursor-zoom-out"
+                : "max-h-[72vh] max-w-[72vw] scale-100 cursor-zoom-in"
+            }`}
+          />
+        </div>,
+        document.body
+      )
+    : null;
 
   return (
     <div className="bg-slate-50 min-h-screen py-8 md:py-12">
@@ -263,41 +304,7 @@ export default function ProductDetail() {
 
       </div>
 
-      {isZoomViewerOpen && activeImage && (
-        <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/68 p-3 backdrop-blur-[1px] md:p-5"
-          onClick={() => {
-            setIsZoomViewerOpen(false);
-            setIsZoomedIn(false);
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              setIsZoomViewerOpen(false);
-              setIsZoomedIn(false);
-            }}
-            className="absolute left-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/45 text-white/90 transition-colors hover:bg-black/60 hover:text-white md:left-5 md:top-5"
-            aria-label="Закрыть просмотр"
-          >
-            ✕
-          </button>
-
-          <img
-            src={activeImage}
-            alt={product.name}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsZoomedIn((prev) => !prev);
-            }}
-            className={`select-none object-contain transition-all duration-300 ease-out ${
-              isZoomedIn
-                ? "max-h-[94vh] max-w-[96vw] cursor-zoom-out"
-                : "max-h-[76vh] max-w-[76vw] cursor-zoom-in"
-            }`}
-          />
-        </div>
-      )}
+      {zoomViewer}
     </div>
   );
 }
