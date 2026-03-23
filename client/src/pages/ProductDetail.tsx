@@ -129,8 +129,8 @@ export default function ProductDetail() {
             }}
             className={`select-none object-contain transition-all duration-300 ease-out ${
               isZoomedIn
-                ? "max-h-[95vh] max-w-[96vw] scale-100 cursor-zoom-out"
-                : "max-h-[72vh] max-w-[72vw] scale-100 cursor-zoom-in"
+                ? "h-[94vh] w-[96vw] cursor-zoom-out"
+                : "h-[68vh] w-[68vw] cursor-zoom-in"
             }`}
           />
         </div>,
