@@ -114,7 +114,7 @@ export default function ProductDetail() {
               setIsZoomViewerOpen(false);
               setIsZoomedIn(false);
             }}
-            className="absolute left-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/45 text-white/90 transition-colors hover:bg-black/60 hover:text-white md:left-5 md:top-5"
+            className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/45 text-white/90 transition-colors hover:bg-black/60 hover:text-white md:right-5 md:top-5"
             aria-label="Закрыть просмотр"
           >
             ✕
