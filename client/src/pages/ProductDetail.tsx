@@ -265,44 +265,37 @@ export default function ProductDetail() {
 
       {isZoomViewerOpen && activeImage && (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/68 p-3 backdrop-blur-[1px] md:p-5"
           onClick={() => {
             setIsZoomViewerOpen(false);
             setIsZoomedIn(false);
           }}
         >
-          <div
-            className="relative w-full max-w-6xl rounded-3xl border border-slate-200/20 bg-white p-3 shadow-2xl md:p-4"
-            onClick={(e) => e.stopPropagation()}
+          <button
+            type="button"
+            onClick={() => {
+              setIsZoomViewerOpen(false);
+              setIsZoomedIn(false);
+            }}
+            className="absolute left-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/45 text-white/90 transition-colors hover:bg-black/60 hover:text-white md:left-5 md:top-5"
+            aria-label="Закрыть просмотр"
           >
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Клик по фото: {isZoomedIn ? "отдалить" : "приблизить"}
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsZoomViewerOpen(false);
-                  setIsZoomedIn(false);
-                }}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition-colors hover:text-slate-900"
-                aria-label="Закрыть просмотр"
-              >
-                ✕
-              </button>
-            </div>
+            ✕
+          </button>
 
-            <div className={`relative overflow-auto rounded-2xl bg-slate-50 ${isZoomedIn ? "cursor-zoom-out" : "cursor-zoom-in"}`}>
-              <img
-                src={activeImage}
-                alt={product.name}
-                onClick={() => setIsZoomedIn((prev) => !prev)}
-                className={`mx-auto max-h-[78vh] w-auto origin-center select-none transition-transform duration-300 ease-out ${
-                  isZoomedIn ? "scale-[1.85]" : "scale-100"
-                }`}
-              />
-            </div>
-          </div>
+          <img
+            src={activeImage}
+            alt={product.name}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsZoomedIn((prev) => !prev);
+            }}
+            className={`select-none object-contain transition-all duration-300 ease-out ${
+              isZoomedIn
+                ? "max-h-[94vh] max-w-[96vw] cursor-zoom-out"
+                : "max-h-[76vh] max-w-[76vw] cursor-zoom-in"
+            }`}
+          />
         </div>
       )}
     </div>
