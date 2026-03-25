@@ -20,11 +20,15 @@ function sanitizeAttributesForEditor(raw: unknown): Record<string, unknown> {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
 
   const source = raw as Record<string, unknown>;
+  const allKeys = Object.keys(source).filter((key) => key !== ATTRIBUTE_ORDER_KEY);
+  const rawOrder = source[ATTRIBUTE_ORDER_KEY];
+  const order = Array.isArray(rawOrder)
+    ? rawOrder.filter((key): key is string => typeof key === "string")
+    : [];
+
+  const sortedKeys = [...order.filter((key) => allKeys.includes(key)), ...allKeys.filter((key) => !order.includes(key))];
   const cleaned: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(source)) {
-    if (key === ATTRIBUTE_ORDER_KEY) continue;
-    cleaned[key] = value;
-  }
+  for (const key of sortedKeys) cleaned[key] = source[key];
 
   return cleaned;
 }

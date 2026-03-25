@@ -39,6 +39,7 @@ const productCsvColumns = {
 } as const;
 
 const productCsvWidth = 16;
+const ATTRIBUTE_ORDER_KEY = "__order";
 
 function readCsvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
@@ -92,6 +93,26 @@ function escapeCsv(value: string): string {
     return `"${value.replace(/"/g, '""')}"`;
   }
   return value;
+}
+
+function normalizeAttributesWithOrder(raw: unknown): Record<string, unknown> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+
+  const source = raw as Record<string, unknown>;
+  const keys = Object.keys(source).filter((key) => key !== ATTRIBUTE_ORDER_KEY);
+  const rawOrder = source[ATTRIBUTE_ORDER_KEY];
+  const order = Array.isArray(rawOrder)
+    ? rawOrder.filter((key): key is string => typeof key === "string")
+    : [];
+
+  const sortedKeys = [...order.filter((key) => keys.includes(key)), ...keys.filter((key) => !order.includes(key))];
+  const result: Record<string, unknown> = {};
+  for (const key of sortedKeys) {
+    result[key] = source[key];
+  }
+  result[ATTRIBUTE_ORDER_KEY] = sortedKeys;
+
+  return result;
 }
 
 export async function registerRoutes(
@@ -167,7 +188,11 @@ export async function registerRoutes(
   app.post(api.products.create.path, isAdmin, async (req, res) => {
     try {
       const input = api.products.create.input.parse(req.body);
-      const product = await storage.createProduct(input);
+      const payload = {
+        ...input,
+        attributes: normalizeAttributesWithOrder(input.attributes),
+      };
+      const product = await storage.createProduct(payload);
       res.status(201).json(product);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -183,7 +208,13 @@ export async function registerRoutes(
       if (Object.keys(input).length === 0) {
         return res.status(400).json({ message: "Нет данных для обновления" });
       }
-      const product = await storage.updateProduct(Number(req.params.id), input);
+      const payload = {
+        ...input,
+        ...(input.attributes !== undefined
+          ? { attributes: normalizeAttributesWithOrder(input.attributes) }
+          : {}),
+      };
+      const product = await storage.updateProduct(Number(req.params.id), payload);
       res.json(product);
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -338,10 +369,10 @@ export async function registerRoutes(
               (existingProduct.attributes ?? {}) as Record<string, unknown>;
             await storage.updateProduct(existingProduct.id, {
               availability,
-              attributes: {
+              attributes: normalizeAttributesWithOrder({
                 ...existingAttributes,
                 "Остаток": quantityRaw || "0",
-              },
+              }),
             });
             updated++;
           } else {
@@ -367,7 +398,7 @@ export async function registerRoutes(
               categoryId,
               brandId: null,
               images: [],
-              attributes: importedAttributes,
+              attributes: normalizeAttributesWithOrder(importedAttributes),
               availability,
             };
 
