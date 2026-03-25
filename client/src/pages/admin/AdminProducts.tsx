@@ -14,6 +14,38 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
 
+const ATTRIBUTE_ORDER_KEY = "__order";
+
+function sanitizeAttributesForEditor(raw: unknown): Record<string, unknown> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+
+  const source = raw as Record<string, unknown>;
+  const cleaned: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(source)) {
+    if (key === ATTRIBUTE_ORDER_KEY) continue;
+    cleaned[key] = value;
+  }
+
+  return cleaned;
+}
+
+function attachAttributeOrder(raw: unknown): Record<string, unknown> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+
+  const source = raw as Record<string, unknown>;
+  const result: Record<string, unknown> = {};
+  const orderedKeys: string[] = [];
+
+  for (const [key, value] of Object.entries(source)) {
+    if (key === ATTRIBUTE_ORDER_KEY) continue;
+    result[key] = value;
+    orderedKeys.push(key);
+  }
+
+  result[ATTRIBUTE_ORDER_KEY] = orderedKeys;
+  return result;
+}
+
 export default function AdminProducts() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [search, setSearch] = useState("");
@@ -60,7 +92,7 @@ export default function AdminProducts() {
         availability: editingProduct.availability === "in_stock" ? "in_stock" : "out_of_stock",
         showOnHome: Boolean(editingProduct.showOnHome),
         images: Array.isArray(editingProduct.images) ? editingProduct.images : [],
-        attributes: JSON.stringify(editingProduct.attributes || {})
+        attributes: JSON.stringify(sanitizeAttributesForEditor(editingProduct.attributes || {}), null, 2)
       });
     } else {
       setFormData({
@@ -140,13 +172,20 @@ export default function AdminProducts() {
   };
 
   const handleSave = () => {
-    let attributes = {};
+    let parsedAttributes: unknown = {};
     try {
-      attributes = JSON.parse(formData.attributes);
+      parsedAttributes = JSON.parse(formData.attributes);
     } catch (e) {
       toast({ title: "Ошибка JSON", description: "Проверьте формат характеристик", variant: "destructive" });
       return;
     }
+
+    if (!parsedAttributes || typeof parsedAttributes !== "object" || Array.isArray(parsedAttributes)) {
+      toast({ title: "Ошибка JSON", description: "Характеристики должны быть объектом JSON", variant: "destructive" });
+      return;
+    }
+
+    const attributes = attachAttributeOrder(parsedAttributes);
 
     const data = {
       ...formData,

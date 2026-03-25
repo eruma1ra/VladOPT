@@ -18,8 +18,10 @@ function formatAttributeValue(value: unknown): string {
 }
 
 const hiddenAttributeKeyPrefixes = ["код", "остаток", "quantity", "qty", "stock"];
+const ATTRIBUTE_ORDER_KEY = "__order";
 
 function isPublicAttributeKey(rawKey: string): boolean {
+  if (rawKey === ATTRIBUTE_ORDER_KEY) return false;
   const normalizedKey = rawKey.toLowerCase().replace(/[\s._-]+/g, "");
   return !hiddenAttributeKeyPrefixes.some((prefix) => normalizedKey.startsWith(prefix));
 }
@@ -33,9 +35,27 @@ export default function ProductDetail() {
   const [isZoomedIn, setIsZoomedIn] = useState(false);
   const imageList = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
   const activeImage = imageList[activeImageIdx];
-  const attributesList = product?.attributes
-    ? Object.entries(product.attributes).filter(([key]) => isPublicAttributeKey(key))
-    : [];
+  const attributesList = (() => {
+    if (!product?.attributes || typeof product.attributes !== "object" || Array.isArray(product.attributes)) {
+      return [] as Array<[string, unknown]>;
+    }
+
+    const source = product.attributes as Record<string, unknown>;
+    const entries = Object.entries(source).filter(([key]) => isPublicAttributeKey(key));
+    const entryMap = new Map(entries);
+
+    const rawOrder = source[ATTRIBUTE_ORDER_KEY];
+    const order = Array.isArray(rawOrder)
+      ? rawOrder.filter((key): key is string => typeof key === "string")
+      : [];
+
+    const sortedKeys = [
+      ...order.filter((key) => entryMap.has(key)),
+      ...entries.map(([key]) => key).filter((key) => !order.includes(key)),
+    ];
+
+    return sortedKeys.map((key) => [key, entryMap.get(key)] as [string, unknown]);
+  })();
 
   useEffect(() => {
     setActiveImageIdx(0);
