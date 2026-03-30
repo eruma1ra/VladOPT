@@ -7,6 +7,11 @@ const heroSlidesKey = ["/api/hero-slides"];
 export function useHeroSlides(options?: { refetchInterval?: number | false }) {
   return useQuery<HeroSlide[]>({
     queryKey: heroSlidesKey,
+    queryFn: async () => {
+      const res = await fetch("/api/hero-slides");
+      if (!res.ok) throw new Error("Failed to fetch hero slides");
+      return (await res.json()) as HeroSlide[];
+    },
     refetchInterval: options?.refetchInterval ?? false,
   });
 }

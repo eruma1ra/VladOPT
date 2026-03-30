@@ -12,7 +12,10 @@ async function parseSiteSettingsResponse(res: Response): Promise<SiteSettings> {
   return res.json() as Promise<SiteSettings>;
 }
 
-export function useSiteSettings(options?: { refetchInterval?: number | false }) {
+export function useSiteSettings(options?: {
+  refetchInterval?: number | false;
+  enabled?: boolean;
+}) {
   return useQuery<SiteSettings>({
     queryKey: siteSettingsKey,
     queryFn: async () => {
@@ -20,6 +23,7 @@ export function useSiteSettings(options?: { refetchInterval?: number | false }) 
       return parseSiteSettingsResponse(res);
     },
     refetchInterval: options?.refetchInterval ?? false,
+    enabled: options?.enabled ?? true,
   });
 }
 
@@ -31,7 +35,10 @@ export function useUpdateSiteThemeMode() {
       const res = await apiRequest("PUT", "/api/site-settings", { themeMode });
       return parseSiteSettingsResponse(res);
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("vladopt-theme-mode", data.themeMode);
+      }
       queryClient.invalidateQueries({ queryKey: siteSettingsKey });
     },
   });

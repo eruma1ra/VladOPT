@@ -42,6 +42,7 @@
     <link rel="icon" type="image/png" href="/favicon.png?v=2" />
     <link rel="apple-touch-icon" href="/favicon.png?v=2" />
     <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" as="fetch" href="/api/hero-slides" crossorigin="anonymous" />
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -66,16 +67,46 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Vladopt.ru",
-        "url": "https://vladopt.ru",
-        "logo": "https://vladopt.ru/branding/vladopt-logo-transparent.png",
-        "description": "Оптовые поставки материалов и инструмента для шиноремонта по России."
+        "@graph": [
+          {
+            "@type": "Organization",
+            "name": "Vladopt.ru",
+            "url": "https://vladopt.ru",
+            "logo": "https://vladopt.ru/branding/vladopt-logo-transparent.png",
+            "description": "Оптовые поставки материалов и инструмента для шиноремонта по России."
+          },
+          {
+            "@type": "WebSite",
+            "name": "Vladopt.ru",
+            "url": "https://vladopt.ru",
+            "inLanguage": "ru-RU"
+          },
+          {
+            "@type": "WebPage",
+            "name": "Vladopt.ru - оптовые поставки материалов и инструмента для шиноремонта",
+            "url": "https://vladopt.ru/",
+            "description": "Vladopt.ru - оптовый поставщик материалов и инструмента для шиноремонта. Каталог товаров, новости, контакты и запрос прайс-листа.",
+            "inLanguage": "ru-RU"
+          }
+        ]
       }
     </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <main>
+        <h1>Vladopt.ru</h1>
+        <p>
+          Оптовый поставщик материалов и инструмента для шиноремонта. Каталог товаров, новости, контакты и запрос прайс-листа.
+        </p>
+        <nav>
+          <a href="https://vladopt.ru/catalog">Каталог</a>
+          <a href="https://vladopt.ru/news">Новости</a>
+          <a href="https://vladopt.ru/contacts">Контакты</a>
+        </nav>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
