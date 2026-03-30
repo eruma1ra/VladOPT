@@ -47,7 +47,7 @@ export default function About() {
   return (
     <div className="min-h-screen bg-slate-50 py-12 md:py-16">
       <SeoHead
-        title="О компании | ВладОПТ"
+        title="О компании | Vladopt.ru"
         description="ВладОПТ — оптовый поставщик инструмента и материалов для шиноремонта. Прямые поставки, понятные условия и работа по России."
         path="/about"
         type="website"

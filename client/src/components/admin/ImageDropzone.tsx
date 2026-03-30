@@ -196,6 +196,10 @@ export function ImageDropzone({
               <img
                 src={url}
                 alt={`Изображение ${idx + 1}`}
+                width={previewAspect === "landscape" ? 1280 : 640}
+                height={previewAspect === "landscape" ? 720 : 640}
+                loading="lazy"
+                decoding="async"
                 className={cn(
                   "w-full object-cover",
                   previewAspect === "landscape" ? "aspect-video" : "h-28"
@@ -203,6 +207,7 @@ export function ImageDropzone({
               />
               <button
                 type="button"
+                aria-label={`Удалить изображение ${idx + 1}`}
                 className="absolute right-2 top-2 rounded-full bg-black/60 p-1 text-white hover:bg-black/75"
                 onClick={() => removeAt(idx)}
               >

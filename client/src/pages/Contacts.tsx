@@ -7,7 +7,7 @@ export default function Contacts() {
   return (
     <div className="bg-slate-50 min-h-screen py-16">
       <SeoHead
-        title="Контакты | ВладОПТ"
+        title="Контакты | Vladopt.ru"
         description="Контактная информация ВладОПТ: телефоны, email, Max и местонахождение во Владивостоке."
         path="/contacts"
         type="website"

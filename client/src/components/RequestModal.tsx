@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertRequestSchema, type InsertRequest } from "@shared/schema";
+import type { InsertRequest } from "@shared/schema";
 import { useCreateRequest } from "@/hooks/use-requests";
+import { requestFormSchema, type RequestFormValues } from "@/lib/validation/request";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -45,8 +46,8 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
   const { toast } = useToast();
   const createRequest = useCreateRequest();
 
-  const form = useForm<InsertRequest>({
-    resolver: zodResolver(insertRequestSchema),
+  const form = useForm<RequestFormValues>({
+    resolver: zodResolver(requestFormSchema),
     defaultValues: {
       productId: productId || null,
       name: "",
@@ -58,9 +59,8 @@ export function RequestModal({ productId, productName, trigger, open, onOpenChan
     },
   });
 
-  const onSubmit = (data: InsertRequest) => {
-    // Ensure numeric fields are correctly handled if needed by schema, but schema uses text for phone
-    createRequest.mutate(data, {
+  const onSubmit = (data: RequestFormValues) => {
+    createRequest.mutate(data as InsertRequest, {
       onSuccess: () => {
         toast({
           title: "Заявка успешно отправлена",

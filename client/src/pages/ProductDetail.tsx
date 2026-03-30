@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "wouter";
 import { createPortal } from "react-dom";
 import { useProduct } from "@/hooks/use-products";
-import { RequestModal } from "@/components/RequestModal";
+import { RequestModalButton } from "@/components/RequestModalButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SeoHead } from "@/components/seo/SeoHead";
@@ -111,7 +111,7 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-center px-4">
         <SeoHead
-          title="Товар не найден | ВладОПТ"
+          title="Товар не найден | Vladopt.ru"
           description="Запрошенный товар не найден."
           path={`/catalog/${id || ""}`}
           type="product"
@@ -151,6 +151,8 @@ export default function ProductDetail() {
           <img
             src={activeImage}
             alt={product.name}
+            width={1920}
+            height={1200}
             onClick={(e) => {
               e.stopPropagation();
               setIsZoomedIn((prev) => !prev);
@@ -189,7 +191,7 @@ export default function ProductDetail() {
   return (
     <div className="bg-slate-50 min-h-screen py-8 md:py-12">
       <SeoHead
-        title={`${product.name} | ВладОПТ`}
+        title={`${product.name} | Vladopt.ru`}
         description={productDescription.slice(0, 180)}
         path={`/catalog/${product.id}`}
         image={seoImage}
@@ -246,6 +248,12 @@ export default function ProductDetail() {
                   <img
                     src={activeImage}
                     alt={product.name}
+                    width={1200}
+                    height={1200}
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     className="h-full w-full cursor-zoom-in object-contain p-5 md:p-7"
                     onClick={() => {
                       setIsZoomViewerOpen(true);
@@ -287,12 +295,22 @@ export default function ProductDetail() {
                     <button
                       key={`${imageUrl}-${idx}`}
                       type="button"
+                      aria-label={`Показать фото ${idx + 1}`}
                       onClick={() => setActiveImageIdx(idx)}
                       className={`overflow-hidden rounded-lg aspect-square transition-opacity ${
                         activeImageIdx === idx ? "opacity-100" : "opacity-65 hover:opacity-85"
                       }`}
                     >
-                      <img src={imageUrl} alt={`${product.name} ${idx + 1}`} className="h-full w-full object-cover bg-white" />
+                      <img
+                        src={imageUrl}
+                        alt={`${product.name} ${idx + 1}`}
+                        width={200}
+                        height={200}
+                        loading="lazy"
+                        decoding="async"
+                        sizes="80px"
+                        className="h-full w-full object-cover bg-white"
+                      />
                     </button>
                   ))}
                 </div>
@@ -366,14 +384,12 @@ export default function ProductDetail() {
                       <p className="text-slate-500 text-sm">Вышлем прайс по запросу.</p>
                     </div>
                     <div className="flex justify-center w-full md:w-auto">
-                      <RequestModal 
+                      <RequestModalButton
                         productId={product.id}
                         productName={product.name}
-                        trigger={
-                          <Button size="lg" className="h-14 px-10 text-base font-bold rounded-xl transition-all border-none bg-primary text-white w-full md:w-auto">
-                            Запросить стоимость
-                          </Button>
-                        }
+                        size="lg"
+                        label="Запросить стоимость"
+                        className="h-14 px-10 text-base font-bold rounded-xl transition-all border-none bg-primary text-white w-full md:w-auto"
                       />
                     </div>
                   </div>

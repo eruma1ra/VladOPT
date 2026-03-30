@@ -68,7 +68,7 @@ export default function News() {
   return (
     <div className="min-h-screen bg-[radial-gradient(1200px_500px_at_0%_0%,rgba(37,99,235,0.12),transparent_60%),radial-gradient(900px_420px_at_100%_12%,rgba(15,23,42,0.08),transparent_60%),#f8fafc] py-14 md:py-20">
       <SeoHead
-        title="Новости компании и информация о товаре | ВладОПТ"
+        title="Новости компании и информация о товаре | Vladopt.ru"
         description="Поступления, акции, изменения по каталогу и другая информация о товаре ВладОПТ."
         path="/news"
         type="website"
@@ -122,7 +122,7 @@ export default function News() {
 
         {featuredNews ? (
           <section className="mb-8">
-            <Link href={`/news/${featuredNews.id}`} className="block">
+            <Link href={`/news/${featuredNews.id}`} className="block" aria-label={`Открыть новость: ${featuredNews.title}`}>
               <Card className="group overflow-hidden border-slate-200/80 bg-white shadow-xl shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl">
                 <div className="grid lg:grid-cols-[1.15fr_1fr]">
                   <div className="relative min-h-[300px] md:min-h-[380px] lg:min-h-[420px]">
@@ -132,6 +132,10 @@ export default function News() {
                         alt={featuredNews.title}
                         loading="eager"
                         decoding="async"
+                        width={1600}
+                        height={900}
+                        fetchPriority="high"
+                        sizes="(max-width: 1024px) 100vw, 60vw"
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (
@@ -177,7 +181,7 @@ export default function News() {
         {gridNews.length > 0 ? (
           <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-7">
             {gridNews.map((item) => (
-              <Link key={item.id} href={`/news/${item.id}`} className="block h-full">
+              <Link key={item.id} href={`/news/${item.id}`} className="block h-full" aria-label={`Открыть новость: ${item.title}`}>
                 <Card className="group h-full overflow-hidden rounded-[24px] border-slate-200/80 bg-white/95 shadow-lg shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                   <div className="relative h-52">
                     {item.image ? (
@@ -186,6 +190,9 @@ export default function News() {
                         alt={item.title}
                         loading="lazy"
                         decoding="async"
+                        width={1200}
+                        height={675}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (

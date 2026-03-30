@@ -3,7 +3,7 @@ import { type Product } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Package, ArrowRight } from "lucide-react";
-import { RequestModal } from "./RequestModal";
+import { RequestModalButton } from "./RequestModalButton";
 
 interface ProductCardProps {
   product: Product & { category?: any; brand?: any };
@@ -21,6 +21,9 @@ export function ProductCard({ product }: ProductCardProps) {
             alt={product.name} 
             loading="lazy"
             decoding="async"
+            width={640}
+            height={640}
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
@@ -61,17 +64,19 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
         
         <div className="flex items-center gap-2 mt-auto pt-4 border-t border-border/50">
-          <RequestModal 
+          <RequestModalButton
             productId={product.id}
             productName={product.name}
-            trigger={
-              <Button className="flex-1 h-11 rounded-xl border-none bg-slate-600 text-white font-semibold shadow-sm hover:bg-slate-700">
-                Запросить стоимость
-              </Button>
-            }
+            className="flex-1 h-11 rounded-xl border-none bg-slate-600 text-white font-semibold shadow-sm hover:bg-slate-700"
+            label="Запросить стоимость"
           />
           <Link href={`/catalog/${product.id}`} className="inline-flex">
-            <Button size="icon" variant="ghost" className="rounded-xl group-hover:bg-primary/5 group-hover:text-primary transition-colors">
+            <Button
+              size="icon"
+              variant="ghost"
+              aria-label={`Открыть товар ${product.name}`}
+              className="rounded-xl group-hover:bg-primary/5 group-hover:text-primary transition-colors"
+            >
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>

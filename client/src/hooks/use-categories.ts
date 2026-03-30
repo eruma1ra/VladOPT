@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl } from "@shared/routes";
+import { api, buildUrl } from "@/lib/api";
 import { type Category, type InsertCategory } from "@shared/schema";
 
 export function useCategories() {

@@ -42,10 +42,17 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
       {/* Main Nav */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <Link href="/" className="flex items-center group" onClick={(event) => handleTopRouteClick(event, "/")}>
+          <Link
+            href="/"
+            aria-label="Перейти на главную страницу"
+            className="flex items-center group"
+            onClick={(event) => handleTopRouteClick(event, "/")}
+          >
             <img
               src="/branding/vladopt-logo-transparent.png"
               alt="Влад-Опт Маркет"
+              width={336}
+              height={96}
               className="h-9 sm:h-10 md:h-12 w-auto object-contain"
               loading="eager"
               decoding="async"
@@ -145,13 +152,15 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
                 <img
                   src="/branding/vladopt-logo-transparent.png"
                   alt="Логотип Влад-Опт"
+                  width={32}
+                  height={32}
                   className="w-8 h-8 rounded-md object-cover object-left"
                   loading="lazy"
                   decoding="async"
                 />
                 <span className="font-display font-bold text-xl text-white">ВладОПТ</span>
               </div>
-              <p className="text-sm text-slate-500 max-w-sm mb-6">
+              <p className="text-sm text-slate-400 max-w-sm mb-6">
                 Оптовый поставщик инструмента и материалов для шиноремонта.
               </p>
             </div>
@@ -169,34 +178,34 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
 
             <div>
               <h4 className="font-semibold text-white mb-4">Контакты</h4>
-              <ul className="space-y-3 text-sm text-slate-400">
+              <ul className="space-y-3 text-sm text-slate-300">
                 <li className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 mt-0.5 text-slate-600" />
+                  <MapPin className="w-4 h-4 mt-0.5 text-slate-500" />
                   <span>Владивосток, Приморский край</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-slate-600" />
+                  <Phone className="w-4 h-4 text-slate-500" />
                   <a href="tel:+79247308283" className="hover:text-white transition-colors">+7 (924) 730-82-83</a>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-slate-600" />
+                  <Phone className="w-4 h-4 text-slate-500" />
                   <a href="tel:+79146610768" className="hover:text-white transition-colors">+7 (914) 661-07-68</a>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-slate-600" />
+                  <Mail className="w-4 h-4 text-slate-500" />
                   <a href="mailto:sale@vladopt.ru" className="hover:text-white transition-colors">sale@vladopt.ru</a>
                 </li>
                 <li className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-slate-600" />
+                  <Mail className="w-4 h-4 text-slate-500" />
                   <a href="mailto:sp@vladopt.ru" className="hover:text-white transition-colors">sp@vladopt.ru</a>
                 </li>
               </ul>
             </div>
           </div>
           
-          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-600">
+          <div className="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
             <p>&copy; ВладОПТ. Все права защищены.</p>
-            <a href="/admin" className="hover:text-slate-400 transition-colors">
+            <a href="/admin" className="hover:text-slate-200 transition-colors">
               Вход для персонала
             </a>
           </div>

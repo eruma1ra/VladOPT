@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, buildUrl } from "@shared/routes";
+import { api, buildUrl } from "@/lib/api";
 import { type Product, type InsertProduct, type ProductQueryParams } from "@shared/schema";
 
 export function useProducts(params?: ProductQueryParams) {

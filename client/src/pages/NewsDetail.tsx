@@ -44,7 +44,7 @@ export default function NewsDetail() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-center px-4">
         <SeoHead
-          title="Новость не найдена | ВладОПТ"
+          title="Новость не найдена | Vladopt.ru"
           description="Запрошенная новость не найдена."
           path={`/news/${newsId || ""}`}
           type="article"
@@ -69,7 +69,7 @@ export default function NewsDetail() {
   return (
     <div className="min-h-screen bg-[radial-gradient(1100px_520px_at_0%_0%,rgba(37,99,235,0.10),transparent_58%),radial-gradient(950px_420px_at_100%_12%,rgba(15,23,42,0.08),transparent_60%),#f8fafc] py-10 md:py-16">
       <SeoHead
-        title={`${item.title} | ВладОПТ`}
+        title={`${item.title} | Vladopt.ru`}
         description={newsDescription || "Новость компании ВладОПТ."}
         path={`/news/${item.id}`}
         type="article"
@@ -137,6 +137,12 @@ export default function NewsDetail() {
               <img
                 src={item.image}
                 alt={item.title}
+                width={1600}
+                height={900}
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                sizes="100vw"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -167,7 +173,7 @@ export default function NewsDetail() {
           </div>
 
           <section className="bg-white p-5 md:p-8">
-            <div className="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
+            <div className="text-slate-700 text-[1.02rem] leading-relaxed whitespace-pre-wrap break-words">
               {item.content}
             </div>
           </section>

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
-const SITE_NAME = "ВладОПТ";
-const DEFAULT_TITLE = "ВладОПТ - оптовый поставщик инструмента и материалов для шиноремонта";
+const SITE_NAME = "Vladopt.ru";
+const DEFAULT_TITLE = "Vladopt.ru - оптовый поставщик инструмента и материалов для шиноремонта";
 const DEFAULT_DESCRIPTION =
   "Оптовые поставки инструмента и материалов для шиноремонта. Каталог, новости, контакты и быстрый запрос стоимости.";
 const DEFAULT_IMAGE = "/branding/vladopt-logo-transparent.png";
@@ -127,6 +127,7 @@ export function SeoHead({
 
     ensureMetaByName("description").setAttribute("content", resolvedDescription);
     ensureMetaByName("author").setAttribute("content", SITE_NAME);
+    ensureMetaByName("application-name").setAttribute("content", SITE_NAME);
     ensureMetaByName("robots").setAttribute(
       "content",
       noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large",

@@ -188,6 +188,10 @@ export default function AdminSlider() {
                     <img
                       src={slide.image}
                       alt={`Слайд ${slide.sortOrder}`}
+                      width={420}
+                      height={180}
+                      loading="lazy"
+                      decoding="async"
                       className="w-52 aspect-video object-contain rounded-md border border-slate-200 bg-slate-100"
                     />
                   </TableCell>
