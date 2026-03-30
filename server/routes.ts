@@ -163,13 +163,6 @@ function getOptimizedUploadPath(fileName: string, preset: UploadImagePreset): st
   return path.join(uploadsDir, "_cache", `${safeName}.${preset}.webp`);
 }
 
-function getOptimizedUploadPublicUrl(rawPath: string, preset: UploadImagePreset): string {
-  const normalized = rawPath.split("?")[0] ?? rawPath;
-  if (!normalized.startsWith("/uploads/")) return rawPath;
-  const fileName = path.basename(normalized);
-  return `/media/uploads/${preset}/${encodeURIComponent(fileName)}`;
-}
-
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -258,36 +251,6 @@ ${entries
     res.setHeader("Cache-Control", "public, max-age=600");
     res.send(xml);
   });
-
-  if (process.env.NODE_ENV === "production") {
-    app.get("/", async (_req, res, next) => {
-      try {
-        const indexPath = path.resolve(process.cwd(), "dist/public/index.html");
-        let html = await fs.readFile(indexPath, "utf-8");
-
-        try {
-          const slides = await storage.getHeroSlides();
-          const firstImage = slides
-            .map((slide) => (typeof slide.image === "string" ? slide.image.trim() : ""))
-            .find((value) => value.length > 0);
-
-          if (firstImage) {
-            const preloadImageUrl = getOptimizedUploadPublicUrl(firstImage, "hero");
-            const preloadTag = `<link rel="preload" as="image" href="${xmlEscape(preloadImageUrl)}" fetchpriority="high" />`;
-            html = html.replace("</head>", `    ${preloadTag}\n  </head>`);
-          }
-        } catch (slidesError) {
-          console.error("Hero preload injection warning:", slidesError);
-        }
-
-        res.setHeader("Content-Type", "text/html; charset=utf-8");
-        res.setHeader("Cache-Control", "no-cache, must-revalidate");
-        res.send(html);
-      } catch (error) {
-        next(error);
-      }
-    });
-  }
 
   app.get("/media/uploads/:preset/:file", async (req, res) => {
     const presetRaw = String(req.params.preset || "").toLowerCase() as UploadImagePreset;

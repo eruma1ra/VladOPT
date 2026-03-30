@@ -1,21 +1,25 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import type { SiteThemeMode } from "@shared/schema";
-import { Toaster } from "@/components/ui/toaster";
-import { PublicLayout } from "@/components/layout/PublicLayout";
-import Home from "@/pages/Home";
+const Toaster = lazy(() =>
+  import("@/components/ui/toaster").then((module) => ({ default: module.Toaster }))
+);
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 // Layouts
+const PublicLayout = lazy(() =>
+  import("@/components/layout/PublicLayout").then((module) => ({ default: module.PublicLayout }))
+);
 const AdminLayout = lazy(() =>
   import("@/components/layout/AdminLayout").then((module) => ({ default: module.AdminLayout }))
 );
 
 // Public Pages
+const Home = lazy(() => import("@/pages/Home"));
 const Catalog = lazy(() => import("@/pages/Catalog"));
 const ProductDetail = lazy(() => import("@/pages/ProductDetail"));
 const About = lazy(() => import("@/pages/About"));
@@ -53,41 +57,11 @@ function applyThemeMode(mode: SiteThemeMode) {
 }
 
 function SiteThemeRuntime() {
-  const [enabled, setEnabled] = useState(false);
-  const { data } = useSiteSettings({ refetchInterval: 30_000, enabled });
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem("vladopt-theme-mode");
-    if (stored === "red" || stored === "blue") {
-      applyThemeMode(stored);
-    }
-
-    let timerId: number | null = null;
-    let idleId: number | null = null;
-    const enableFetch = () => setEnabled(true);
-    const ric = (window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number }).requestIdleCallback;
-
-    if (typeof ric === "function") {
-      idleId = ric(enableFetch, { timeout: 2500 });
-    } else {
-      timerId = window.setTimeout(enableFetch, 1200);
-    }
-
-    return () => {
-      if (timerId !== null) window.clearTimeout(timerId);
-      if (idleId !== null && "cancelIdleCallback" in window) {
-        (window as Window & { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback?.(idleId);
-      }
-    };
-  }, []);
+  const { data } = useSiteSettings({ refetchInterval: 30_000 });
 
   useEffect(() => {
     const mode: SiteThemeMode = data?.themeMode === "red" ? "red" : "blue";
     applyThemeMode(mode);
-    if (typeof window !== "undefined" && data?.themeMode) {
-      window.localStorage.setItem("vladopt-theme-mode", data.themeMode);
-    }
   }, [data?.themeMode]);
 
   return null;
@@ -152,7 +126,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <SiteThemeRuntime />
       <RouteScrollRuntime />
-      <Toaster />
+      <Suspense fallback={null}>
+        <Toaster />
+      </Suspense>
       <Suspense fallback={<RouteFallback />}>
           <Router />
       </Suspense>

@@ -1,6 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
+import { rm, readFile, writeFile } from "fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
@@ -37,6 +37,24 @@ async function buildAll() {
 
   console.log("building client...");
   await viteBuild();
+  const indexPath = "dist/public/index.html";
+  const indexHtml = await readFile(indexPath, "utf-8");
+  const optimizedHtml = indexHtml.replace(
+    /<link rel="stylesheet"([^>]*?)href="(\/assets\/[^"]+\.css)"([^>]*)>/g,
+    (_full, leftAttrs: string, href: string, rightAttrs: string) => {
+      const attrs = `${leftAttrs} ${rightAttrs}`;
+      const hasCrossorigin = /\bcrossorigin\b/.test(attrs);
+      const crossoriginAttr = hasCrossorigin ? " crossorigin" : "";
+      return [
+        `<link rel="preload" as="style" href="${href}"${crossoriginAttr}>`,
+        `<link rel="stylesheet" href="${href}"${crossoriginAttr} media="print" onload="this.media='all'">`,
+        `<noscript><link rel="stylesheet" href="${href}"${crossoriginAttr}></noscript>`,
+      ].join("\n    ");
+    },
+  );
+  if (optimizedHtml !== indexHtml) {
+    await writeFile(indexPath, optimizedHtml, "utf-8");
+  }
 
   console.log("building server...");
   const pkg = JSON.parse(await readFile("package.json", "utf-8"));
