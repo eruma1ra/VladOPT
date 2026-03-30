@@ -29,7 +29,18 @@ export function serveStatic(app: Express) {
     }),
   );
 
-  // fall through to index.html if the file doesn't exist
+  // For missing static assets, return 404 instead of SPA index.html.
+  // This prevents bots from receiving HTML for /favicon.ico and similar files.
+  app.use("/{*path}", (req, res, next) => {
+    const requestedPath = (req.originalUrl || "").split("?")[0] || "";
+    if (path.extname(requestedPath)) {
+      res.status(404).end();
+      return;
+    }
+    next();
+  });
+
+  // fall through to index.html for SPA routes without file extension
   app.use("/{*path}", (_req, res) => {
     res.setHeader("Cache-Control", "no-cache, must-revalidate");
     res.sendFile(path.resolve(distPath, "index.html"));

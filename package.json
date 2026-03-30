@@ -12,7 +12,8 @@
     "seed:demo": "tsx script/seed-demo.ts",
     "doctor": "tsx script/doctor.ts",
     "doctor:prod": "NODE_ENV=production tsx script/doctor.ts",
-    "images:optimize": "tsx script/optimize-uploads.ts"
+    "images:optimize": "tsx script/optimize-uploads.ts",
+    "icons:generate": "tsx script/generate-icons.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -112,6 +113,7 @@
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.8",
     "esbuild": "^0.25.0",
+    "png-to-ico": "^3.0.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.5",
