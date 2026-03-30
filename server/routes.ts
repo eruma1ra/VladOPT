@@ -15,8 +15,10 @@ import {
 import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
+import sharp from "sharp";
 import { setupAuth, registerAuthRoutes, isAdmin } from "./replit_integrations/auth";
 import { sendRequestNotificationByEmail } from "./services/request-notifier";
+import { optimizeUploadedImage } from "./services/image-optimizer";
 
 const csvUpload = multer({ storage: multer.memoryStorage() });
 const imageUpload = multer({
@@ -41,6 +43,14 @@ const productCsvColumns = {
 const productCsvWidth = 16;
 const ATTRIBUTE_ORDER_KEY = "__order";
 const DEFAULT_SITE_URL = "https://vladopt.ru";
+const uploadImagePresets = {
+  card: { width: 640, height: 640, fit: "cover" as const },
+  thumb: { width: 240, height: 240, fit: "cover" as const },
+  detail: { width: 1400, height: 1400, fit: "inside" as const },
+  hero: { width: 1920, height: 900, fit: "inside" as const },
+  news: { width: 1400, height: 900, fit: "cover" as const },
+} as const;
+type UploadImagePreset = keyof typeof uploadImagePresets;
 
 function readCsvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
@@ -147,6 +157,12 @@ function makeAbsoluteUrl(siteUrl: string, pathValue: string): string {
   return `${siteUrl}${pathValue.startsWith("/") ? pathValue : `/${pathValue}`}`;
 }
 
+function getOptimizedUploadPath(fileName: string, preset: UploadImagePreset): string {
+  const safeName = fileName.replace(/\.[a-z0-9]+$/i, "");
+  const uploadsDir = path.resolve(process.cwd(), "uploads");
+  return path.join(uploadsDir, "_cache", `${safeName}.${preset}.webp`);
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -234,6 +250,54 @@ ${entries
     res.setHeader("Content-Type", "application/xml; charset=utf-8");
     res.setHeader("Cache-Control", "public, max-age=600");
     res.send(xml);
+  });
+
+  app.get("/media/uploads/:preset/:file", async (req, res) => {
+    const presetRaw = String(req.params.preset || "").toLowerCase() as UploadImagePreset;
+    const preset = uploadImagePresets[presetRaw];
+    if (!preset) {
+      return res.status(400).json({ message: "Unknown image preset." });
+    }
+
+    const decoded = decodeURIComponent(String(req.params.file || ""));
+    const fileName = path.basename(decoded);
+    if (!fileName || fileName !== decoded) {
+      return res.status(400).json({ message: "Invalid file name." });
+    }
+
+    const uploadsDir = path.resolve(process.cwd(), "uploads");
+    const sourcePath = path.join(uploadsDir, fileName);
+    const optimizedPath = getOptimizedUploadPath(fileName, presetRaw);
+
+    try {
+      const sourceStat = await fs.stat(sourcePath);
+      const optimizedStat = await fs.stat(optimizedPath).catch(() => null);
+      const isOutdated = !optimizedStat || optimizedStat.mtimeMs < sourceStat.mtimeMs;
+
+      if (isOutdated) {
+        await fs.mkdir(path.dirname(optimizedPath), { recursive: true });
+        await sharp(sourcePath)
+          .rotate()
+          .resize({
+            width: preset.width,
+            height: preset.height,
+            fit: preset.fit,
+            withoutEnlargement: true,
+          })
+          .webp({ quality: 82, effort: 5 })
+          .toFile(optimizedPath);
+      }
+
+      res.setHeader("Content-Type", "image/webp");
+      res.setHeader("Cache-Control", "public, max-age=2592000, immutable");
+      return res.sendFile(optimizedPath);
+    } catch (error: any) {
+      if (error?.code === "ENOENT") {
+        return res.status(404).json({ message: "Image not found." });
+      }
+      console.error("Upload image transform error:", error);
+      return res.status(500).json({ message: "Image transform failed." });
+    }
   });
 
   // Categories
@@ -554,8 +618,17 @@ ${entries
 
         const fileName = `${Date.now()}-${randomUUID()}${extension}`;
         const targetPath = path.join(uploadsDir, fileName);
+        let fileBuffer = req.file.buffer;
+        try {
+          const optimizedBuffer = await optimizeUploadedImage(req.file.buffer, extension);
+          if (optimizedBuffer.length > 0 && optimizedBuffer.length < req.file.buffer.length) {
+            fileBuffer = optimizedBuffer;
+          }
+        } catch (optimizeError) {
+          console.error("Image optimization warning:", optimizeError);
+        }
 
-        await fs.writeFile(targetPath, req.file.buffer);
+        await fs.writeFile(targetPath, fileBuffer);
         return res.status(201).json({ url: `/uploads/${fileName}` });
       } catch (writeError) {
         console.error("Image upload save error:", writeError);

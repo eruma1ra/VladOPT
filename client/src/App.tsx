@@ -2,12 +2,13 @@ import { lazy, Suspense, useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { Loader2 } from "lucide-react";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import type { SiteThemeMode } from "@shared/schema";
 
+const Toaster = lazy(() =>
+  import("@/components/ui/toaster").then((module) => ({ default: module.Toaster }))
+);
 const NotFound = lazy(() => import("@/pages/not-found"));
 
 // Layouts
@@ -124,14 +125,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <SiteThemeRuntime />
-          <RouteScrollRuntime />
-          <Toaster />
-        <Suspense fallback={<RouteFallback />}>
+      <SiteThemeRuntime />
+      <RouteScrollRuntime />
+      <Suspense fallback={null}>
+        <Toaster />
+      </Suspense>
+      <Suspense fallback={<RouteFallback />}>
           <Router />
-        </Suspense>
-      </TooltipProvider>
+      </Suspense>
     </QueryClientProvider>
   );
 }

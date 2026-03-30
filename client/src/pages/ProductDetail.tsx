@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Image as ImageIcon } from "lucide-react";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 function formatAttributeValue(value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
@@ -36,6 +37,7 @@ export default function ProductDetail() {
   const [isZoomedIn, setIsZoomedIn] = useState(false);
   const imageList = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
   const activeImage = imageList[activeImageIdx];
+  const detailImage = getOptimizedImageUrl(activeImage, "detail");
   const attributesList = (() => {
     if (!product?.attributes || typeof product.attributes !== "object" || Array.isArray(product.attributes)) {
       return [] as Array<[string, unknown]>;
@@ -246,7 +248,7 @@ export default function ProductDetail() {
               <div className="relative overflow-hidden rounded-2xl bg-white aspect-square">
                 {activeImage ? (
                   <img
-                    src={activeImage}
+                    src={detailImage}
                     alt={product.name}
                     width={1200}
                     height={1200}
@@ -302,7 +304,7 @@ export default function ProductDetail() {
                       }`}
                     >
                       <img
-                        src={imageUrl}
+                        src={getOptimizedImageUrl(imageUrl, "thumb")}
                         alt={`${product.name} ${idx + 1}`}
                         width={200}
                         height={200}

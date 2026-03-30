@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Package, ArrowRight } from "lucide-react";
 import { RequestModalButton } from "./RequestModalButton";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 interface ProductCardProps {
   product: Product & { category?: any; brand?: any };
@@ -11,13 +12,14 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const mainImage = product.images?.[0];
+  const cardImage = getOptimizedImageUrl(mainImage, "card");
 
   return (
     <div className="group bg-card rounded-2xl border border-border/50 overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300 flex flex-col h-full">
       <Link href={`/catalog/${product.id}`} className="block relative aspect-square overflow-hidden bg-slate-50 flex-shrink-0">
         {mainImage ? (
           <img 
-            src={mainImage} 
+            src={cardImage} 
             alt={product.name} 
             loading="lazy"
             decoding="async"

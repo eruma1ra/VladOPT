@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { CalendarDays, Loader2, Image as ImageIcon, ArrowLeft } from "lucide-react";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 function formatNewsDate(value: Date | string) {
   return new Date(value).toLocaleDateString("ru-RU", {
@@ -135,7 +136,7 @@ export default function NewsDetail() {
           <div className="relative h-[320px] md:h-[440px] w-full bg-slate-200">
             {item.image ? (
               <img
-                src={item.image}
+                src={getOptimizedImageUrl(item.image, "news")}
                 alt={item.title}
                 width={1600}
                 height={900}

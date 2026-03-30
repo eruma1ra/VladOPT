@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNews } from "@/hooks/use-news";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 function formatNewsDate(value: Date | string) {
   return new Date(value).toLocaleDateString("ru-RU", {
@@ -128,7 +129,7 @@ export default function News() {
                   <div className="relative min-h-[300px] md:min-h-[380px] lg:min-h-[420px]">
                     {featuredNews.image ? (
                       <img
-                        src={featuredNews.image}
+                        src={getOptimizedImageUrl(featuredNews.image, "news")}
                         alt={featuredNews.title}
                         loading="eager"
                         decoding="async"
@@ -186,7 +187,7 @@ export default function News() {
                   <div className="relative h-52">
                     {item.image ? (
                       <img
-                        src={item.image}
+                        src={getOptimizedImageUrl(item.image, "news")}
                         alt={item.title}
                         loading="lazy"
                         decoding="async"

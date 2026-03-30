@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
+import compression from "compression";
 import fs from "fs";
 import path from "path";
 import { registerRoutes } from "./routes";
@@ -10,6 +11,8 @@ const app = express();
 app.set("trust proxy", 1);
 app.disable("x-powered-by");
 const httpServer = createServer(app);
+const CANONICAL_HOST = (process.env.CANONICAL_HOST || "vladopt.ru").toLowerCase();
+const FORCE_HTTPS = process.env.FORCE_HTTPS !== "false";
 
 declare module "http" {
   interface IncomingMessage {
@@ -26,6 +29,49 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+app.use(
+  compression({
+    threshold: 1024,
+    filter: (req, res) => {
+      if (req.path.startsWith("/uploads/")) return false;
+      return compression.filter(req, res);
+    },
+  }),
+);
+
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV !== "production") {
+    next();
+    return;
+  }
+
+  const hostHeader = (req.headers.host || "").toString();
+  const host = hostHeader.split(":")[0]?.toLowerCase() || "";
+  const isLocalHost = host === "localhost" || host === "127.0.0.1";
+  if (isLocalHost || !host) {
+    next();
+    return;
+  }
+
+  const isSecure =
+    req.secure ||
+    ((req.headers["x-forwarded-proto"] || "")
+      .toString()
+      .split(",")[0]
+      .trim()
+      .toLowerCase() === "https");
+
+  const normalizedHost = host === `www.${CANONICAL_HOST}` ? CANONICAL_HOST : host;
+  const needHostRedirect = normalizedHost !== host;
+  const needHttpsRedirect = FORCE_HTTPS && !isSecure;
+
+  if (needHostRedirect || needHttpsRedirect) {
+    res.redirect(301, `https://${normalizedHost}${req.originalUrl}`);
+    return;
+  }
+
+  next();
+});
 
 app.use((req, res, next) => {
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");

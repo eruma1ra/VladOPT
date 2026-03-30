@@ -11,7 +11,8 @@
     "db:push": "drizzle-kit push",
     "seed:demo": "tsx script/seed-demo.ts",
     "doctor": "tsx script/doctor.ts",
-    "doctor:prod": "NODE_ENV=production tsx script/doctor.ts"
+    "doctor:prod": "NODE_ENV=production tsx script/doctor.ts",
+    "images:optimize": "tsx script/optimize-uploads.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -44,12 +45,14 @@
     "@radix-ui/react-toggle-group": "^1.1.3",
     "@radix-ui/react-tooltip": "^1.2.0",
     "@tanstack/react-query": "^5.60.5",
+    "@types/compression": "^1.8.1",
     "@types/memoizee": "^0.4.12",
     "@types/multer": "^2.0.0",
     "@types/passport-google-oauth20": "^2.0.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "compression": "^1.8.1",
     "connect-pg-simple": "^10.0.0",
     "csv-parse": "^6.1.0",
     "date-fns": "^3.6.0",
@@ -80,6 +83,7 @@
     "react-icons": "^5.4.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "^2.15.2",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.2.5",

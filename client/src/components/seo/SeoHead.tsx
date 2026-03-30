@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 
 const SITE_NAME = "Vladopt.ru";
-const DEFAULT_TITLE = "Vladopt.ru - оптовый поставщик инструмента и материалов для шиноремонта";
+const DEFAULT_TITLE = "Vladopt.ru - оптовые поставки материалов и инструмента для шиноремонта";
 const DEFAULT_DESCRIPTION =
-  "Оптовые поставки инструмента и материалов для шиноремонта. Каталог, новости, контакты и быстрый запрос стоимости.";
+  "Vladopt.ru - оптовый поставщик материалов и инструмента для шиноремонта. Каталог товаров, новости, контакты и запрос прайс-листа.";
 const DEFAULT_IMAGE = "/branding/vladopt-logo-transparent.png";
 
 type SeoType = "website" | "article" | "product";
@@ -128,10 +128,11 @@ export function SeoHead({
     ensureMetaByName("description").setAttribute("content", resolvedDescription);
     ensureMetaByName("author").setAttribute("content", SITE_NAME);
     ensureMetaByName("application-name").setAttribute("content", SITE_NAME);
-    ensureMetaByName("robots").setAttribute(
-      "content",
-      noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large",
-    );
+    const robotsContent = noindex
+      ? "noindex, nofollow"
+      : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1";
+    ensureMetaByName("robots").setAttribute("content", robotsContent);
+    ensureMetaByName("googlebot").setAttribute("content", robotsContent);
 
     ensureMetaByProperty("og:locale").setAttribute("content", "ru_RU");
     ensureMetaByProperty("og:site_name").setAttribute("content", SITE_NAME);

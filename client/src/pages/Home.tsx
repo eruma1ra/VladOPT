@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { getOptimizedImageUrl } from "@/lib/image";
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();
@@ -77,7 +78,7 @@ export default function Home() {
                   <CarouselItem key={i}>
                     <div className="relative aspect-[21/9] w-full overflow-hidden bg-slate-100">
                       <img
-                        src={slide}
+                        src={getOptimizedImageUrl(slide, "hero")}
                         alt={`Слайд ${i + 1}`}
                         loading={i === 0 ? "eager" : "lazy"}
                         decoding="async"
