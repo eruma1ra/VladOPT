@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import type { Server } from "http";
 import { randomUUID } from "crypto";
 import fs from "fs/promises";
@@ -40,6 +40,7 @@ const productCsvColumns = {
 
 const productCsvWidth = 16;
 const ATTRIBUTE_ORDER_KEY = "__order";
+const DEFAULT_SITE_URL = "https://vladopt.ru";
 
 function readCsvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
@@ -115,6 +116,37 @@ function normalizeAttributesWithOrder(raw: unknown): Record<string, unknown> {
   return result;
 }
 
+function getSiteUrl(req?: Request): string {
+  const configured = (process.env.SITE_URL || process.env.APP_URL || "").trim();
+  const fromRequest =
+    req && req.get("host")
+      ? `${req.protocol}://${req.get("host")}`
+      : DEFAULT_SITE_URL;
+  const candidate = configured || fromRequest;
+  const withProtocol = /^https?:\/\//i.test(candidate) ? candidate : `https://${candidate}`;
+
+  try {
+    const parsed = new URL(withProtocol);
+    return parsed.origin;
+  } catch {
+    return DEFAULT_SITE_URL;
+  }
+}
+
+function xmlEscape(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function makeAbsoluteUrl(siteUrl: string, pathValue: string): string {
+  if (/^https?:\/\//i.test(pathValue)) return pathValue;
+  return `${siteUrl}${pathValue.startsWith("/") ? pathValue : `/${pathValue}`}`;
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -122,6 +154,87 @@ export async function registerRoutes(
   // Setup Auth first
   await setupAuth(app);
   registerAuthRoutes(app);
+
+  app.use("/admin", (_req, res, next) => {
+    res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+    next();
+  });
+
+  app.get("/robots.txt", (req, res) => {
+    const siteUrl = getSiteUrl(req);
+    const host = new URL(siteUrl).host;
+    const body = [
+      "User-agent: *",
+      "Allow: /",
+      "Disallow: /admin",
+      "Disallow: /api/",
+      `Host: ${host}`,
+      `Sitemap: ${siteUrl}/sitemap.xml`,
+    ].join("\n");
+
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.send(body);
+  });
+
+  app.get("/sitemap.xml", async (req, res) => {
+    const siteUrl = getSiteUrl(req);
+    const staticPaths = ["/", "/catalog", "/news", "/about", "/contacts"];
+
+    const staticEntries = staticPaths.map((pathValue) => ({
+      loc: makeAbsoluteUrl(siteUrl, pathValue),
+      lastmod: new Date().toISOString(),
+      changefreq: pathValue === "/" ? "daily" : "weekly",
+      priority: pathValue === "/" ? "1.0" : "0.8",
+    }));
+
+    let entries = [...staticEntries];
+    try {
+      const [productItems, newsItems] = await Promise.all([
+        storage.getProducts(),
+        storage.getNews(),
+      ]);
+
+      const productEntries = productItems.map((product) => ({
+        loc: makeAbsoluteUrl(siteUrl, `/catalog/${product.id}`),
+        changefreq: "weekly",
+        priority: "0.7",
+      }));
+
+      const newsEntries = newsItems
+        .filter((item) => item.status !== "archived")
+        .map((item) => ({
+          loc: makeAbsoluteUrl(siteUrl, `/news/${item.id}`),
+          lastmod: new Date(item.createdAt).toISOString(),
+          changefreq: "weekly",
+          priority: "0.6",
+        }));
+
+      entries = [...entries, ...productEntries, ...newsEntries];
+    } catch (error) {
+      console.error("Sitemap dynamic entries error:", error);
+    }
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries
+  .map((entry) => {
+    const parts = [
+      `    <loc>${xmlEscape(entry.loc)}</loc>`,
+      entry.lastmod ? `    <lastmod>${xmlEscape(entry.lastmod)}</lastmod>` : "",
+      entry.changefreq ? `    <changefreq>${xmlEscape(entry.changefreq)}</changefreq>` : "",
+      entry.priority ? `    <priority>${xmlEscape(entry.priority)}</priority>` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    return `  <url>\n${parts}\n  </url>`;
+  })
+  .join("\n")}
+</urlset>`;
+
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    res.setHeader("Cache-Control", "public, max-age=600");
+    res.send(xml);
+  });
 
   // Categories
   app.get(api.categories.list.path, async (req, res) => {

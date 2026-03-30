@@ -4,6 +4,7 @@ import { ArrowRight, CalendarDays, Image as ImageIcon, Loader2, Newspaper } from
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNews } from "@/hooks/use-news";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 function formatNewsDate(value: Date | string) {
   return new Date(value).toLocaleDateString("ru-RU", {
@@ -66,6 +67,40 @@ export default function News() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(1200px_500px_at_0%_0%,rgba(37,99,235,0.12),transparent_60%),radial-gradient(900px_420px_at_100%_12%,rgba(15,23,42,0.08),transparent_60%),#f8fafc] py-14 md:py-20">
+      <SeoHead
+        title="Новости компании и информация о товаре | ВладОПТ"
+        description="Поступления, акции, изменения по каталогу и другая информация о товаре ВладОПТ."
+        path="/news"
+        type="website"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "CollectionPage",
+              name: "Новости компании и информация о товаре",
+              url: "https://vladopt.ru/news",
+              inLanguage: "ru-RU",
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Главная",
+                  item: "https://vladopt.ru",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Новости",
+                  item: "https://vladopt.ru/news",
+                },
+              ],
+            },
+          ],
+        }}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <section className="relative overflow-hidden rounded-[30px] border border-slate-200/80 bg-white/85 backdrop-blur-md p-7 md:p-10 mb-8 shadow-xl shadow-slate-200/40">
           <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/15 blur-3xl" />

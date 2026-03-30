@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Filter, Loader2, PackageX, ArrowUp } from "lucide-react";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 export default function Catalog() {
   const [search, setSearch] = useState("");
@@ -54,6 +55,39 @@ export default function Catalog() {
 
   return (
     <div ref={catalogTopRef} className="bg-slate-50 min-h-screen py-8">
+      <SeoHead
+        title="Каталог продукции | ВладОПТ"
+        description="Каталог товаров для шиноремонта: инструмент и расходные материалы. Поиск по названию и артикулу, фильтрация по категориям."
+        path="/catalog"
+        type="website"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Каталог продукции",
+            url: "https://vladopt.ru/catalog",
+            inLanguage: "ru-RU",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Главная",
+                item: "https://vladopt.ru",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Каталог",
+                item: "https://vladopt.ru/catalog",
+              },
+            ],
+          },
+        ]}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header & Search */}

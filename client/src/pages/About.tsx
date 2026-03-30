@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 const valueBlocks = [
   {
@@ -45,6 +46,12 @@ const steps = [
 export default function About() {
   return (
     <div className="min-h-screen bg-slate-50 py-12 md:py-16">
+      <SeoHead
+        title="О компании | ВладОПТ"
+        description="ВладОПТ — оптовый поставщик инструмента и материалов для шиноремонта. Прямые поставки, понятные условия и работа по России."
+        path="/about"
+        type="website"
+      />
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 space-y-7 md:space-y-9">
         <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 p-7 md:p-12 shadow-xl shadow-slate-900/10">
           <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary/25 blur-3xl" />

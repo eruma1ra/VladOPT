@@ -5,6 +5,7 @@ import { useProduct } from "@/hooks/use-products";
 import { RequestModal } from "@/components/RequestModal";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SeoHead } from "@/components/seo/SeoHead";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Image as ImageIcon } from "lucide-react";
 
 function formatAttributeValue(value: unknown): string {
@@ -109,6 +110,13 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-center px-4">
+        <SeoHead
+          title="Товар не найден | ВладОПТ"
+          description="Запрошенный товар не найден."
+          path={`/catalog/${id || ""}`}
+          type="product"
+          noindex
+        />
         <h2 className="text-2xl font-bold text-slate-900 mb-2">Товар не найден</h2>
         <p className="text-slate-500 mb-6">Запрашиваемая позиция не существует или была удалена.</p>
         <Link href="/catalog">
@@ -158,8 +166,62 @@ export default function ProductDetail() {
       )
     : null;
 
+  const productDescription = (
+    product.descriptionShort?.trim() ||
+    "Описание товара предоставляется по запросу."
+  ).replace(/\s+/g, " ");
+  const seoImage = imageList[0] || "/branding/vladopt-logo-transparent.png";
+  const siteOrigin = typeof window !== "undefined" ? window.location.origin : "https://vladopt.ru";
+  const toAbsolute = (value: string) =>
+    /^https?:\/\//i.test(value) ? value : `${siteOrigin}${value.startsWith("/") ? value : `/${value}`}`;
+  const schemaImages = (imageList.length > 0 ? imageList : [seoImage]).map(toAbsolute);
+  const availabilitySchemaUrl =
+    product.availability === "in_stock"
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock";
+  const productUrl = `${siteOrigin}/catalog/${product.id}`;
+  const breadcrumbItems = [
+    { name: "Главная", item: siteOrigin },
+    { name: "Каталог", item: `${siteOrigin}/catalog` },
+    { name: product.name, item: productUrl },
+  ];
+
   return (
     <div className="bg-slate-50 min-h-screen py-8 md:py-12">
+      <SeoHead
+        title={`${product.name} | ВладОПТ`}
+        description={productDescription.slice(0, 180)}
+        path={`/catalog/${product.id}`}
+        image={seoImage}
+        type="product"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            sku: product.sku,
+            category: product.category?.name || undefined,
+            image: schemaImages,
+            description: productDescription,
+            offers: {
+              "@type": "Offer",
+              priceCurrency: "RUB",
+              availability: availabilitySchemaUrl,
+              url: productUrl,
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: breadcrumbItems.map((entry, index) => ({
+              "@type": "ListItem",
+              position: index + 1,
+              name: entry.name,
+              item: entry.item,
+            })),
+          },
+        ]}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <Link

@@ -1,10 +1,17 @@
 import { Phone, Mail, MapPin, MessageCircle, Clock } from "lucide-react";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 const MAX_CONTACT_URL = "https://max.ru/u/f9LHodD0cOJkvWZ--kfttkc1WOhrL8_Wi5cT2YxWIym59buaXyGWAYLUwOw";
 
 export default function Contacts() {
   return (
     <div className="bg-slate-50 min-h-screen py-16">
+      <SeoHead
+        title="Контакты | ВладОПТ"
+        description="Контактная информация ВладОПТ: телефоны, email, Max и местонахождение во Владивостоке."
+        path="/contacts"
+        type="website"
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-display font-bold text-slate-900 mb-12 text-center">Контактная информация</h1>
         

@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 export default function Home() {
   const { data: products, isLoading } = useProducts();
@@ -18,6 +19,44 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <SeoHead
+        title="Инструменты и расходные материалы для шиноремонта | ВладОПТ"
+        description="Оптовые поставки инструмента и расходных материалов для шиноремонта. Актуальные позиции каталога и быстрый запрос стоимости."
+        path="/"
+        type="website"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "ВладОПТ",
+            url: "https://vladopt.ru",
+            logo: "https://vladopt.ru/branding/vladopt-logo-transparent.png",
+            contactPoint: [
+              {
+                "@type": "ContactPoint",
+                telephone: "+7-924-730-82-83",
+                contactType: "sales",
+                areaServed: "RU",
+                availableLanguage: ["ru"],
+              },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "ВладОПТ",
+            url: "https://vladopt.ru",
+            inLanguage: "ru-RU",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: "Инструменты и расходные материалы для шиноремонта",
+            url: "https://vladopt.ru/",
+            inLanguage: "ru-RU",
+          },
+        ]}
+      />
       {/* Banner Carousel */}
       <section className="group/slider w-full py-4 sm:py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

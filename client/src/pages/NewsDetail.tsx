@@ -1,6 +1,8 @@
 import { useParams, Link } from "wouter";
 import { useNewsItem } from "@/hooks/use-news";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { SeoHead } from "@/components/seo/SeoHead";
 import { CalendarDays, Loader2, Image as ImageIcon, ArrowLeft } from "lucide-react";
 
 function formatNewsDate(value: Date | string) {
@@ -27,7 +29,8 @@ function statusClass(status: string) {
 
 export default function NewsDetail() {
   const { id } = useParams();
-  const { data: item, isLoading } = useNewsItem(Number(id));
+  const newsId = Number(id);
+  const { data: item, isLoading } = useNewsItem(newsId);
 
   if (isLoading) {
     return (
@@ -40,6 +43,13 @@ export default function NewsDetail() {
   if (!item) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-center px-4">
+        <SeoHead
+          title="Новость не найдена | ВладОПТ"
+          description="Запрошенная новость не найдена."
+          path={`/news/${newsId || ""}`}
+          type="article"
+          noindex
+        />
         <h2 className="text-2xl font-bold text-slate-900 mb-2">Новость не найдена</h2>
         <Link href="/news">
           <Button className="border-none mt-4">Вернуться к новостям</Button>
@@ -48,8 +58,71 @@ export default function NewsDetail() {
     );
   }
 
+  const newsDescription = item.content.replace(/\s+/g, " ").trim().slice(0, 180);
+  const newsImage = item.image || "/branding/vladopt-logo-transparent.png";
+  const siteOrigin = typeof window !== "undefined" ? window.location.origin : "https://vladopt.ru";
+  const absoluteNewsImage = /^https?:\/\//i.test(newsImage)
+    ? newsImage
+    : `${siteOrigin}${newsImage.startsWith("/") ? newsImage : `/${newsImage}`}`;
+  const newsUrl = `${siteOrigin}/news/${item.id}`;
+
   return (
     <div className="min-h-screen bg-[radial-gradient(1100px_520px_at_0%_0%,rgba(37,99,235,0.10),transparent_58%),radial-gradient(950px_420px_at_100%_12%,rgba(15,23,42,0.08),transparent_60%),#f8fafc] py-10 md:py-16">
+      <SeoHead
+        title={`${item.title} | ВладОПТ`}
+        description={newsDescription || "Новость компании ВладОПТ."}
+        path={`/news/${item.id}`}
+        type="article"
+        image={newsImage}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "NewsArticle",
+            headline: item.title,
+            datePublished: new Date(item.createdAt).toISOString(),
+            dateModified: new Date(item.createdAt).toISOString(),
+            image: [absoluteNewsImage],
+            author: {
+              "@type": "Organization",
+              name: "ВладОПТ",
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "ВладОПТ",
+              logo: {
+                "@type": "ImageObject",
+                url: `${siteOrigin}/branding/vladopt-logo-transparent.png`,
+              },
+            },
+            mainEntityOfPage: newsUrl,
+            articleBody: item.content,
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Главная",
+                item: siteOrigin,
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Новости",
+                item: `${siteOrigin}/news`,
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: item.title,
+                item: newsUrl,
+              },
+            ],
+          },
+        ]}
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link
           href="/news"
