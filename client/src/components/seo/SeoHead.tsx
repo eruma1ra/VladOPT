@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 
-const SITE_NAME = "Vladopt.ru";
-const DEFAULT_TITLE = "Vladopt.ru - оптовые поставки материалов и инструмента для шиноремонта";
+const SITE_NAME = "ВладОПТ";
+const DEFAULT_TITLE = "ВладОПТ - оптовые поставки материалов и инструмента для шиноремонта";
 const DEFAULT_DESCRIPTION =
-  "Vladopt.ru - оптовый поставщик материалов и инструмента для шиноремонта. Каталог товаров, новости, контакты и запрос прайс-листа.";
+  "ВладОПТ - оптовый поставщик материалов и инструмента для шиноремонта. Каталог товаров, новости, контакты и запрос прайс-листа.";
 const DEFAULT_IMAGE = "/branding/vladopt-logo-transparent.png";
 
 type SeoType = "website" | "article" | "product";

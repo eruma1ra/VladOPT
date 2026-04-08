@@ -56,7 +56,7 @@ export default function Catalog() {
   return (
     <div ref={catalogTopRef} className="bg-slate-50 min-h-screen py-8">
       <SeoHead
-        title="Каталог продукции | Vladopt.ru"
+        title="Каталог продукции | ВладОПТ"
         description="Каталог товаров для шиноремонта: инструмент и расходные материалы. Поиск по названию и артикулу, фильтрация по категориям."
         path="/catalog"
         type="website"

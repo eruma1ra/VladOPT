@@ -45,7 +45,7 @@ export default function NewsDetail() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-center px-4">
         <SeoHead
-          title="Новость не найдена | Vladopt.ru"
+          title="Новость не найдена | ВладОПТ"
           description="Запрошенная новость не найдена."
           path={`/news/${newsId || ""}`}
           type="article"
@@ -70,7 +70,7 @@ export default function NewsDetail() {
   return (
     <div className="min-h-screen bg-[radial-gradient(1100px_520px_at_0%_0%,rgba(37,99,235,0.10),transparent_58%),radial-gradient(950px_420px_at_100%_12%,rgba(15,23,42,0.08),transparent_60%),#f8fafc] py-10 md:py-16">
       <SeoHead
-        title={`${item.title} | Vladopt.ru`}
+        title={`${item.title} | ВладОПТ`}
         description={newsDescription || "Новость компании ВладОПТ."}
         path={`/news/${item.id}`}
         type="article"

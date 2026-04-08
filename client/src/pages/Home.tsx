@@ -21,7 +21,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <SeoHead
-        title="Инструменты и расходные материалы для шиноремонта | Vladopt.ru"
+        title="Инструменты и расходные материалы для шиноремонта | ВладОПТ"
         description="Оптовые поставки инструмента и расходных материалов для шиноремонта. Актуальные позиции каталога и быстрый запрос стоимости."
         path="/"
         type="website"
@@ -29,7 +29,7 @@ export default function Home() {
           {
             "@context": "https://schema.org",
             "@type": "Organization",
-            name: "Vladopt.ru",
+            name: "ВладОПТ",
             url: "https://vladopt.ru",
             logo: "https://vladopt.ru/branding/vladopt-logo-transparent.png",
             contactPoint: [
@@ -45,7 +45,7 @@ export default function Home() {
           {
             "@context": "https://schema.org",
             "@type": "WebSite",
-            name: "Vladopt.ru",
+            name: "ВладОПТ",
             url: "https://vladopt.ru",
             inLanguage: "ru-RU",
           },
@@ -95,7 +95,7 @@ export default function Home() {
               <CarouselPrevious
                 variant="ghost"
                 aria-label="Предыдущий слайд"
-                className="-left-4 sm:-left-6 md:-left-6 lg:-left-16 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] -translate-x-6 opacity-0 pointer-events-none group-hover/slider:opacity-100 group-hover/slider:translate-x-0 group-hover/slider:pointer-events-auto"
+                className="hidden min-[1100px]:flex -left-4 sm:-left-6 md:-left-6 lg:-left-16 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] -translate-x-6 opacity-0 pointer-events-none group-hover/slider:opacity-100 group-hover/slider:translate-x-0 group-hover/slider:pointer-events-auto"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -113,7 +113,7 @@ export default function Home() {
               <CarouselNext
                 variant="ghost"
                 aria-label="Следующий слайд"
-                className="-right-4 sm:-right-6 md:-right-6 lg:-right-16 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] translate-x-6 opacity-0 pointer-events-none group-hover/slider:opacity-100 group-hover/slider:translate-x-0 group-hover/slider:pointer-events-auto"
+                className="hidden min-[1100px]:flex -right-4 sm:-right-6 md:-right-6 lg:-right-16 h-20 w-20 border-0 [border-color:transparent] bg-transparent text-slate-900/75 hover:text-slate-900 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none hover:shadow-none active:shadow-none shadow-none transition-all duration-300 translate-y-[-50%] translate-x-6 opacity-0 pointer-events-none group-hover/slider:opacity-100 group-hover/slider:translate-x-0 group-hover/slider:pointer-events-auto"
               >
                 <svg
                   viewBox="0 0 24 24"

@@ -6,7 +6,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
       <SeoHead
-        title="Страница не найдена | Vladopt.ru"
+        title="Страница не найдена | ВладОПТ"
         description="Запрошенная страница не найдена."
         noindex
       />

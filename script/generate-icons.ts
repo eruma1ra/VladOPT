@@ -5,11 +5,27 @@ import pngToIco from "png-to-ico";
 
 const PUBLIC_DIR = path.resolve(process.cwd(), "client/public");
 const SOURCE = path.join(PUBLIC_DIR, "favicon.png");
+const ICON_PADDING_FACTOR = 0.96;
 
 async function writeResizedPng(size: number, targetName: string) {
   const targetPath = path.join(PUBLIC_DIR, targetName);
-  const buffer = await sharp(SOURCE)
-    .resize(size, size, { fit: "cover" })
+  const innerSize = Math.max(1, Math.round(size * ICON_PADDING_FACTOR));
+  const offset = Math.max(0, Math.floor((size - innerSize) / 2));
+  const inner = await sharp(SOURCE)
+    .trim()
+    .resize(innerSize, innerSize, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png({ compressionLevel: 9 })
+    .toBuffer();
+
+  const buffer = await sharp({
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite([{ input: inner, left: offset, top: offset }])
     .png({ compressionLevel: 9 })
     .toBuffer();
   await fs.writeFile(targetPath, buffer);

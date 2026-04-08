@@ -69,7 +69,7 @@ export default function News() {
   return (
     <div className="min-h-screen bg-[radial-gradient(1200px_500px_at_0%_0%,rgba(37,99,235,0.12),transparent_60%),radial-gradient(900px_420px_at_100%_12%,rgba(15,23,42,0.08),transparent_60%),#f8fafc] py-14 md:py-20">
       <SeoHead
-        title="Новости компании и информация о товаре | Vladopt.ru"
+        title="Новости компании и информация о товаре | ВладОПТ"
         description="Поступления, акции, изменения по каталогу и другая информация о товаре ВладОПТ."
         path="/news"
         type="website"

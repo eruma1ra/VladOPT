@@ -113,7 +113,7 @@ export default function ProductDetail() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-center px-4">
         <SeoHead
-          title="Товар не найден | Vladopt.ru"
+          title="Товар не найден | ВладОПТ"
           description="Запрошенный товар не найден."
           path={`/catalog/${id || ""}`}
           type="product"
@@ -193,7 +193,7 @@ export default function ProductDetail() {
   return (
     <div className="bg-slate-50 min-h-screen py-8 md:py-12">
       <SeoHead
-        title={`${product.name} | Vladopt.ru`}
+        title={`${product.name} | ВладОПТ`}
         description={productDescription.slice(0, 180)}
         path={`/catalog/${product.id}`}
         image={seoImage}
