@@ -10,13 +10,19 @@ import { Button } from "@/components/ui/button";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { getOptimizedImageUrl } from "@/lib/image";
 
+function getHeroSlideLink(linkUrl: unknown) {
+  if (typeof linkUrl !== "string") return null;
+  const normalized = linkUrl.trim();
+  if (!normalized.startsWith("/") && !normalized.startsWith("#")) return null;
+  return normalized || null;
+}
+
 export default function Home() {
   const { data: products, isLoading } = useProducts();
   const { data: heroSlides } = useHeroSlides({ refetchInterval: 10_000 });
   const homeProducts = (products ?? []).filter((product) => product.showOnHome);
   const slides = (heroSlides ?? [])
-    .map((slide) => slide.image)
-    .filter((image): image is string => typeof image === "string" && image.trim().length > 0);
+    .filter((slide) => typeof slide.image === "string" && slide.image.trim().length > 0);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -74,11 +80,12 @@ export default function Home() {
               }}
             >
               <CarouselContent>
-                {slides.map((slide, i) => (
-                  <CarouselItem key={i}>
+                {slides.map((slide, i) => {
+                  const linkUrl = getHeroSlideLink(slide.linkUrl);
+                  const slideContent = (
                     <div className="relative aspect-[21/9] w-full overflow-hidden bg-slate-100">
                       <img
-                        src={getOptimizedImageUrl(slide, "hero")}
+                        src={getOptimizedImageUrl(slide.image, "hero")}
                         alt={`Слайд ${i + 1}`}
                         loading={i === 0 ? "eager" : "lazy"}
                         decoding="async"
@@ -89,8 +96,34 @@ export default function Home() {
                         className="absolute inset-0 h-full w-full object-contain"
                       />
                     </div>
-                  </CarouselItem>
-                ))}
+                  );
+
+                  return (
+                    <CarouselItem key={slide.id}>
+                      {linkUrl ? (
+                        linkUrl.startsWith("#") ? (
+                          <a
+                            href={linkUrl}
+                            className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            aria-label="Перейти по баннеру"
+                          >
+                            {slideContent}
+                          </a>
+                        ) : (
+                          <Link
+                            href={linkUrl}
+                            className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            aria-label="Перейти по баннеру"
+                          >
+                            {slideContent}
+                          </Link>
+                        )
+                      ) : (
+                        slideContent
+                      )}
+                    </CarouselItem>
+                  );
+                })}
               </CarouselContent>
               <CarouselPrevious
                 variant="ghost"

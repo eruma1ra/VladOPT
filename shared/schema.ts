@@ -65,6 +65,7 @@ export const heroSlides = pgTable("hero_slides", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   image: text("image").notNull(),
+  linkUrl: text("link_url"),
   sortOrder: integer("sort_order").default(1).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -110,7 +111,19 @@ export const insertRequestSchema = createInsertSchema(requests, {
   comment: z.string().min(5, "Пожалуйста, опишите ваш запрос"),
 }).omit({ id: true, createdAt: true });
 export const insertNewsSchema = createInsertSchema(news).omit({ id: true, createdAt: true });
-export const insertHeroSlideSchema = createInsertSchema(heroSlides).omit({ id: true, createdAt: true });
+export const insertHeroSlideSchema = createInsertSchema(heroSlides, {
+  linkUrl: z
+    .string()
+    .trim()
+    .max(300, "Ссылка слишком длинная")
+    .refine(
+      (value) => value === "" || value.startsWith("/") || value.startsWith("#"),
+      "Укажите внутреннюю ссылку, например /catalog или #catalog",
+    )
+    .transform((value) => (value === "" ? null : value))
+    .nullable()
+    .optional(),
+}).omit({ id: true, createdAt: true });
 export const siteThemeModeSchema = z.enum(["blue", "red"]);
 export const insertSiteSettingsSchema = createInsertSchema(siteSettings, {
   themeMode: siteThemeModeSchema,

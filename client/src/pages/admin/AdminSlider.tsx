@@ -14,6 +14,27 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const LINK_TARGET_OPTIONS = [
+  { value: "none", label: "Без перехода", href: "" },
+  { value: "catalog", label: "Каталог", href: "/catalog" },
+  { value: "home-products", label: "Товары на главной", href: "#catalog" },
+  { value: "news", label: "Новости", href: "/news" },
+  { value: "about", label: "О компании", href: "/about" },
+  { value: "contacts", label: "Контакты", href: "/contacts" },
+] as const;
+
+function getLinkTargetValue(linkUrl: string) {
+  if (!linkUrl) return "none";
+  return LINK_TARGET_OPTIONS.find((option) => option.href === linkUrl)?.value ?? "custom";
+}
+
+function getLinkTargetLabel(linkUrl: string | null | undefined) {
+  const normalized = linkUrl?.trim() ?? "";
+  if (!normalized) return "Без перехода";
+  return LINK_TARGET_OPTIONS.find((option) => option.href === normalized)?.label ?? normalized;
+}
 
 export default function AdminSlider() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -27,6 +48,7 @@ export default function AdminSlider() {
   const [editingSlide, setEditingSlide] = useState<any>(null);
   const [formData, setFormData] = useState({
     image: "",
+    linkUrl: "",
     sortOrder: "1",
   });
 
@@ -49,11 +71,13 @@ export default function AdminSlider() {
     if (editingSlide) {
       setFormData({
         image: editingSlide.image || "",
+        linkUrl: editingSlide.linkUrl || "",
         sortOrder: String(editingSlide.sortOrder ?? 1),
       });
     } else {
       setFormData({
         image: "",
+        linkUrl: "",
         sortOrder: "1",
       });
     }
@@ -74,6 +98,7 @@ export default function AdminSlider() {
 
   const handleSave = () => {
     const image = formData.image.trim();
+    const linkUrl = formData.linkUrl.trim();
     const parsedSortOrder = Number.parseInt(formData.sortOrder, 10);
     const sortOrderNumber = Number.isFinite(parsedSortOrder) && parsedSortOrder > 0
       ? parsedSortOrder
@@ -97,11 +122,21 @@ export default function AdminSlider() {
       return;
     }
 
+    if (linkUrl && !linkUrl.startsWith("/") && !linkUrl.startsWith("#")) {
+      toast({
+        title: "Некорректная ссылка",
+        description: "Укажите внутренний путь, например /catalog или #catalog.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (editingSlide) {
       updateSlide.mutate(
         {
           id: editingSlide.id,
           image,
+          linkUrl: linkUrl || null,
           sortOrder: sortOrderNumber,
         },
         {
@@ -125,6 +160,7 @@ export default function AdminSlider() {
         title: `Слайд ${sortOrderNumber}`,
         description: "",
         image,
+        linkUrl: linkUrl || null,
         sortOrder: sortOrderNumber,
       } as any,
       {
@@ -157,6 +193,7 @@ export default function AdminSlider() {
             setEditingSlide(null);
             setFormData({
               image: "",
+              linkUrl: "",
               sortOrder: String(getNextSortOrder()),
             });
             setIsDialogOpen(true);
@@ -177,6 +214,7 @@ export default function AdminSlider() {
               <TableRow className="bg-slate-50/50">
                 <TableHead className="font-bold py-4 text-slate-700">Порядок</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Изображение</TableHead>
+                <TableHead className="font-bold py-4 text-slate-700">Переход</TableHead>
                 <TableHead className="text-right font-bold py-4 text-slate-700">Действия</TableHead>
               </TableRow>
             </TableHeader>
@@ -195,6 +233,7 @@ export default function AdminSlider() {
                       className="w-52 aspect-video object-contain rounded-md border border-slate-200 bg-slate-100"
                     />
                   </TableCell>
+                  <TableCell className="text-slate-600">{getLinkTargetLabel(slide.linkUrl)}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"
@@ -220,7 +259,7 @@ export default function AdminSlider() {
               ))}
               {slides?.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-slate-500 py-20 font-medium italic">
+                  <TableCell colSpan={4} className="text-center text-slate-500 py-20 font-medium italic">
                     Слайды не добавлены.
                   </TableCell>
                 </TableRow>
@@ -258,6 +297,49 @@ export default function AdminSlider() {
                 placeholder="Например, 1"
               />
             </div>
+            <div className="space-y-2">
+              <Label className="text-slate-700 font-bold">Переход при клике</Label>
+              <Select
+                value={getLinkTargetValue(formData.linkUrl)}
+                onValueChange={(value) => {
+                  const selected = LINK_TARGET_OPTIONS.find((option) => option.value === value);
+                  const currentTarget = getLinkTargetValue(formData.linkUrl);
+                  setFormData({
+                    ...formData,
+                    linkUrl: selected
+                      ? selected.href
+                      : currentTarget === "custom"
+                        ? formData.linkUrl || "/"
+                        : "/",
+                  });
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {LINK_TARGET_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="custom">Другая ссылка</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {getLinkTargetValue(formData.linkUrl) === "custom" && (
+              <div className="space-y-2">
+                <Label className="text-slate-700 font-bold">Ссылка</Label>
+                <Input
+                  value={formData.linkUrl}
+                  onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
+                  placeholder="/catalog или #catalog"
+                />
+                <p className="text-xs text-slate-500">
+                  Используйте внутренний путь сайта или якорь блока.
+                </p>
+              </div>
+            )}
           </div>
           <DialogFooter className="flex-col-reverse sm:flex-row gap-2 mt-4 border-t pt-6">
             <Button variant="ghost" className="w-full sm:w-auto font-bold text-slate-500 hover:text-slate-900" onClick={() => setIsDialogOpen(false)}>
