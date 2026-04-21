@@ -256,7 +256,7 @@ export default function NewsDetail() {
           <section className="border-b border-slate-200 bg-slate-50/60 p-5 md:p-8">
             <div className="space-y-4">
               <div className="relative overflow-hidden rounded-2xl bg-slate-100">
-                <div className="aspect-[4/3] w-full">
+                <div className="aspect-[5/4] w-full md:aspect-[3/2]">
                   {activeImage ? (
                     <button
                       type="button"
