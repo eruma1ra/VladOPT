@@ -139,14 +139,13 @@ export default function News() {
                         height={1050}
                         fetchPriority="high"
                         sizes="(max-width: 1024px) 100vw, 60vw"
-                        className="h-full w-full bg-slate-50 object-contain p-4 md:p-6 transition-transform duration-700 group-hover:scale-[1.02]"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="h-full w-full bg-slate-100 flex items-center justify-center">
                         <ImageIcon className="w-16 h-16 text-slate-300" />
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/20 via-transparent to-primary/10" />
                   </div>
 
                   <CardContent className="p-6 md:p-8 lg:p-10 flex flex-col">
@@ -196,14 +195,13 @@ export default function News() {
                         width={1200}
                         height={900}
                         sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                        className="w-full h-full bg-slate-50 object-contain p-3 transition-transform duration-700 group-hover:scale-[1.02]"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full bg-slate-100 flex items-center justify-center">
                         <ImageIcon className="w-12 h-12 text-slate-300" />
                       </div>
                     )}
-                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-900/35 to-transparent" />
                   </div>
 
                   <CardContent className="p-5">

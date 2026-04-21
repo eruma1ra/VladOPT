@@ -254,27 +254,13 @@ export default function NewsDetail() {
           </div>
 
           <section className="border-b border-slate-200 bg-slate-50/60 p-5 md:p-8">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-semibold text-slate-900">Фотографии</p>
-                <p className="text-xs text-slate-500">
-                  Нажмите на миниатюру, чтобы заменить главный кадр.
-                </p>
-              </div>
-              {imageList.length > 1 && (
-                <div className="text-xs font-medium text-slate-500">
-                  {activeImageIdx + 1} / {imageList.length}
-                </div>
-              )}
-            </div>
-
             <div className="space-y-4">
-              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="relative overflow-hidden rounded-2xl bg-slate-100">
                 <div className="aspect-[4/3] w-full">
                   {activeImage ? (
                     <button
                       type="button"
-                      className="flex h-full w-full items-center justify-center bg-slate-50 p-3 md:p-5"
+                      className="block h-full w-full"
                       onClick={() => setIsViewerOpen(true)}
                     >
                       <img
@@ -286,7 +272,7 @@ export default function NewsDetail() {
                         decoding="async"
                         fetchPriority="high"
                         sizes="(max-width: 1280px) 100vw, 1200px"
-                        className="h-full w-full object-contain"
+                        className="h-full w-full object-cover"
                       />
                     </button>
                   ) : (
@@ -326,10 +312,10 @@ export default function NewsDetail() {
                       type="button"
                       onClick={() => setActiveImageIdx(index)}
                       aria-label={`Показать фото ${index + 1}`}
-                      className={`overflow-hidden rounded-xl border bg-white transition-all ${
+                      className={`overflow-hidden rounded-xl bg-slate-100 transition-all ${
                         activeImageIdx === index
-                          ? "border-primary shadow-md shadow-primary/15"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "ring-2 ring-primary/70"
+                          : "opacity-80 hover:opacity-100"
                       }`}
                     >
                       <img
@@ -340,7 +326,7 @@ export default function NewsDetail() {
                         loading="lazy"
                         decoding="async"
                         sizes="120px"
-                        className="aspect-[4/3] w-full bg-slate-50 object-contain p-1.5"
+                        className="aspect-[4/3] w-full object-cover"
                       />
                     </button>
                   ))}
