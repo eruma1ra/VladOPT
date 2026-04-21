@@ -48,7 +48,7 @@ const uploadImagePresets = {
   thumb: { width: 240, height: 240, fit: "cover" as const },
   detail: { width: 1400, height: 1400, fit: "inside" as const },
   hero: { width: 1920, height: 900, fit: "inside" as const },
-  news: { width: 1400, height: 900, fit: "cover" as const },
+  news: { width: 1400, height: 1050, fit: "inside" as const },
 } as const;
 type UploadImagePreset = keyof typeof uploadImagePresets;
 

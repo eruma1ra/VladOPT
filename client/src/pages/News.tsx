@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useNews } from "@/hooks/use-news";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { getOptimizedImageUrl } from "@/lib/image";
+import { getPrimaryNewsImage } from "@/lib/news";
 
 function formatNewsDate(value: Date | string) {
   return new Date(value).toLocaleDateString("ru-RU", {
@@ -52,6 +53,7 @@ export default function News() {
     () => activeNews.find((item) => item.isFeatured) ?? activeNews[0] ?? null,
     [activeNews]
   );
+  const featuredNewsImage = getPrimaryNewsImage(featuredNews);
 
   const gridNews = useMemo(
     () => activeNews.filter((item) => item.id !== featuredNews?.id),
@@ -127,17 +129,17 @@ export default function News() {
               <Card className="group overflow-hidden border-slate-200/80 bg-white shadow-xl shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl">
                 <div className="grid lg:grid-cols-[1.15fr_1fr]">
                   <div className="relative min-h-[300px] md:min-h-[380px] lg:min-h-[420px]">
-                    {featuredNews.image ? (
+                    {featuredNewsImage ? (
                       <img
-                        src={getOptimizedImageUrl(featuredNews.image, "news")}
+                        src={getOptimizedImageUrl(featuredNewsImage, "news")}
                         alt={featuredNews.title}
                         loading="eager"
                         decoding="async"
-                        width={1600}
-                        height={900}
+                        width={1400}
+                        height={1050}
                         fetchPriority="high"
                         sizes="(max-width: 1024px) 100vw, 60vw"
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="h-full w-full bg-slate-50 object-contain p-4 md:p-6 transition-transform duration-700 group-hover:scale-[1.02]"
                       />
                     ) : (
                       <div className="h-full w-full bg-slate-100 flex items-center justify-center">
@@ -184,17 +186,17 @@ export default function News() {
             {gridNews.map((item) => (
               <Link key={item.id} href={`/news/${item.id}`} className="block h-full" aria-label={`Открыть новость: ${item.title}`}>
                 <Card className="group h-full overflow-hidden rounded-[24px] border-slate-200/80 bg-white/95 shadow-lg shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                  <div className="relative h-52">
-                    {item.image ? (
+                  <div className="relative aspect-[4/3]">
+                    {getPrimaryNewsImage(item) ? (
                       <img
-                        src={getOptimizedImageUrl(item.image, "news")}
+                        src={getOptimizedImageUrl(getPrimaryNewsImage(item)!, "news")}
                         alt={item.title}
                         loading="lazy"
                         decoding="async"
                         width={1200}
-                        height={675}
+                        height={900}
                         sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full bg-slate-50 object-contain p-3 transition-transform duration-700 group-hover:scale-[1.02]"
                       />
                     ) : (
                       <div className="w-full h-full bg-slate-100 flex items-center justify-center">

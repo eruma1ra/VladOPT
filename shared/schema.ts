@@ -55,6 +55,7 @@ export const news = pgTable("news", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   image: text("image"),
+  images: jsonb("images").$type<string[]>().default([]).notNull(),
   status: text("status").default("active").notNull(), // active, archived, limited_offer
   isFeatured: boolean("is_featured").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -110,7 +111,10 @@ export const insertRequestSchema = createInsertSchema(requests, {
   phone: z.string().min(10, "Введите корректный номер телефона"),
   comment: z.string().min(5, "Пожалуйста, опишите ваш запрос"),
 }).omit({ id: true, createdAt: true });
-export const insertNewsSchema = createInsertSchema(news).omit({ id: true, createdAt: true });
+export const insertNewsSchema = createInsertSchema(news, {
+  image: z.string().trim().min(1).nullable().optional(),
+  images: z.array(z.string().trim().min(1)).max(20, "Можно добавить не более 20 изображений").optional(),
+}).omit({ id: true, createdAt: true });
 export const insertHeroSlideSchema = createInsertSchema(heroSlides, {
   linkUrl: z
     .string()

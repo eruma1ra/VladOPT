@@ -32,6 +32,36 @@ import { pool } from "./db";
 
 const PostgresSessionStore = connectPg(session);
 
+function normalizeNewsImageList(images: unknown, image?: string | null): string[] {
+  const fromImages = Array.isArray(images)
+    ? images.filter((value): value is string => typeof value === "string" && value.trim().length > 0).map((value) => value.trim())
+    : [];
+  const fallbackImage = typeof image === "string" && image.trim().length > 0 ? image.trim() : null;
+
+  if (fallbackImage && !fromImages.includes(fallbackImage)) {
+    return [fallbackImage, ...fromImages];
+  }
+
+  return fromImages;
+}
+
+function normalizeNewsPayload<T extends { image?: string | null; images?: unknown }>(payload: T): T & { image: string | null; images: string[] } {
+  const images = normalizeNewsImageList(payload.images, payload.image);
+  return {
+    ...payload,
+    image: images[0] ?? null,
+    images,
+  };
+}
+
+function normalizePartialNewsPayload<T extends { image?: string | null; images?: unknown }>(payload: T): T {
+  if (payload.images === undefined && payload.image === undefined) {
+    return payload;
+  }
+
+  return normalizeNewsPayload(payload);
+}
+
 export interface IStorage {
   // Auth
   getUser(id: number): Promise<User | undefined>;
@@ -221,22 +251,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getNews(): Promise<News[]> {
-    return await db.select().from(news).orderBy(desc(news.isFeatured), desc(news.createdAt));
+    const items = await db.select().from(news).orderBy(desc(news.isFeatured), desc(news.createdAt));
+    return items.map((item) => normalizeNewsPayload(item));
   }
 
   async getNewsItem(id: number): Promise<News | undefined> {
     const [item] = await db.select().from(news).where(eq(news.id, id));
-    return item;
+    return item ? normalizeNewsPayload(item) : undefined;
   }
 
   async createNews(insertNews: InsertNews): Promise<News> {
     return await db.transaction(async (tx) => {
-      if (insertNews.isFeatured) {
+      const normalizedNews = normalizeNewsPayload(insertNews);
+
+      if (normalizedNews.isFeatured) {
         await tx.update(news).set({ isFeatured: false });
       }
 
-      const [item] = await tx.insert(news).values(insertNews).returning();
-      return item;
+      const [item] = await tx.insert(news).values(normalizedNews).returning();
+      return normalizeNewsPayload(item);
     });
   }
 
@@ -250,7 +283,7 @@ export class DatabaseStorage implements IStorage {
       return existing;
     }
 
-    const sanitizedData = Object.fromEntries(entries) as Partial<InsertNews>;
+    const sanitizedData = normalizePartialNewsPayload(Object.fromEntries(entries) as Partial<InsertNews>);
 
     return await db.transaction(async (tx) => {
       if (sanitizedData.isFeatured === true) {
@@ -264,7 +297,7 @@ export class DatabaseStorage implements IStorage {
       if (!updated) {
         throw new Error("News not found");
       }
-      return updated;
+      return normalizeNewsPayload(updated);
     });
   }
 
@@ -286,7 +319,7 @@ export class DatabaseStorage implements IStorage {
       if (!updated) {
         throw new Error("News not found");
       }
-      return updated;
+      return normalizeNewsPayload(updated);
     });
   }
 

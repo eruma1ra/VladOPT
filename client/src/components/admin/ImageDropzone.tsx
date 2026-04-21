@@ -15,6 +15,7 @@ type ImageDropzoneProps = {
   className?: string;
   previewAspect?: "square" | "landscape";
   hint?: string;
+  showPreview?: boolean;
 };
 
 export function ImageDropzone({
@@ -24,6 +25,7 @@ export function ImageDropzone({
   className,
   previewAspect = "square",
   hint,
+  showPreview = true,
 }: ImageDropzoneProps) {
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -183,7 +185,7 @@ export function ImageDropzone({
         </div>
       </button>
 
-      {value.length > 0 && (
+      {showPreview && value.length > 0 && (
         <div
           className={
             previewAspect === "landscape"
