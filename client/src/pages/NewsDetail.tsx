@@ -47,6 +47,24 @@ export default function NewsDetail() {
   }, [item?.id]);
 
   useEffect(() => {
+    if (imageList.length === 0) return;
+
+    const preloaders = imageList.map((imageUrl) => {
+      const image = new Image();
+      image.decoding = "async";
+      image.loading = "eager";
+      image.src = imageUrl;
+      return image;
+    });
+
+    return () => {
+      for (const image of preloaders) {
+        image.src = "";
+      }
+    };
+  }, [imageList]);
+
+  useEffect(() => {
     if (!isViewerOpen) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
