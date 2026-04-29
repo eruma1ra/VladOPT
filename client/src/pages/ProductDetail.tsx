@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useSearch } from "wouter";
 import { createPortal } from "react-dom";
 import { useProduct } from "@/hooks/use-products";
 import { RequestModalButton } from "@/components/RequestModalButton";
@@ -8,6 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Image as ImageIcon } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/image";
+
+function parseReturnCategoryId(searchParams: string) {
+  const rawCategoryId = new URLSearchParams(searchParams).get("categoryId");
+  if (!rawCategoryId) return undefined;
+
+  const categoryId = Number(rawCategoryId);
+  return Number.isInteger(categoryId) && categoryId > 0 ? categoryId : undefined;
+}
 
 function formatAttributeValue(value: unknown): string {
   if (value === null || value === undefined || value === "") return "—";
@@ -30,8 +38,11 @@ function isPublicAttributeKey(rawKey: string): boolean {
 
 export default function ProductDetail() {
   const params = useParams();
+  const urlSearch = useSearch();
   const id = parseInt(params.id || "0", 10);
   const { data: product, isLoading } = useProduct(id);
+  const returnCategoryId = parseReturnCategoryId(urlSearch);
+  const catalogBackHref = returnCategoryId ? `/catalog?categoryId=${returnCategoryId}` : "/catalog";
   const [activeImageIdx, setActiveImageIdx] = useState(0);
   const [isZoomViewerOpen, setIsZoomViewerOpen] = useState(false);
   const [isZoomedIn, setIsZoomedIn] = useState(false);
@@ -121,7 +132,7 @@ export default function ProductDetail() {
         />
         <h2 className="text-2xl font-bold text-slate-900 mb-2">Товар не найден</h2>
         <p className="text-slate-500 mb-6">Запрашиваемая позиция не существует или была удалена.</p>
-        <Link href="/catalog">
+        <Link href={catalogBackHref}>
           <Button className="border-none">Вернуться в каталог</Button>
         </Link>
       </div>
@@ -229,7 +240,7 @@ export default function ProductDetail() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <Link
-          href="/catalog"
+          href={catalogBackHref}
           className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:text-primary transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Назад в каталог

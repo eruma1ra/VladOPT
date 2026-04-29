@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation, useSearch } from "wouter";
 import { useProducts } from "@/hooks/use-products";
 import { useCategories } from "@/hooks/use-categories";
 import { useBrands } from "@/hooks/use-brands";
@@ -8,9 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Search, Filter, Loader2, PackageX, ArrowUp } from "lucide-react";
 import { SeoHead } from "@/components/seo/SeoHead";
 
+function parseCategoryId(searchParams: string) {
+  const rawCategoryId = new URLSearchParams(searchParams).get("categoryId");
+  if (!rawCategoryId) return undefined;
+
+  const categoryId = Number(rawCategoryId);
+  return Number.isInteger(categoryId) && categoryId > 0 ? categoryId : undefined;
+}
+
 export default function Catalog() {
+  const urlSearch = useSearch();
+  const [, navigate] = useLocation();
   const [search, setSearch] = useState("");
-  const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>();
+  const [activeCategoryId, setActiveCategoryId] = useState<number | undefined>(() => parseCategoryId(urlSearch));
   const [activeBrandId, setActiveBrandId] = useState<number | undefined>();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -22,6 +33,10 @@ export default function Catalog() {
   });
   
   const { data: categories } = useCategories();
+
+  useEffect(() => {
+    setActiveCategoryId(parseCategoryId(urlSearch));
+  }, [urlSearch]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,6 +58,7 @@ export default function Catalog() {
 
   const handleCategoryChange = (categoryId?: number) => {
     setActiveCategoryId(categoryId);
+    navigate(categoryId ? `/catalog?categoryId=${categoryId}` : "/catalog", { replace: true });
     scrollPageToTop();
   };
 
@@ -50,6 +66,7 @@ export default function Catalog() {
     setSearch("");
     setActiveCategoryId(undefined);
     setActiveBrandId(undefined);
+    navigate("/catalog", { replace: true });
     scrollPageToTop();
   };
 
@@ -166,7 +183,7 @@ export default function Catalog() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {products?.map(product => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product.id} product={product} catalogCategoryId={activeCategoryId} />
                 ))}
               </div>
             )}

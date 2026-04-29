@@ -8,15 +8,19 @@ import { getOptimizedImageUrl } from "@/lib/image";
 
 interface ProductCardProps {
   product: Product & { category?: any; brand?: any };
+  catalogCategoryId?: number;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, catalogCategoryId }: ProductCardProps) {
   const mainImage = product.images?.[0];
   const cardImage = getOptimizedImageUrl(mainImage, "card");
+  const productHref = catalogCategoryId
+    ? `/catalog/${product.id}?categoryId=${catalogCategoryId}`
+    : `/catalog/${product.id}`;
 
   return (
     <div className="group bg-card rounded-2xl border border-border/50 overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300 flex flex-col h-full">
-      <Link href={`/catalog/${product.id}`} className="block relative aspect-square overflow-hidden bg-slate-50 flex-shrink-0">
+      <Link href={productHref} className="block relative aspect-square overflow-hidden bg-slate-50 flex-shrink-0">
         {mainImage ? (
           <img 
             src={cardImage} 
@@ -55,7 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </span>
         </div>
         
-        <Link href={`/catalog/${product.id}`} className="hover:text-primary transition-colors">
+        <Link href={productHref} className="hover:text-primary transition-colors">
           <h3 className="font-display font-semibold text-lg leading-tight mb-2 line-clamp-2">
             {product.name}
           </h3>
@@ -72,7 +76,7 @@ export function ProductCard({ product }: ProductCardProps) {
             className="flex-1 h-11 rounded-xl border-none bg-slate-600 text-white font-semibold shadow-sm hover:bg-slate-700"
             label="Запросить стоимость"
           />
-          <Link href={`/catalog/${product.id}`} className="inline-flex">
+          <Link href={productHref} className="inline-flex">
             <Button
               size="icon"
               variant="ghost"
