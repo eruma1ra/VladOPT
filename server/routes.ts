@@ -16,6 +16,7 @@ import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import ExcelJS from "exceljs";
+import JSZip from "jszip";
 import sharp from "sharp";
 import { setupAuth, registerAuthRoutes, isAdmin } from "./replit_integrations/auth";
 import { sendRequestNotificationByEmail } from "./services/request-notifier";
@@ -206,25 +207,7 @@ function isXlsxFile(file: Express.Multer.File): boolean {
 
 async function parseProductImportRows(file: Express.Multer.File): Promise<unknown[][]> {
   if (isXlsxFile(file)) {
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(file.buffer);
-    const worksheet = workbook.worksheets[0];
-    if (!worksheet) return [];
-
-    const rows: unknown[][] = [];
-    const rowCount = Math.max(worksheet.rowCount, worksheet.actualRowCount);
-    const columnCount = Math.max(worksheet.columnCount, worksheet.actualColumnCount);
-
-    for (let rowNumber = 1; rowNumber <= rowCount; rowNumber++) {
-      const worksheetRow = worksheet.getRow(rowNumber);
-      const row: unknown[] = [];
-      for (let columnNumber = 1; columnNumber <= columnCount; columnNumber++) {
-        row[columnNumber - 1] = readExcelCellValue(worksheetRow.getCell(columnNumber).value);
-      }
-      rows[rowNumber - 1] = row;
-    }
-
-    return rows;
+    return parseXlsxRows(file.buffer);
   }
 
   return parse(file.buffer.toString(), {
@@ -235,25 +218,156 @@ async function parseProductImportRows(file: Express.Multer.File): Promise<unknow
   });
 }
 
-function readExcelCellValue(value: ExcelJS.CellValue): string {
-  if (value === null || value === undefined) return "";
-  if (value instanceof Date) return value.toISOString();
-  if (typeof value !== "object") return String(value);
+async function parseXlsxRows(buffer: Buffer): Promise<string[][]> {
+  const zip = await JSZip.loadAsync(buffer);
+  const sharedStrings = await readXlsxSharedStrings(zip);
+  const sheetPath = await findFirstXlsxSheetPath(zip);
+  const sheetXml = await zip.file(sheetPath)?.async("string");
 
-  if ("result" in value) {
-    return readExcelCellValue(value.result as ExcelJS.CellValue);
-  }
-  if ("text" in value) {
-    return readCsvCell(value.text);
-  }
-  if ("richText" in value && Array.isArray(value.richText)) {
-    return value.richText.map((part) => part.text ?? "").join("");
-  }
-  if ("hyperlink" in value && "text" in value) {
-    return readCsvCell(value.text);
+  if (!sheetXml) {
+    throw new Error("В XLSX не найден первый лист");
   }
 
-  return "";
+  const rows: string[][] = [];
+  const rowPattern = /<row\b([^>]*)>([\s\S]*?)<\/row>/g;
+  let rowMatch: RegExpExecArray | null;
+  let fallbackRowNumber = 1;
+
+  while ((rowMatch = rowPattern.exec(sheetXml)) !== null) {
+    const rowAttrs = rowMatch[1] ?? "";
+    const rowNumber = Number(readXmlAttribute(rowAttrs, "r")) || fallbackRowNumber;
+    fallbackRowNumber = rowNumber + 1;
+
+    const row: string[] = [];
+    const cellPattern = /<c\b([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g;
+    let cellMatch: RegExpExecArray | null;
+    let fallbackColumnIndex = 0;
+
+    while ((cellMatch = cellPattern.exec(rowMatch[2] ?? "")) !== null) {
+      const cellAttrs = cellMatch[1] ?? "";
+      const cellBody = cellMatch[2] ?? "";
+      const cellRef = readXmlAttribute(cellAttrs, "r");
+      const columnIndex = cellRef ? getXlsxColumnIndex(cellRef) : fallbackColumnIndex;
+      fallbackColumnIndex = columnIndex + 1;
+
+      row[columnIndex] = readXlsxCellValue(cellAttrs, cellBody, sharedStrings);
+    }
+
+    rows[rowNumber - 1] = row;
+  }
+
+  return Array.from({ length: rows.length }, (_value, index) => rows[index] ?? []);
+}
+
+async function readXlsxSharedStrings(zip: JSZip): Promise<string[]> {
+  const xml = await zip.file("xl/sharedStrings.xml")?.async("string");
+  if (!xml) return [];
+
+  const values: string[] = [];
+  const itemPattern = /<si\b[^>]*>([\s\S]*?)<\/si>/g;
+  let itemMatch: RegExpExecArray | null;
+
+  while ((itemMatch = itemPattern.exec(xml)) !== null) {
+    values.push(readXlsxTextRuns(itemMatch[1] ?? ""));
+  }
+
+  return values;
+}
+
+async function findFirstXlsxSheetPath(zip: JSZip): Promise<string> {
+  const workbookXml = await zip.file("xl/workbook.xml")?.async("string");
+  const relsXml = await zip.file("xl/_rels/workbook.xml.rels")?.async("string");
+  const firstSheet = workbookXml?.match(/<sheet\b[^>]*>/)?.[0] ?? "";
+  const relationshipId = readXmlAttribute(firstSheet, "r:id");
+
+  if (relationshipId && relsXml) {
+    const relationshipPattern = /<Relationship\b([^>]*)\/?>/g;
+    let relationshipMatch: RegExpExecArray | null;
+
+    while ((relationshipMatch = relationshipPattern.exec(relsXml)) !== null) {
+      const attrs = relationshipMatch[1] ?? "";
+      if (readXmlAttribute(attrs, "Id") !== relationshipId) continue;
+
+      const target = readXmlAttribute(attrs, "Target");
+      if (target) {
+        return normalizeXlsxPath(target.startsWith("/") ? target.slice(1) : `xl/${target}`);
+      }
+    }
+  }
+
+  return "xl/worksheets/sheet1.xml";
+}
+
+function readXlsxCellValue(cellAttrs: string, cellBody: string, sharedStrings: string[]): string {
+  const cellType = readXmlAttribute(cellAttrs, "t");
+
+  if (cellType === "inlineStr") {
+    return readCsvCell(readXlsxTextRuns(cellBody));
+  }
+
+  const rawValue = readXmlTag(cellBody, "v");
+  if (rawValue === "") return "";
+
+  if (cellType === "s") {
+    const sharedStringIndex = Number(rawValue);
+    return readCsvCell(sharedStrings[sharedStringIndex] ?? "");
+  }
+
+  return readCsvCell(decodeXml(rawValue));
+}
+
+function readXlsxTextRuns(xml: string): string {
+  const parts: string[] = [];
+  const textPattern = /<t\b[^>]*>([\s\S]*?)<\/t>/g;
+  let textMatch: RegExpExecArray | null;
+
+  while ((textMatch = textPattern.exec(xml)) !== null) {
+    parts.push(decodeXml(textMatch[1] ?? ""));
+  }
+
+  return parts.join("");
+}
+
+function readXmlTag(xml: string, tagName: string): string {
+  const match = xml.match(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`));
+  return match ? decodeXml(match[1] ?? "") : "";
+}
+
+function readXmlAttribute(attrs: string, name: string): string {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = attrs.match(new RegExp(`\\b${escapedName}=(["'])(.*?)\\1`));
+  return match ? decodeXml(match[2] ?? "") : "";
+}
+
+function decodeXml(value: string): string {
+  return value
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+}
+
+function getXlsxColumnIndex(cellRef: string): number {
+  const letters = cellRef.match(/^[A-Z]+/i)?.[0]?.toUpperCase() ?? "A";
+  let index = 0;
+  for (const letter of letters) {
+    index = index * 26 + letter.charCodeAt(0) - 64;
+  }
+  return Math.max(index - 1, 0);
+}
+
+function normalizeXlsxPath(value: string): string {
+  const parts: string[] = [];
+  for (const part of value.split("/")) {
+    if (!part || part === ".") continue;
+    if (part === "..") {
+      parts.pop();
+      continue;
+    }
+    parts.push(part);
+  }
+  return parts.join("/");
 }
 
 function buildProductExportRows(products: Awaited<ReturnType<typeof storage.getProducts>>): string[][] {
