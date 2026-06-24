@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ImageDropzone } from "@/components/admin/ImageDropzone";
+import { formatProductStockQuantity, getProductStockQuantity } from "@/lib/product-stock";
 
 const ATTRIBUTE_ORDER_KEY = "__order";
 
@@ -242,7 +243,7 @@ export default function AdminProducts() {
       <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6 sm:mb-8">
         <div className="w-full xl:w-auto">
           <h1 className="text-2xl sm:text-3xl font-display font-bold text-slate-900">Товары</h1>
-          <p className="text-slate-500">Управление ассортиментом каталога.</p>
+          <p className="text-slate-500">Управление ассортиментом каталога, импорт и экспорт CSV/XLSX.</p>
           <div className="catalog-search-shell mt-3 w-full xl:max-w-md">
             <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
             <Input
@@ -259,12 +260,19 @@ export default function AdminProducts() {
             className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium w-full" 
             onClick={() => window.open('/api/products/export')}
           >
-            <FileDown className="w-4 h-4 mr-2" /> Экспорт
+            <FileDown className="w-4 h-4 mr-2" /> CSV
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium w-full"
+            onClick={() => window.open('/api/products/export?format=xlsx')}
+          >
+            <FileDown className="w-4 h-4 mr-2" /> XLSX
           </Button>
           <div className="relative w-full">
             <input 
               type="file" 
-              accept=".csv" 
+              accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
               onChange={handleImport}
               disabled={importProducts.isPending}
@@ -275,7 +283,7 @@ export default function AdminProducts() {
               disabled={importProducts.isPending}
             >
               <FileUp className="w-4 h-4 mr-2" />
-              {importProducts.isPending ? "Загрузка..." : "Импорт"}
+              {importProducts.isPending ? "Загрузка..." : "Импорт CSV/XLSX"}
             </Button>
           </div>
           <Button
@@ -306,55 +314,62 @@ export default function AdminProducts() {
                 <TableHead className="font-bold py-4 text-slate-700">Артикул</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Наименование</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Категория</TableHead>
+                <TableHead className="font-bold py-4 text-slate-700">Остаток</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Статус</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Главная</TableHead>
                 <TableHead className="text-right font-bold py-4 text-slate-700">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedProducts.map((p) => (
-                <TableRow key={p.id} className="hover:bg-slate-50 transition-colors">
-                  <TableCell className="font-mono text-xs text-slate-500">{p.sku}</TableCell>
-                  <TableCell className="font-semibold text-slate-900 max-w-[380px] whitespace-normal break-words leading-5">
-                    {p.name}
-                  </TableCell>
-                  <TableCell className="text-slate-600 font-medium">{p.category?.name || '-'}</TableCell>
-                  <TableCell>
-                    <Badge
-                      className={`border-none font-medium ${
-                        p.availability === 'in_stock' ? 'bg-green-500 text-white' : 'bg-red-400/85 text-white'
-                      }`}
-                    >
-                      {p.availability === 'in_stock' ? 'В наличии' : 'Ожидается'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={p.showOnHome ? "border-none bg-primary/15 text-primary" : "border-none bg-slate-100 text-slate-500"}>
-                      {p.showOnHome ? "Показан" : "Скрыт"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      title={p.showOnHome ? "Убрать с главной" : "Поместить на главный экран"}
-                      className={p.showOnHome ? "text-primary hover:text-primary" : "text-slate-400 hover:text-primary transition-colors"}
-                      onClick={() => handleToggleHomeProduct(p)}
-                    >
-                      <House className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary transition-colors" onClick={() => { setEditingProduct(p); setIsDialogOpen(true); }}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive transition-colors" onClick={() => handleDelete(p.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {sortedProducts.map((p) => {
+                const stockQuantity = getProductStockQuantity(p.attributes);
+                return (
+                  <TableRow key={p.id} className="hover:bg-slate-50 transition-colors">
+                    <TableCell className="font-mono text-xs text-slate-500">{p.sku}</TableCell>
+                    <TableCell className="font-semibold text-slate-900 max-w-[380px] whitespace-normal break-words leading-5">
+                      {p.name}
+                    </TableCell>
+                    <TableCell className="text-slate-600 font-medium">{p.category?.name || '-'}</TableCell>
+                    <TableCell className="font-mono text-xs text-slate-600">
+                      {stockQuantity !== null ? formatProductStockQuantity(stockQuantity) : "-"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        className={`border-none font-medium ${
+                          p.availability === 'in_stock' ? 'bg-green-500 text-white' : 'bg-red-400/85 text-white'
+                        }`}
+                      >
+                        {p.availability === 'in_stock' ? 'В наличии' : 'Ожидается'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={p.showOnHome ? "border-none bg-primary/15 text-primary" : "border-none bg-slate-100 text-slate-500"}>
+                        {p.showOnHome ? "Показан" : "Скрыт"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title={p.showOnHome ? "Убрать с главной" : "Поместить на главный экран"}
+                        className={p.showOnHome ? "text-primary hover:text-primary" : "text-slate-400 hover:text-primary transition-colors"}
+                        onClick={() => handleToggleHomeProduct(p)}
+                      >
+                        <House className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary transition-colors" onClick={() => { setEditingProduct(p); setIsDialogOpen(true); }}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive transition-colors" onClick={() => handleDelete(p.id)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
               {sortedProducts.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-slate-500 py-20 font-medium italic">Товары не найдены. Добавьте новые или импортируйте из CSV.</TableCell>
+                  <TableCell colSpan={7} className="text-center text-slate-500 py-20 font-medium italic">Товары не найдены. Добавьте новые или импортируйте из CSV/XLSX.</TableCell>
                 </TableRow>
               )}
             </TableBody>

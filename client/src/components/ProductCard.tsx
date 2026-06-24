@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Package, ArrowRight } from "lucide-react";
 import { RequestModalButton } from "./RequestModalButton";
 import { getOptimizedImageUrl } from "@/lib/image";
+import { formatProductStockQuantity, getProductStockQuantity } from "@/lib/product-stock";
 
 interface ProductCardProps {
   product: Product & { category?: any; brand?: any };
@@ -17,6 +18,7 @@ export function ProductCard({ product, catalogCategoryId }: ProductCardProps) {
   const productHref = catalogCategoryId
     ? `/catalog/${product.id}?categoryId=${catalogCategoryId}`
     : `/catalog/${product.id}`;
+  const stockQuantity = getProductStockQuantity(product.attributes);
 
   return (
     <div className="group bg-card rounded-2xl border border-border/50 overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all duration-300 flex flex-col h-full">
@@ -41,7 +43,7 @@ export function ProductCard({ product, catalogCategoryId }: ProductCardProps) {
         <div className="absolute top-3 left-3 flex flex-col gap-2">
           {product.availability === 'in_stock' && (
             <Badge variant="default" className="bg-green-500 hover:bg-green-600 border-none shadow-sm">
-              В наличии
+              {stockQuantity !== null ? `В наличии: ${formatProductStockQuantity(stockQuantity)}` : "В наличии"}
             </Badge>
           )}
           {product.availability !== 'in_stock' && (

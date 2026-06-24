@@ -15,6 +15,7 @@ import {
 import { z } from "zod";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
+import ExcelJS from "exceljs";
 import sharp from "sharp";
 import { setupAuth, registerAuthRoutes, isAdmin } from "./replit_integrations/auth";
 import { sendRequestNotificationByEmail } from "./services/request-notifier";
@@ -34,13 +35,22 @@ const imageMimeToExtension: Record<string, string> = {
 
 const productCsvColumns = {
   code: 0,
+  group: 1,
+  sku: 2,
+  name: 3,
+  vladivostokQuantity: 4,
+  russianQuantity: 5,
+} as const;
+
+const legacyProductCsvColumns = {
+  code: 0,
   group: 4,
   sku: 12,
   name: 14,
   quantity: 15,
 } as const;
 
-const productCsvWidth = 16;
+const productCsvWidth = 6;
 const ATTRIBUTE_ORDER_KEY = "__order";
 const DEFAULT_SITE_URL = "https://vladopt.ru";
 const uploadImagePresets = {
@@ -91,6 +101,26 @@ function parseQuantity(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function formatQuantity(value: number | null): string {
+  if (value === null) return "0";
+  if (Number.isInteger(value)) return String(value);
+  return String(value).replace(".", ",");
+}
+
+function sumQuantities(values: string[]): number | null {
+  let total = 0;
+  let hasValue = false;
+
+  for (const value of values) {
+    const parsed = parseQuantity(value);
+    if (parsed === null) continue;
+    total += parsed;
+    hasValue = true;
+  }
+
+  return hasValue ? total : null;
+}
+
 function getAvailabilityFromQuantity(quantity: number | null): "in_stock" | "out_of_stock" {
   return quantity !== null && quantity > 0 ? "in_stock" : "out_of_stock";
 }
@@ -104,6 +134,159 @@ function escapeCsv(value: string): string {
     return `"${value.replace(/"/g, '""')}"`;
   }
   return value;
+}
+
+function normalizeHeaderCell(value: string): string {
+  return normalizeKey(value)
+    .replace(/ё/g, "е")
+    .replace(/[._-]+/g, " ");
+}
+
+type ProductImportColumns = {
+  code: number;
+  group: number;
+  sku: number;
+  name: number;
+  stockColumns: number[];
+  dataStartRowIndex: number;
+};
+
+function findColumnByHeader(row: unknown[], labels: string[]): number {
+  const normalizedLabels = labels.map(normalizeHeaderCell);
+  return row.findIndex((cell) => normalizedLabels.includes(normalizeHeaderCell(readCsvCell(cell))));
+}
+
+function detectProductImportColumns(rows: unknown[][]): ProductImportColumns {
+  for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
+    const row = rows[rowIndex] ?? [];
+    const sku = findColumnByHeader(row, ["Артикул"]);
+    const name = findColumnByHeader(row, ["Номенклатура"]);
+
+    if (sku < 0 || name < 0) continue;
+
+    const nextRow = rows[rowIndex + 1] ?? [];
+    const code = findColumnByHeader(row, ["Код"]);
+    const group = findColumnByHeader(row, ["Группа"]);
+    const stockColumns = row
+      .map((cell, columnIndex) => {
+        const header = normalizeHeaderCell(readCsvCell(cell));
+        const subHeader = normalizeHeaderCell(readCsvCell(nextRow[columnIndex]));
+        const isStockColumn =
+          header.includes("склад") ||
+          header === "остаток" ||
+          subHeader === "остаток";
+        return isStockColumn ? columnIndex : -1;
+      })
+      .filter((columnIndex) => columnIndex >= 0);
+
+    const nextRowHasStockSubHeader = nextRow.some(
+      (cell) => normalizeHeaderCell(readCsvCell(cell)) === "остаток",
+    );
+
+    return {
+      code: code >= 0 ? code : legacyProductCsvColumns.code,
+      group: group >= 0 ? group : legacyProductCsvColumns.group,
+      sku,
+      name,
+      stockColumns: stockColumns.length > 0 ? stockColumns : [legacyProductCsvColumns.quantity],
+      dataStartRowIndex: rowIndex + (nextRowHasStockSubHeader ? 2 : 1),
+    };
+  }
+
+  return {
+    code: legacyProductCsvColumns.code,
+    group: legacyProductCsvColumns.group,
+    sku: legacyProductCsvColumns.sku,
+    name: legacyProductCsvColumns.name,
+    stockColumns: [legacyProductCsvColumns.quantity],
+    dataStartRowIndex: 0,
+  };
+}
+
+function isXlsxFile(file: Express.Multer.File): boolean {
+  const originalName = file.originalname.toLowerCase();
+  return (
+    originalName.endsWith(".xlsx") ||
+    file.mimetype === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+}
+
+async function parseProductImportRows(file: Express.Multer.File): Promise<unknown[][]> {
+  if (isXlsxFile(file)) {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(file.buffer);
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) return [];
+
+    const rows: unknown[][] = [];
+    worksheet.eachRow({ includeEmpty: true }, (worksheetRow, rowNumber) => {
+      const row: unknown[] = [];
+      worksheetRow.eachCell({ includeEmpty: true }, (cell, columnNumber) => {
+        row[columnNumber - 1] = cell.text || (cell.value === null || cell.value === undefined ? "" : String(cell.value));
+      });
+      rows[rowNumber - 1] = row;
+    });
+
+    return rows;
+  }
+
+  return parse(file.buffer.toString(), {
+    columns: false,
+    skip_empty_lines: false,
+    relax_column_count: true,
+    bom: true,
+  });
+}
+
+function buildProductExportRows(products: Awaited<ReturnType<typeof storage.getProducts>>): string[][] {
+  const dateLabel = new Date().toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const titleRow = emptyProductCsvRow();
+  titleRow[0] = `Прайс-лист на ${dateLabel} г.`;
+
+  const spacerRow = emptyProductCsvRow();
+
+  const headerRow = emptyProductCsvRow();
+  headerRow[productCsvColumns.code] = "Код";
+  headerRow[productCsvColumns.group] = "Группа";
+  headerRow[productCsvColumns.sku] = "Артикул";
+  headerRow[productCsvColumns.name] = "Номенклатура";
+  headerRow[productCsvColumns.vladivostokQuantity] = "Склад Владивосток";
+  headerRow[productCsvColumns.russianQuantity] = "Склад Русская";
+
+  const subHeaderRow = emptyProductCsvRow();
+  subHeaderRow[productCsvColumns.vladivostokQuantity] = "Остаток";
+  subHeaderRow[productCsvColumns.russianQuantity] = "Остаток";
+
+  const rows: string[][] = [titleRow, spacerRow, headerRow, subHeaderRow];
+
+  for (const p of products) {
+    const attributes = (p.attributes ?? {}) as Record<string, unknown>;
+    const code = readCsvCell(attributes["Код"]) || p.sku;
+    const groupFromAttributes = normalizeCategoryName(readCsvCell(attributes["Группа"]));
+    const groupFromCategory = normalizeCategoryName(p.category?.name ?? "");
+    const group = groupFromAttributes || groupFromCategory;
+    const totalQuantity =
+      readCsvCell(attributes["Остаток"]) || (p.availability === "in_stock" ? "1" : "0");
+    const vladivostokQuantity = readCsvCell(attributes["Остаток Владивосток"]) || totalQuantity;
+    const russianQuantity = readCsvCell(attributes["Остаток Русская"]);
+
+    const row = emptyProductCsvRow();
+    row[productCsvColumns.code] = code;
+    row[productCsvColumns.group] = group;
+    row[productCsvColumns.sku] = p.sku;
+    row[productCsvColumns.name] = p.name;
+    row[productCsvColumns.vladivostokQuantity] = vladivostokQuantity;
+    row[productCsvColumns.russianQuantity] = russianQuantity;
+
+    rows.push(row);
+  }
+
+  return rows;
 }
 
 function normalizeAttributesWithOrder(raw: unknown): Record<string, unknown> {
@@ -411,52 +594,39 @@ ${entries
     res.json({ message: "Все товары удалены", deleted });
   });
 
-  // Export CSV
+  // Export CSV/XLSX
   app.get(api.products.exportCsv.path, isAdmin, async (req, res) => {
     const products = await storage.getProducts();
-    const dateLabel = new Date().toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+    const rows = buildProductExportRows(products);
+    const format = String(req.query.format || "csv").toLowerCase();
 
-    const titleRow = emptyProductCsvRow();
-    titleRow[0] = `Прайс-лист на ${dateLabel} г.`;
+    if (format === "xlsx") {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Прайс-лист");
+      worksheet.addRows(rows);
+      worksheet.mergeCells(1, 1, 1, 4);
+      worksheet.columns = [
+        { width: 14 },
+        { width: 28 },
+        { width: 18 },
+        { width: 72 },
+        { width: 20 },
+        { width: 18 },
+      ];
+      worksheet.getRow(1).font = { bold: true, size: 16 };
+      worksheet.getRow(3).font = { bold: true };
+      worksheet.getRow(4).font = { bold: true };
+      const buffer = await workbook.xlsx.writeBuffer();
 
-    const spacerRow = emptyProductCsvRow();
-
-    const headerRow = emptyProductCsvRow();
-    headerRow[productCsvColumns.code] = "Код";
-    headerRow[productCsvColumns.group] = "Группа";
-    headerRow[productCsvColumns.sku] = "Артикул";
-    headerRow[productCsvColumns.name] = "Номенклатура";
-    headerRow[productCsvColumns.quantity] = "Склад Владивосток";
-
-    const subHeaderRow = emptyProductCsvRow();
-    subHeaderRow[productCsvColumns.quantity] = "Остаток";
-
-    const csvRows: string[][] = [titleRow, spacerRow, headerRow, subHeaderRow];
-
-    for (const p of products) {
-      const attributes = (p.attributes ?? {}) as Record<string, unknown>;
-      const code = readCsvCell(attributes["Код"]) || p.sku;
-      const groupFromAttributes = normalizeCategoryName(readCsvCell(attributes["Группа"]));
-      const groupFromCategory = normalizeCategoryName(p.category?.name ?? "");
-      const group = groupFromAttributes || groupFromCategory;
-      const quantity =
-        readCsvCell(attributes["Остаток"]) || (p.availability === "in_stock" ? "1" : "0");
-
-      const row = emptyProductCsvRow();
-      row[productCsvColumns.code] = code;
-      row[productCsvColumns.group] = group;
-      row[productCsvColumns.sku] = p.sku;
-      row[productCsvColumns.name] = p.name;
-      row[productCsvColumns.quantity] = quantity;
-
-      csvRows.push(row);
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      );
+      res.setHeader("Content-Disposition", "attachment; filename=products-template.xlsx");
+      return res.status(200).send(buffer);
     }
 
-    const csvContent = csvRows
+    const csvContent = rows
       .map((row) => row.map((cell) => escapeCsv(cell)).join(","))
       .join("\n");
 
@@ -465,19 +635,15 @@ ${entries
     res.status(200).send(`\uFEFF${csvContent}`);
   });
 
-  // CSV Import
+  // CSV/XLSX Import
   app.post(api.products.importCsv.path, isAdmin, csvUpload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
     try {
-      const records = parse(req.file.buffer.toString(), {
-        columns: false,
-        skip_empty_lines: false,
-        relax_column_count: true,
-        bom: true,
-      });
+      const records = await parseProductImportRows(req.file);
+      const columns = detectProductImportColumns(records);
 
       let imported = 0;
       let updated = 0;
@@ -515,11 +681,11 @@ ${entries
         return created.id;
       };
 
-      for (let i = 0; i < records.length; i++) {
-        const row = records[i] as unknown[];
+      for (let i = columns.dataStartRowIndex; i < records.length; i++) {
+        const row = (records[i] ?? []) as unknown[];
         try {
-          const sku = readCsvCell(row[productCsvColumns.sku]);
-          const name = readCsvCell(row[productCsvColumns.name]);
+          const sku = readCsvCell(row[columns.sku]);
+          const name = readCsvCell(row[columns.name]);
 
           if (!sku && !name) {
             continue;
@@ -536,8 +702,12 @@ ${entries
             continue;
           }
 
-          const quantityRaw = readCsvCell(row[productCsvColumns.quantity]);
-          const quantity = parseQuantity(quantityRaw);
+          const warehouseQuantities = columns.stockColumns.map((columnIndex) => readCsvCell(row[columnIndex]));
+          const quantity = sumQuantities(warehouseQuantities);
+          const quantityRaw = formatQuantity(quantity);
+          const vladivostokQuantityRaw = readCsvCell(row[columns.stockColumns[0]]);
+          const russianQuantityRaw =
+            columns.stockColumns.length > 1 ? readCsvCell(row[columns.stockColumns[1]]) : "";
           const availability = getAvailabilityFromQuantity(quantity);
 
           const existingProduct = await storage.getProductBySku(sku);
@@ -548,7 +718,9 @@ ${entries
               availability,
               attributes: normalizeAttributesWithOrder({
                 ...existingAttributes,
-                "Остаток": quantityRaw || "0",
+                "Остаток": quantityRaw,
+                ...(vladivostokQuantityRaw ? { "Остаток Владивосток": vladivostokQuantityRaw } : {}),
+                ...(russianQuantityRaw ? { "Остаток Русская": russianQuantityRaw } : {}),
               }),
             });
             updated++;
@@ -558,15 +730,17 @@ ${entries
               continue;
             }
 
-            const code = readCsvCell(row[productCsvColumns.code]);
-            const groupRaw = readCsvCell(row[productCsvColumns.group]);
+            const code = readCsvCell(row[columns.code]);
+            const groupRaw = readCsvCell(row[columns.group]);
             const normalizedGroup = normalizeCategoryName(groupRaw);
             const categoryId = await resolveCategoryId(groupRaw);
 
             const importedAttributes: Record<string, unknown> = {};
             if (code) importedAttributes["Код"] = code;
             if (normalizedGroup) importedAttributes["Группа"] = normalizedGroup;
-            importedAttributes["Остаток"] = quantityRaw || "0";
+            importedAttributes["Остаток"] = quantityRaw;
+            if (vladivostokQuantityRaw) importedAttributes["Остаток Владивосток"] = vladivostokQuantityRaw;
+            if (russianQuantityRaw) importedAttributes["Остаток Русская"] = russianQuantityRaw;
 
             const newProduct: InsertProduct = {
               sku,
@@ -589,7 +763,7 @@ ${entries
 
       res.json({ message: "Импорт завершен", imported, updated, errors });
     } catch (e: any) {
-      res.status(400).json({ message: `Ошибка чтения CSV: ${e.message}` });
+      res.status(400).json({ message: `Ошибка чтения файла: ${e.message}` });
     }
   });
 
