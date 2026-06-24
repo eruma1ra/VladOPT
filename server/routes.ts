@@ -156,7 +156,7 @@ function findColumnByHeader(row: unknown[], labels: string[]): number {
   return row.findIndex((cell) => normalizedLabels.includes(normalizeHeaderCell(readCsvCell(cell))));
 }
 
-function detectProductImportColumns(rows: unknown[][]): ProductImportColumns {
+function detectProductImportColumns(rows: unknown[][]): ProductImportColumns | null {
   for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
     const row = rows[rowIndex] ?? [];
     const sku = findColumnByHeader(row, ["Артикул"]);
@@ -193,14 +193,7 @@ function detectProductImportColumns(rows: unknown[][]): ProductImportColumns {
     };
   }
 
-  return {
-    code: legacyProductCsvColumns.code,
-    group: legacyProductCsvColumns.group,
-    sku: legacyProductCsvColumns.sku,
-    name: legacyProductCsvColumns.name,
-    stockColumns: [legacyProductCsvColumns.quantity],
-    dataStartRowIndex: 0,
-  };
+  return null;
 }
 
 function isXlsxFile(file: Express.Multer.File): boolean {
@@ -219,13 +212,17 @@ async function parseProductImportRows(file: Express.Multer.File): Promise<unknow
     if (!worksheet) return [];
 
     const rows: unknown[][] = [];
-    worksheet.eachRow({ includeEmpty: true }, (worksheetRow, rowNumber) => {
+    const rowCount = Math.max(worksheet.rowCount, worksheet.actualRowCount);
+    const columnCount = Math.max(worksheet.columnCount, worksheet.actualColumnCount);
+
+    for (let rowNumber = 1; rowNumber <= rowCount; rowNumber++) {
+      const worksheetRow = worksheet.getRow(rowNumber);
       const row: unknown[] = [];
-      worksheetRow.eachCell({ includeEmpty: true }, (cell, columnNumber) => {
-        row[columnNumber - 1] = cell.text || (cell.value === null || cell.value === undefined ? "" : String(cell.value));
-      });
+      for (let columnNumber = 1; columnNumber <= columnCount; columnNumber++) {
+        row[columnNumber - 1] = readExcelCellValue(worksheetRow.getCell(columnNumber).value);
+      }
       rows[rowNumber - 1] = row;
-    });
+    }
 
     return rows;
   }
@@ -236,6 +233,27 @@ async function parseProductImportRows(file: Express.Multer.File): Promise<unknow
     relax_column_count: true,
     bom: true,
   });
+}
+
+function readExcelCellValue(value: ExcelJS.CellValue): string {
+  if (value === null || value === undefined) return "";
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value !== "object") return String(value);
+
+  if ("result" in value) {
+    return readExcelCellValue(value.result as ExcelJS.CellValue);
+  }
+  if ("text" in value) {
+    return readCsvCell(value.text);
+  }
+  if ("richText" in value && Array.isArray(value.richText)) {
+    return value.richText.map((part) => part.text ?? "").join("");
+  }
+  if ("hyperlink" in value && "text" in value) {
+    return readCsvCell(value.text);
+  }
+
+  return "";
 }
 
 function buildProductExportRows(products: Awaited<ReturnType<typeof storage.getProducts>>): string[][] {
@@ -644,6 +662,11 @@ ${entries
     try {
       const records = await parseProductImportRows(req.file);
       const columns = detectProductImportColumns(records);
+      if (!columns) {
+        return res.status(400).json({
+          message: "В файле не найдены колонки Артикул и Номенклатура",
+        });
+      }
 
       let imported = 0;
       let updated = 0;

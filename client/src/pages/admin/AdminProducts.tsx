@@ -255,19 +255,12 @@ export default function AdminProducts() {
           </div>
         </div>
         <div className="w-full xl:w-auto grid grid-cols-1 sm:grid-cols-2 xl:flex items-stretch gap-2">
-          <Button 
-            variant="outline" 
-            className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium w-full" 
-            onClick={() => window.open('/api/products/export')}
-          >
-            <FileDown className="w-4 h-4 mr-2" /> CSV
-          </Button>
           <Button
             variant="outline"
             className="rounded-lg h-10 px-4 bg-white border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-slate-700 font-medium w-full"
             onClick={() => window.open('/api/products/export?format=xlsx')}
           >
-            <FileDown className="w-4 h-4 mr-2" /> XLSX
+            <FileDown className="w-4 h-4 mr-2" /> Экспорт
           </Button>
           <div className="relative w-full">
             <input 
@@ -283,7 +276,7 @@ export default function AdminProducts() {
               disabled={importProducts.isPending}
             >
               <FileUp className="w-4 h-4 mr-2" />
-              {importProducts.isPending ? "Загрузка..." : "Импорт CSV/XLSX"}
+              {importProducts.isPending ? "Загрузка..." : "Импорт"}
             </Button>
           </div>
           <Button
