@@ -310,7 +310,7 @@ export default function AdminProducts() {
                 <TableHead className="font-bold py-4 text-slate-700">Остаток</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Статус</TableHead>
                 <TableHead className="font-bold py-4 text-slate-700">Главная</TableHead>
-                <TableHead className="text-right font-bold py-4 text-slate-700">Действия</TableHead>
+                <TableHead className="text-right font-bold py-4 text-slate-700 w-[132px]">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -340,22 +340,24 @@ export default function AdminProducts() {
                         {p.showOnHome ? "Показан" : "Скрыт"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        title={p.showOnHome ? "Убрать с главной" : "Поместить на главный экран"}
-                        className={p.showOnHome ? "text-primary hover:text-primary" : "text-slate-400 hover:text-primary transition-colors"}
-                        onClick={() => handleToggleHomeProduct(p)}
-                      >
-                        <House className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary transition-colors" onClick={() => { setEditingProduct(p); setIsDialogOpen(true); }}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive transition-colors" onClick={() => handleDelete(p.id)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <TableCell className="text-right w-[132px]">
+                      <div className="flex items-center justify-end gap-1 whitespace-nowrap">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title={p.showOnHome ? "Убрать с главной" : "Поместить на главный экран"}
+                          className={p.showOnHome ? "text-primary hover:text-primary flex-shrink-0" : "text-slate-400 hover:text-primary transition-colors flex-shrink-0"}
+                          onClick={() => handleToggleHomeProduct(p)}
+                        >
+                          <House className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-slate-400 hover:text-primary transition-colors flex-shrink-0" onClick={() => { setEditingProduct(p); setIsDialogOpen(true); }}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-slate-400 hover:text-destructive transition-colors flex-shrink-0" onClick={() => handleDelete(p.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
