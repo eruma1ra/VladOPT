@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { SeoHead } from "@/components/seo/SeoHead";
 import { ArrowLeft, ChevronLeft, ChevronRight, Loader2, Image as ImageIcon } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/image";
-import { formatProductStockQuantity, getProductStockQuantity } from "@/lib/product-stock";
 
 function parseReturnCategoryId(searchParams: string) {
   const rawCategoryId = new URLSearchParams(searchParams).get("categoryId");
@@ -195,7 +194,6 @@ export default function ProductDetail() {
     product.availability === "in_stock"
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock";
-  const stockQuantity = getProductStockQuantity(product.attributes);
   const productUrl = `${siteOrigin}/catalog/${product.id}`;
   const breadcrumbItems = [
     { name: "Главная", item: siteOrigin },
@@ -337,7 +335,7 @@ export default function ProductDetail() {
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 {product.availability === 'in_stock' && (
                   <Badge className="bg-green-500 hover:bg-green-600 shadow-sm border-none text-white font-medium">
-                    {stockQuantity !== null ? `В наличии: ${formatProductStockQuantity(stockQuantity)}` : "В наличии"}
+                    В наличии
                   </Badge>
                 )}
                 {product.availability !== 'in_stock' && (
